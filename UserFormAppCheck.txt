@@ -1,0 +1,76 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppCheck 
+   ClientHeight    =   2520
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormAppCheck.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppCheck"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+
+Private Sub CommandButton1_Click()
+    count = Sheets("Details").Range("G3")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AI" & count & ":AT" & count) = ""
+    Sheets("Datasheet").Range("BF" & count) = ""
+    Label1.Visible = False: CommandButton1.Visible = False
+    Call CopyPasteData(count, True, True)
+    Label1.Caption = ""
+    If Label2.Caption = "" Then Unload Me
+    CommandButton4.Caption = "Continue - Sealed Only"
+    If Not IsEmpty(Sheets("Details").Range("D14")) Then CommandButton4.Visible = True
+End Sub
+
+Private Sub CommandButton2_Click()
+    count = Sheets("Details").Range("G3")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AU" & count & ":BE" & count) = ""
+    Sheets("Datasheet").Range("BG" & count) = ""
+    Label2.Visible = False: CommandButton2.Visible = False
+    Call CopyPasteData(count, True, True)
+    Label2.Caption = ""
+    If Label1.Caption = "" Then Unload Me
+    CommandButton4.Caption = "Continue - Open Only"
+    If Not IsEmpty(Sheets("Details").Range("J14")) Then CommandButton4.Visible = True
+End Sub
+
+Private Sub CommandButton3_Click()
+    DRow = 1
+    Unload Me
+End Sub
+
+Private Sub CommandButton4_Click()
+    Unload Me
+End Sub
+
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Label1.Visible = False: CommandButton1.Visible = False
+    Label2.Visible = False: CommandButton2.Visible = False
+    CommandButton4.Visible = False
+    If Not IsEmpty(Sheets("Details").Range("D20")) And IsEmpty(Sheets("Details").Range("D32")) Then
+        Label1.Caption = "There is currently an application for a " & Sheets("Details").Range("D20").Value & " to the Sealed Sources Permit"
+        Label1.Visible = True: CommandButton1.Visible = True
+    End If
+    If Not IsEmpty(Sheets("Details").Range("J20")) And IsEmpty(Sheets("Details").Range("J32")) Then
+        Label2.Caption = "There is currently an application for a " & Sheets("Details").Range("J20").Value & " to the Open Sources Permit"
+        Label2.Visible = True: CommandButton2.Visible = True
+    End If
+    If Label1.Caption = "" Then
+        CommandButton4.Caption = "Continue - Sealed Only"
+        CommandButton4.Visible = True
+    End If
+    If Label2.Caption = "" Then
+        CommandButton4.Caption = "Continue - Open Only"
+        CommandButton4.Visible = True
+    End If
+End Sub
