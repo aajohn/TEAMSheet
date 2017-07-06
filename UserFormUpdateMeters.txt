@@ -1,0 +1,270 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormUpdateMeters 
+   ClientHeight    =   6420
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9915
+   OleObjectBlob   =   "UserFormUpdateMeters.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormUpdateMeters"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private Sub CommandButton1_Click()
+    Dim calDate As Date
+    Dim refCol As String
+    If Not TextBox1.Value = "" Then
+        calDate = Format(TextBox1.Value, "d/m/yyyy")
+        If calDate < Date Then
+            Call msg("Calibration Date", "Calibration Due Date must be in the future", 26)
+            Exit Sub
+        End If
+        check = Label8.Caption
+        If check Then refCol = "CF" Else refCol = "CN"
+        Call OpenData("tsds")
+        If CheckBox1 Then Range(refCol & "2") = calDate
+        If CheckBox2 Then Range(refCol & "3") = calDate
+        If CheckBox3 Then Range(refCol & "4") = calDate
+        If CheckBox4 Then Range(refCol & "5") = calDate
+        If CheckBox5 Then Range(refCol & "6") = calDate
+        If CheckBox6 Then Range(refCol & "7") = calDate
+        If CheckBox7 Then Range(refCol & "8") = calDate
+        If CheckBox8 Then Range(refCol & "9") = calDate
+        If CheckBox9 Then Range(refCol & "10") = calDate
+        If CheckBox10 Then Range(refCol & "11") = calDate
+        If CheckBox11 Then Range(refCol & "12") = calDate
+        If CheckBox12 Then Range(refCol & "13") = calDate
+        If CheckBox13 Then Range(reccol & "14") = calDate
+        If CheckBox14 Then Range(refCol & "15") = calDate
+        If CheckBox15 Then Range(refCol & "16") = calDate
+        'Call ReportInstruments - only when read/write to O drive is sorted
+        Call CloseData("tsds", True)
+        Call Instruments
+        Unload Me
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Dim refCol As String
+    Dim refCol2 As String
+    If Not ComboBox1.Value = "" Then
+        check = Label8.Caption
+        If check Then refCol = "CD" Else refCol = "CL"
+        If check Then refCol2 = "CE" Else refCol2 = "CM"
+        Call OpenData("tsds")
+        If CheckBox1 Then
+            Range(refCol & "2") = ComboBox1.Value
+            Range(refCol2 & "2") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox2 Then
+            Range(refCol & "3") = ComboBox1.Value
+            Range(refCol2 & "3") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox3 Then
+            Range(refCol & "4") = ComboBox1.Value
+            Range(refCol2 & "4") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox4 Then
+            Range(refCol & "5") = ComboBox1.Value
+            Range(refCol2 & "5") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox5 Then
+            Range(refCol & "6") = ComboBox1.Value
+            Range(refCol2 & "6") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox6 Then
+            Range(refCol & "7") = ComboBox1.Value
+            Range(refCol2 & "7") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox7 Then
+            Range(refCol & "8") = ComboBox1.Value
+            Range(refCol2 & "8") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox8 Then
+            Range(refCol & "9") = ComboBox1.Value
+            Range(refCol2 & "9") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox9 Then
+            Range(refCol & "10") = ComboBox1.Value
+            Range(refCol2 & "10") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox10 Then
+            Range(refCol & "11") = ComboBox1.Value
+            Range(refCol2 & "11") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox11 Then
+            Range(refCol & "12") = ComboBox1.Value
+            Range(refCol2 & "12") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox12 Then
+            Range(refCol & "13") = ComboBox1.Value
+            Range(refCol2 & "13") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox13 Then
+            Range(refCol & "14") = ComboBox1.Value
+            Range(refCol2 & "14") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox14 Then
+            Range(refCol & "15") = ComboBox1.Value
+            Range(refCol2 & "15") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        If CheckBox15 Then
+            Range(refCol & "16") = ComboBox1.Value
+            Range(refCol2 & "16") = ComboBox1.List(ComboBox1.ListIndex, 1)
+        End If
+        Call CloseData("tsds", True)
+        Call Instruments
+        Unload Me
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton4_Click()
+    If Label7.Caption = "False" Then
+        Call msg("Remove Instrument", "Please click 'Remove From List' a second time to confirm", 4)
+        Label7.Caption = "True"
+    Else
+        MsgBox "Remove"
+        'kill lines
+        Call Instruments
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton5_Click()
+    Dim refCol As String
+    If Not TextBox2.Value = "" Then
+        check = Label8.Caption
+        If check Then refCol = "CG" Else refCol = "CO"
+        Call OpenData("tsds")
+        If CheckBox1 Then Range(refCol & "2") = TextBox2.Value
+        If CheckBox2 Then Range(refCol & "3") = TextBox2.Value
+        If CheckBox3 Then Range(refCol & "4") = TextBox2.Value
+        If CheckBox4 Then Range(refCol & "5") = TextBox2.Value
+        If CheckBox5 Then Range(refCol & "6") = TextBox2.Value
+        If CheckBox6 Then Range(refCol & "7") = TextBox2.Value
+        If CheckBox7 Then Range(refCol & "8") = TextBox2.Value
+        If CheckBox8 Then Range(refCol & "9") = TextBox2.Value
+        If CheckBox9 Then Range(refCol & "10") = TextBox2.Value
+        If CheckBox10 Then Range(refCol & "11") = TextBox2.Value
+        If CheckBox11 Then Range(refCol & "12") = TextBox2.Value
+        If CheckBox12 Then Range(refCol & "13") = TextBox2.Value
+        If CheckBox13 Then Range(refCol & "14") = TextBox2.Value
+        If CheckBox14 Then Range(refCol & "15") = TextBox2.Value
+        If CheckBox15 Then Range(refCol & "16") = TextBox2.Value
+        Call CloseData("tsds", True)
+        Call Instruments
+        Unload Me
+    Else
+        Exit Sub
+    End If
+End Sub
+Sub FillVars(var As Boolean)
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Label8.Caption = var
+    If var Then Label4.Caption = "Update Dose Meters" Else Label4.Caption = "Update Survey Meters"
+    If var Then count = 4 Else count = 21
+    If Not Range("C" & count) = "" Then
+        CheckBox1.Caption = Range("C" & count) & " S/N " & Range("D" & count) & " - " & Range("F" & count) & vbLf & "    Calibration due " & Format(Range("H" & count), dmmmmyyyy)
+        If Not Range("I" & count) = "" Then CheckBox1.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox1.Visible = False
+    End If
+    If Not Range("C" & count + 1) = "" Then
+        CheckBox2.Caption = Range("C" & count + 1) & " S/N " & Range("D" & count + 1) & " - " & Range("F" & count + 1) & vbLf & "    Calibration due " & Format(Range("H" & count + 1), dmmmmyyyy)
+        If Not Range("I" & count + 1) = "" Then CheckBox2.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox2.Visible = False
+    End If
+    If Not Range("C" & count + 2) = "" Then
+        CheckBox3.Caption = Range("C" & count + 2) & " S/N " & Range("D" & count + 2) & " - " & Range("F" & count + 2) & vbLf & "    Calibration due " & Format(Range("H" & count + 2), dmmmmyyyy)
+        If Not Range("I" & count + 2) = "" Then CheckBox3.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox3.Visible = False
+    End If
+    If Not Range("C" & count + 3) = "" Then
+        CheckBox4.Caption = Range("C" & count + 3) & " S/N " & Range("D" & count + 3) & " - " & Range("F" & count + 3) & vbLf & "    Calibration due " & Format(Range("H" & count + 3), dmmmmyyyy)
+        If Not Range("I" & count + 3) = "" Then CheckBox4.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox4.Visible = False
+    End If
+    If Not Range("C" & count + 4) = "" Then
+        CheckBox5.Caption = Range("C" & count + 4) & " S/N " & Range("D" & count + 4) & " - " & Range("F" & count + 4) & vbLf & "    Calibration due " & Format(Range("H" & count + 4), dmmmmyyyy)
+        If Not Range("I" & count + 4) = "" Then CheckBox5.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox5.Visible = False
+    End If
+    If Not Range("C" & count + 5) = "" Then
+        CheckBox6.Caption = Range("C" & count + 5) & " S/N " & Range("D" & count + 5) & " - " & Range("F" & count + 5) & vbLf & "    Calibration due " & Format(Range("H" & count + 5), dmmmmyyyy)
+        If Not Range("I" & count + 5) = "" Then CheckBox6.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox6.Visible = False
+    End If
+    If Not Range("C" & count + 6) = "" Then
+        CheckBox7.Caption = Range("C" & count + 6) & " S/N " & Range("D" & count + 6) & " - " & Range("F" & count + 6) & vbLf & "    Calibration due " & Format(Range("H" & count + 6), dmmmmyyyy)
+        If Not Range("I" & count + 6) = "" Then CheckBox7.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox7.Visible = False
+    End If
+    If Not Range("C" & count + 7) = "" Then
+        CheckBox8.Caption = Range("C" & count + 7) & " S/N " & Range("D" & count + 7) & " - " & Range("F" & count + 7) & vbLf & "    Calibration due " & Format(Range("H" & count + 7), dmmmmyyyy)
+        If Not Range("I" & count + 7) = "" Then CheckBox8.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox8.Visible = False
+    End If
+    If Not Range("C" & count + 8) = "" Then
+        CheckBox9.Caption = Range("C" & count + 8) & " S/N " & Range("D" & count + 8) & " - " & Range("F" & count + 8) & vbLf & "    Calibration due " & Format(Range("H" & count + 8), dmmmmyyyy)
+        If Not Range("I" & count + 8) = "" Then CheckBox9.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox9.Visible = False
+    End If
+    If Not Range("C" & count + 9) = "" Then
+        CheckBox10.Caption = Range("C" & count + 9) & " S/N " & Range("D" & count + 9) & " - " & Range("F" & count + 9) & vbLf & "    Calibration due " & Format(Range("H" & count + 9), dmmmmyyyy)
+        If Not Range("I" & count + 9) = "" Then CheckBox10.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox10.Visible = False
+    End If
+    If Not Range("C" & count + 10) = "" Then
+        CheckBox11.Caption = Range("C" & count + 10) & " S/N " & Range("D" & count + 10) & " - " & Range("F" & count + 10) & vbLf & "    Calibration due " & Format(Range("H" & count + 10), dmmmmyyyy)
+        If Not Range("I" & count + 10) = "" Then CheckBox11.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox11.Visible = False
+    End If
+    If Not Range("C" & count + 11) = "" Then
+        CheckBox12.Caption = Range("C" & count + 11) & " S/N " & Range("D" & count + 11) & " - " & Range("F" & count + 11) & vbLf & "    Calibration due " & Format(Range("H" & count + 11), dmmmmyyyy)
+        If Not Range("I" & count + 11) = "" Then CheckBox12.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox12.Visible = False
+    End If
+    If Not Range("C" & count + 12) = "" Then
+        CheckBox13.Caption = Range("C" & count + 12) & " S/N " & Range("D" & count + 12) & " - " & Range("F" & count + 12) & vbLf & "    Calibration due " & Format(Range("H" & count + 12), dmmmmyyyy)
+        If Not Range("I" & count + 12) = "" Then CheckBox13.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox13.Visible = False
+    End If
+    If Not Range("C" & count + 13) = "" Then
+        CheckBox14.Caption = Range("C" & count + 13) & " S/N " & Range("D" & count + 13) & " - " & Range("F" & count + 13) & vbLf & "    Calibration due " & Format(Range("H" & count + 13), dmmmmyyyy)
+        If Not Range("I" & count + 13) = "" Then CheckBox14.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox14.Visible = False
+    End If
+    If Not Range("C" & count + 14) = "" Then
+        CheckBox15.Caption = Range("C" & count + 14) & " S/N " & Range("D" & count + 14) & " - " & Range("F" & count + 14) & vbLf & "    Calibration due " & Format(Range("H" & count + 14), dmmmmyyyy)
+        If Not Range("I" & count + 14) = "" Then CheckBox15.ForeColor = RGB(255, 0, 0)
+    Else
+        CheckBox15.Visible = False
+    End If
+    ComboBox1.ColumnCount = 2
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ComboBox1.AddItem
+        ComboBox1.List(count, 0) = Sheets("LookUp").Range("C" & count + 3)
+        ComboBox1.List(count, 1) = Sheets("LookUp").Range("E" & count + 3)
+    Next count
+End Sub

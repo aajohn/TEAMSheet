@@ -1,0 +1,84 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormPhoto 
+   ClientHeight    =   6030
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormPhoto.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormPhoto"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    If check Then Call Log_Photo(False)
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    FVar = FVar - 1
+    Call Load_Photo
+End Sub
+Private Sub CommandButton4_Click()
+    Call Log_Photo(True)
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image16.jpg")
+    FVar = 0
+    Call Load_Photo
+End Sub
+Private Sub Load_Photo()
+    Dim Fname As String
+    Fname = Application.GetOpenFilename("All Files (*.jpg), *.jpg")
+    If Fname <> "False" Then
+        FVar = FVar + 1
+        ActiveSheet.Unprotect
+        Image2.Picture = LoadPicture(Fname)
+        ActiveSheet.Pictures.Insert(Fname).Select
+        Selection.Cut
+        ActiveSheet.Protect
+        TextBox1.Value = "Photo " & FVar & " - "
+        check = True
+    End If
+End Sub
+Private Sub Log_Photo(check)
+    Fname = Epsilon & "Documents\Others\Blank Photo Log.doc"
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\Photo Log " & Left(Range("D5"), 5)
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    wdApp.Visible = False
+    If FVar = 1 Then
+        Set wdDoc = wdApp.Documents.Open(Fname)
+        wdDoc.Bookmarks("P").Range.text = Range("D3") & " " & Range("D5")
+    Else
+        Set wdDoc = wdApp.Documents.Open(fName2)
+    End If
+    With wdApp.Selection
+        .EndKey Unit:=6
+        .typeparagraph
+        .TypeText text:=TextBox1.Value
+        .typeparagraph
+    End With
+    With wdApp.Selection '**can this not go in above with
+        .Paste
+    End With
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    Drafts = True
+    check = False
+    Set wdDoc = Nothing
+    Set wdApp = Nothing
+    If check Then Call Load_Photo
+End Sub

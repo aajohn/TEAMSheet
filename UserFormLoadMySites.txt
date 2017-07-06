@@ -1,0 +1,72 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadMySites 
+   Caption         =   "UserForm1"
+   ClientHeight    =   1980
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadMySites.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadMySites"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim insp As String
+    Dim listrow As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    Application.ScreenUpdating = False
+    If Iota = 0 Then
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+            v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+            If InStr(UCase(Environ("USERNAME")), v1) Then
+                Iota = count
+                Exit For
+            End If
+            If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+                Iota = count
+                Exit For
+            End If
+        Next count
+    End If
+    insp = Sheets("LookUp").Range("C" & Iota)
+    If Hour(Now()) < 12 Then
+        Range("C4") = "Good Morning " & insp
+    Else
+        Range("C4") = "Good Afternoon " & insp
+    End If
+    Call OpenData("tsds")
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("MySites").Select
+    wBook = "tsds.xls"
+    count2 = 1
+    For count = 2 To Lambda
+        If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" And Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = insp Then
+            Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count) & " " & Workbooks(wBook).Sheets("Datasheet").Range("C" & count) & " " & Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+            count2 = count2 + 1
+        End If
+    Next count
+    'listrow = "=R1C27:R" & (count2 - 1) & "C29"
+    'ActiveWorkbook.Names.Add Name:="ListA", RefersToR1C1:="=R1C27:R" & (count2 - 1) & "C29"
+    'ActiveSheet.ListBox1.Activate
+    'ActiveSheet.ListBox2.Activate
+    'ActiveSheet.ListBox2.Select
+    '.ListFillRange = Range("AA1:AC" & count2)
+
+    Call CloseData("tsds", False)
+    'ActiveSheet.ListBox2.Activate
+    ListBox2.List = "$AA$1:$AA$" & (count2 - 1)
+
+    'Worksheets("MySites").ScrollArea = "A1:P28"
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub
+

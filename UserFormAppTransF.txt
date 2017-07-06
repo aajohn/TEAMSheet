@@ -1,0 +1,78 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppTransF 
+   ClientHeight    =   3630
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5505
+   OleObjectBlob   =   "UserFormAppTransF.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppTransF"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    If TextBox1.Value = "" Then Exit Sub
+    If TextBox2.Value = "" Then Exit Sub
+    If TextBox3.Value = "" Then Exit Sub
+    TextBox1.Value = UCase(TextBox1.Value)
+    If IsNumeric(Left(TextBox1.Value, 1)) Then TextBox1.Value = Sheets("LookUp").Range("A2") & TextBox1.Value
+    If Left(TextBox1.Value, 1) = Sheets("LookUp").Range("A2") Then
+        Call dataRow(TextBox1.Value)
+        Call CloseData("tsds", False)
+        If Not DRow = 0 Then
+            Call msg("Site Code", "The Site Code (" & TextBox1.Value & ") is already used", 26)
+            TextBox1.Value = ""
+            Exit Sub
+        End If
+        Application.ScreenUpdating = False
+        v1 = False: v2 = False
+        If Not Range("D20") = "" Then v1 = True
+        If Not Range("J20") = "" Then v2 = True
+        Call Log("transfered to " & TextBox1.Value, v1, v2)
+        DRow = Sheets("Details").Range("G3").Value
+        OpenData ("tsds")
+        Lambda = Lambda + 1
+        Range("A" & DRow & ":BZ" & DRow).Select
+        Selection.Copy
+        Range("A" & Lambda).Select
+        ActiveSheet.Paste
+        Range("A" & Lambda) = TextBox1.Value
+        Range("C" & Lambda) = UCase(TextBox2.Value)
+        Range("H" & Lambda) = Application.Proper(TextBox3.Value)
+        Range("I" & Lambda) = TextBox4.Value
+        Range("B" & DRow) = ""
+        Range("E" & DRow & ":BZ" & DRow) = ""
+        Range("Y" & DRow) = "Blank"
+        Range("BH" & DRow) = "transfered to " & TextBox1.Value
+        Call CopyPasteData(Lambda, True, True)
+        Application.ScreenUpdating = False
+        Call Log("transfered from " & Right(Label6.Caption, Len(Label6.Caption) - 18), v1, v2)
+        Unload Me
+    Else
+        '** not valid site code
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Dim appIE As Object
+    If TextBox4.Value = "" Then Exit Sub
+    Set appIE = CreateObject("InternetExplorer.application")
+    appIE.Visible = True
+    appIE.Navigate "http://wck2.companieshouse.gov.uk/09b4166866a5bdbdaddeafe600503116/wcframe?name=accessCompanyInfo"
+    Do While appIE.Busy: Loop
+    appIE.Document.getElementById("cnumb").Value = TextBox4.Value
+    DoEvents: Call SendKeys("{tab}")
+    DoEvents: Call SendKeys("{tab}")
+    DoEvents: Call SendKeys("{enter}")
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Label6.Caption = "Current Site Code " & Range("D3")
+End Sub

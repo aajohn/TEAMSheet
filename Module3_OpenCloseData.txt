@@ -1,0 +1,117 @@
+Attribute VB_Name = "Module3_OpenCloseData"
+Option Explicit
+
+Sub OpenData(fileName As String)
+    Dim Try As Integer
+    Dim var As String
+    Try = 0
+    If WorkbookIsOpen(fileName & ".xls") = False Then
+        Application.ScreenUpdating = False
+        Application.Cursor = xlWait
+        
+        If Alpha = "" Then
+            Sheets("Details").Select
+            ActiveSheet.Unprotect
+            Alpha = Range("A100")
+            Beta = Range("A101")
+            Delta = Range("A102")
+            Range("A100:A102") = ""
+            ActiveSheet.Protect
+        End If
+        
+        Application.DisplayAlerts = False
+        
+        On Error GoTo ErrHandler:
+        
+        LogFileName = Delta & "tsopn.Log"
+        fileNum = FreeFile
+start:
+        If Not Dir(LogFileName, vbDirectory) = vbNullString Then
+            Application.Wait (Now + TimeValue("0:00:3"))
+            If Try < 3 Then
+                Try = Try + 1
+                GoTo start
+            Else
+                Application.Cursor = xlNormal
+                UserFormMessageDSlocked.Show
+                If Theta Then
+                    Kill LogFileName
+                    GoTo start
+                Else
+                    Application.DisplayAlerts = False
+                    Drafts = False
+                    Call RSRExit
+                End If
+            End If
+        Else
+            Workbooks.Open fileName:=Delta & fileName & ".xls", Password:=Alpha
+            Open LogFileName For Append As #fileNum
+            Print #fileNum, VBA.UCase(VBA.Environ("USERNAME")) & "  (" & VBA.Format(VBA.Date, "d mmm yyyy") & " " & VBA.Format(VBA.Time, "hh:mm:ss") & ")"
+            Close #fileNum
+            On Error GoTo 0
+        End If
+        
+        If fileName = "tsds" Then
+            Sheets("Dose Current").Visible = True
+            Sheets("Dose Last").Visible = True
+            Sheets("Temp Sites").Visible = True
+            If Lambda = 0 Then Lambda = Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row
+        End If
+        
+        Sheets("Datasheet").Visible = True
+        Sheets("Datasheet").Select
+    End If
+Exit Sub
+
+ErrHandler:
+    If err.Number = "1004" Then
+        Call msg("Unable to load datafiles", "Either your PIN was incorrect or datafiles are missing." & vbLf & vbLf & "RSR TEAMSheet will now close.", 26)
+        Application.DisplayAlerts = False
+        Drafts = False
+        Call RSRExit
+    Else
+        Call msg("Error loading Datafile", fileName & " " & err.Number & vbLf & err.Description, 26)
+        Try = Try + 1
+        Application.Wait (Now + TimeValue("0:00:5"))
+        If Try < 3 Then Resume Next
+    End If
+    
+End Sub
+
+Sub CloseData(fileName As String, check)
+    If WorkbookIsOpen(fileName & ".xls") = True Then
+        Windows(fileName & ".xls").Activate
+        If check Then
+        
+            If fileName = "tsds" Then
+                Sheets("Dose Current").Visible = 2
+                Sheets("Dose Last").Visible = 2
+                Sheets("Temp Sites").Visible = 2
+            End If
+            
+            Sheets("Datasheet").Visible = 2
+            ActiveWorkbook.Password = Alpha
+            ActiveWorkbook.Save
+        End If
+        
+        Application.DisplayAlerts = False
+        ActiveWorkbook.Close
+        LogFileName = Delta & "tsopn.Log"
+        On Error Resume Next
+        Kill LogFileName
+        On Error GoTo 0
+        Application.Cursor = xlNormal
+    End If
+End Sub
+
+Private Function WorkbookIsOpen(wbname) As Boolean
+    '   Returns TRUE if the workbook is open
+    Dim WB As Workbook
+    On Error Resume Next
+    Set WB = Workbooks(wbname)
+    If err = 0 Then WorkbookIsOpen = True Else: WorkbookIsOpen = False
+End Function
+
+Sub LoadDocs()
+    Epsilon = "O:\RSR TEAMSheet\"
+End Sub

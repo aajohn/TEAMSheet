@@ -1,0 +1,80 @@
+Attribute VB_Name = "Module4_Letters"
+Option Explicit
+
+Sub CreateLetter(TemplateFile, SendTo, From, L1, L2, L3, L4, L5, L6, L7, L8, Marker)
+    Dim OurRef, Office, AgencyAddress, From2, From3, From4
+    If Epsilon = "" Then Call LoadDocs
+    Fname = Epsilon & "Documents\" & TemplateFile & ".doc"
+    If TemplateFile = "Blank RASCAR Letter" Then Fname = Epsilon & "Documents\" & TemplateFile & ".docx"
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\" & "Ltr " & SendTo & " " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+    check = True: count = 0: From2 = "": From3 = "": From4 = "": AgencyAddress = ""
+    'from = true is T/L
+    If From Then
+        count = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        From = Sheets("LookUp").Range("C" & count)
+    Else
+        From = Sheets("LookUp").Range("C" & Iota)
+        count = Iota
+    End If
+    AgencyAddress = Sheets("LookUp").Range("B" & count)
+    From3 = From & vbLf & Sheets("LookUp").Range("D" & count)
+    For count2 = 1 To Len(From3)
+        From2 = Mid(From3, count2, 1)
+        If From2 = "," Then From2 = vbLf
+        From4 = From4 + From2
+    Next
+    If SendTo = 1 Then
+        Address = Replace(Range("D6"), ",", vbLf)
+        Address = " " & Range("D5") & vbLf & " " & Address & vbLf & vbLf & "For the attention of " & Range("D7")
+    End If
+    If SendTo = 2 Then
+        Address = Replace(Range("J6"), ",", vbLf)
+        Address = " " & Range("D5") & vbLf & " " & Address & vbLf & vbLf & "For the attention of the Company Secretary"
+    End If
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    If Not Range("D15") = "" Then
+        OurRef = Range("D15") & " & "
+    Else
+        If Not Range("D16") = "" Then OurRef = Range("D16") & " & "
+        If Not Range("D17") = "" Then OurRef = OurRef & Range("D17") & " & "
+        If Not Range("D18") = "" Then OurRef = OurRef & Range("D18") & " & "
+        If Not Range("F16") = "" Then OurRef = OurRef & Range("F16") & " & "
+        If Not Range("F17") = "" Then OurRef = OurRef & Range("F17") & " & "
+        If Not Range("F18") = "" Then OurRef = OurRef & Range("F18") & " & "
+    End If
+    If Not Range("J15") = "" Then
+        OurRef = OurRef & Range("J15") & " & "
+    Else
+        If Not Range("J17") = "" Then OurRef = OurRef & Range("J17") & " & "
+        If Not Range("J18") = "" Then OurRef = OurRef & Range("J18") & " & "
+    End If
+    OurRef = Mid(OurRef, 1, Len(OurRef) - 3)
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdApp.Visible = False
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = From4
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    If Not L1 = "" Then wdDoc.Bookmarks("L1").Range.text = L1
+    If Not L2 = "" Then wdDoc.Bookmarks("L2").Range.text = L2
+    If Not L3 = "" Then wdDoc.Bookmarks("L3").Range.text = L3
+    If Not L4 = "" Then wdDoc.Bookmarks("L4").Range.text = L4
+    If Not L5 = "" Then wdDoc.Bookmarks("L5").Range.text = L5
+    If Not L6 = "" Then wdDoc.Bookmarks("L6").Range.text = L6
+    If Not L7 = "" Then wdDoc.Bookmarks("L7").Range.text = L7
+    If Not L8 = "" Then wdDoc.Bookmarks("L8").Range.text = L8
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    If Marker Then
+        wdApp.Quit
+        Set wdApp = Nothing
+    End If
+    Drafts = True
+    Set wdDoc = Nothing
+End Sub

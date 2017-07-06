@@ -1,0 +1,59 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet6"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+Sub UpdateDoseMeters()
+    Load UserFormUpdateMeters
+    Call UserFormUpdateMeters.FillVars("True")
+    UserFormUpdateMeters.Show
+    Application.ScreenUpdating = False
+End Sub
+Sub UpdateServeyMeters()
+    Load UserFormUpdateMeters
+    Call UserFormUpdateMeters.FillVars("False")
+    UserFormUpdateMeters.Show
+    Application.ScreenUpdating = False
+End Sub
+Sub InstrumentCalList()
+    Dim objexcel As New Excel.Application
+    Fname = "H:\RSR TEAMSheet\Temporary Drafts\Calibration Due List.xls"
+    Application.ScreenUpdating = False
+    Workbooks.Add
+    Application.DisplayAlerts = False
+    ActiveWorkbook.SaveAs fileName:=Fname
+    Application.DisplayAlerts = True
+    Windows("RSR TEAMSheet.xlsm").Activate
+    ActiveSheet.Unprotect
+    Range("C3:D35,G3:I35").Select
+    Selection.Copy
+    Windows("Calibration Due List.xls").Activate
+    Sheets(1).Range("A3").Select
+    Selection.PasteSpecial Paste:=xlPasteValues
+    Sheets(1).Range("A2") = "Dose Meters"
+    Sheets(1).Range("A19") = "Survey Meters"
+    Sheets(1).Range("A1") = "RSR Instruments Due For Calibration - Generated " & Format(Date, "dd mmmm yyyy")
+    Sheets(1).Columns("A:A").Select
+    Selection.ColumnWidth = 25
+    Sheets(1).Columns("B:C").ColumnWidth = 12
+    Sheets(1).Columns("D:D").Select
+    Selection.NumberFormat = "d mmmm yyyy"
+    Selection.ColumnWidth = 20
+    Sheets(1).Range("A1").Select
+    ActiveWorkbook.Save
+    ActiveWorkbook.Close
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Instruments").Range("A3").Select
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Call msg("", "Calibration Due List has been created and saved to your RSR Temporary Drafts", 13)
+    Drafts = True
+End Sub
+Sub EPDManual()
+    ActiveWorkbook.FollowHyperlink "O:\RSR TEAMSheet\Documents\Others\Thermo_EPD.pdf"
+End Sub

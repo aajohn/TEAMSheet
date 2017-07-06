@@ -1,0 +1,139 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormTempSite 
+   ClientHeight    =   5820
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9510
+   OleObjectBlob   =   "UserFormTempSite.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormTempSite"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Public tempCode As String
+Private Sub CommandButton1_Click()
+    If ComboBox1.Value = "" Then
+        ComboBox1.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If ComboBox2.Value = "" Then
+        ComboBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If ComboBox3.Value = "" Then
+        ComboBox3.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox2.Value = "" Then
+        TextBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox6.Value = "" Then
+        TextBox6.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox7.Value = "" Then
+        TextBox7.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox8.Value = "" Then
+        TextBox8.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox10.Value = "" Then
+        TextBox10.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If TextBox14.Value = "" Then
+        TextBox14.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    If Not TextBox2.Value = "" Then
+        Addr = Application.Proper(TextBox2.Value) & ", "
+    End If
+    If Not TextBox3.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox3.Value) & ", "
+    End If
+    If Not TextBox4.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox4.Value) & ", "
+    End If
+    If Not TextBox5.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox5.Value) & ", "
+    End If
+    If Not TextBox6.Value = "" Then
+        Addr = Addr & UCase(TextBox6.Value) & ", "
+    End If
+    Addr = Left(Addr, Len(Addr) - 2)
+    If Not TextBox14.Value = "" Then
+        Addr2 = Application.Proper(TextBox14.Value) & ", "
+    End If
+    If Not TextBox13.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox13.Value) & ", "
+    End If
+    If Not TextBox12.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox12.Value) & ", "
+    End If
+    If Not TextBox11.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox11.Value) & ", "
+    End If
+    If Not TextBox10.Value = "" Then
+        Addr2 = Addr2 & UCase(TextBox10.Value) & ", "
+    End If
+    Addr2 = Left(Addr2, Len(Addr2) - 2)
+    'If Label21.Caption = "" Then Call CheckPostcode
+    Call OpenData("tsds")
+    Sheets("Temp Sites").Select
+    lastrow = Sheets("Temp Sites").Cells(Rows.count, "A").End(xlUp).Row + 1
+    Range("A" & lastrow) = tempCode
+    Range("B" & lastrow) = ComboBox1.Value
+    Range("C" & lastrow) = UCase(TextBox18.Value)
+    Range("D" & lastrow) = Addr
+    Range("E" & lastrow) = Application.Proper(TextBox7.Value)
+    Range("F" & lastrow) = TextBox8.Value
+    Range("G" & lastrow) = TextBox9.Value
+    Range("H" & lastrow) = Addr2
+    Range("I" & lastrow) = TextBox15.Value
+    Range("J" & lastrow) = ComboBox2.Value
+    'Range("BM" & lastrow) = result(1)
+    'Range("BN" & lastrow) = result(2)
+    Range("X" & lastrow) = ComboBox3.Value
+    Range("A2:BZ" & lastrow).Select
+    Selection.Sort Key1:=Range("C2"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    Range("A1") = Range("A1") + 1
+    'Call dataRow(TextBox1.Value)
+    'Call CopyPasteData(DRow, True, True)
+    Call CloseData("tsds", True)
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    count = 0: check = False
+    Do
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("A" & count + 3)
+        count = count + 1
+        If Sheets("LookUp").Range("A" & count + 3).Value = "" Then check = True
+    Loop Until check = True
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row - 3
+        ComboBox2.AddItem
+        ComboBox2.List(count) = Sheets("LookUp").Range("H" & count + 3)
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ComboBox3.AddItem
+        ComboBox3.List(count) = Sheets("LookUp").Range("C" & count + 3)
+    Next count
+    Call OpenData("tsds")
+    If Sheets("Temp Sites").Range("A1") = "" Then Sheets("Temp Sites").Range("A1") = "1"
+    tempCode = Sheets("Temp Sites").Range("A1")
+    Call CloseData("tsds", True)
+    tempCode = "Z" & tempCode & Sheets("LookUp").Range("A2")
+    Label1.Caption = "Temporary Site Code " & tempCode
+End Sub

@@ -1,0 +1,182 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormFileLabel 
+   ClientHeight    =   6825
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   7605
+   OleObjectBlob   =   "UserFormFileLabel.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormFileLabel"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private Sub CommandButton1_Click()
+    Dim Permit As String, Region As String
+    Dim pType As String, pMark As String
+    Dim formatVar As Integer
+    If Epsilon = "" Then Call LoadDocs
+    If OptionButton1 Then
+        Fname = Epsilon & "Documents\Others\Blank File Label.doc"
+    Else
+        'fName = Epsilon & "Documents\Others\Blank File Label2.doc"
+        MsgBox "under developemnt"
+        Exit Sub
+    End If
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\" & "Label " & Left(Range("D5"), 5)
+#If VBA6 Then
+    Address = Replace(Range("D6"), ",", vbLf)
+#Else
+    Address = Application.Substitute(Range("D6"), ",", vbLf)
+#End If
+    Address = " " & Address
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    If Not Range("D15") = "" Then
+        Permit = Range("D15") & " & "
+    Else
+        If Not Range("D16") = "" Then Permit = Range("D16") & " & "
+        If Not Range("D17") = "" Then Permit = Permit & Range("D17") & " & "
+        If Not Range("D18") = "" Then Permit = Permit & Range("D18") & " & "
+        If Not Range("F16") = "" Then Permit = Permit & Range("F16") & " & "
+        If Not Range("F17") = "" Then Permit = Permit & Range("F17") & " & "
+        If Not Range("F18") = "" Then Permit = Permit & Range("F18") & " & "
+    End If
+    If Not Range("J15") = "" Then
+        Permit = Permit & Range("J15") & " & "
+    Else
+        If Not Range("J17") = "" Then Permit = Permit & Range("J17") & " & "
+        If Not Range("J18") = "" Then Permit = Permit & Range("J18") & " & "
+    End If
+    Permit = Mid(Permit, 1, Len(Permit) - 3)
+    Region = Sheets("LookUp").Range("A2")
+    If OptionButton3.Value = True Then pType = OptionButton3.Caption
+    If OptionButton4.Value = True Then pType = OptionButton4.Caption
+    If OptionButton5.Value = True Then pType = OptionButton5.Caption
+    If OptionButton6.Value = True Then pType = OptionButton6.Caption
+    If OptionButton7.Value = True Then pType = OptionButton7.Caption
+    If OptionButton8.Value = True Then pType = OptionButton8.Caption
+    If OptionButton9.Value = True Then pType = OptionButton9.Caption
+    If OptionButton10.Value = True Then pType = OptionButton10.Caption
+    If OptionButton11.Value = True Then pType = OptionButton11.Caption
+    If OptionButton12.Value = True Then pMark = OptionButton12.Caption
+    If OptionButton13.Value = True Then pMark = OptionButton13.Caption
+    If OptionButton14.Value = True Then pMark = OptionButton14.Caption
+    If OptionButton15.Value = True Then pMark = OptionButton15.Caption
+    If OptionButton16.Value = True Then pMark = OptionButton16.Caption
+    'temp sites Z
+    If Region = "W" Then Region = "North West"
+    If Region = "E" Then Region = "Yorkshire & North East"
+    If Region = "A" Then Region = "Anglian"
+    If Region = "M" Then Region = "Midlands"
+    If Region = "C" Then Region = "South West"
+    If Region = "T" Then Region = "South East"
+    If Region = "S" Then Region = "South East"
+    For formatVar = 3 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row
+        If Sheets("LookUp").Range("H" & formatVar) = Range("D10") Then Exit For
+    Next
+    formatVar = formatVar - 2
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdApp.Visible = False
+    wdDoc.Bookmarks("Region").Range.text = Region
+    wdDoc.Bookmarks("Area").Range.text = Range("D4")
+    wdDoc.Bookmarks("LA").Range.text = Range("D10")
+    wdDoc.Tables(1).Cell(2, 3).Range.Select
+    wdApp.Run "Macro1", formatVar
+    wdDoc.Bookmarks("Operator").Range.text = Range("D5")
+    wdDoc.Bookmarks("Op1").Range.text = UCase(Left(Range("D5"), 1))
+    wdDoc.Tables(1).Cell(8, 6).Range.Select
+    wdApp.Run "Macro1", Asc(UCase(Left(Range("D5"), 1))) - 64
+    wdDoc.Bookmarks("Op2").Range.text = UCase(Mid(Range("D5"), 2, 1))
+    wdDoc.Tables(1).Cell(8, 7).Range.Select
+    wdApp.Run "Macro1", Asc(UCase(Mid(Range("D5"), 2, 1))) - 64
+    wdDoc.Bookmarks("Op3").Range.text = UCase(Mid(Range("D5"), 3, 1))
+    wdDoc.Tables(1).Cell(8, 8).Range.Select
+    wdApp.Run "Macro1", Asc(UCase(Mid(Range("D5"), 3, 1))) - 64
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("Label1").Range.text = Range("D5")
+    wdDoc.Bookmarks("Label2").Range.text = Range("D6")
+    wdDoc.Bookmarks("SiteCode").Range.text = Range("D3")
+    wdDoc.Bookmarks("SiteCode2").Range.text = Range("D3")
+    wdDoc.Bookmarks("Permit").Range.text = Permit
+    wdDoc.Bookmarks("Part").Range.text = SpinButton1.Value
+    wdDoc.Bookmarks("Type").Range.text = pType
+    wdDoc.Bookmarks("Mark").Range.text = pMark
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub OptionButton3_Click()
+    If OptionButton3.Value = True Then OptionButton14.Value = True
+    OptionButton12.Visible = False
+End Sub
+Private Sub OptionButton4_Click()
+    If OptionButton4.Value = True Then OptionButton14.Value = True
+    OptionButton12.Visible = False
+End Sub
+Private Sub OptionButton5_Click()
+    If OptionButton5.Value = True Then OptionButton14.Value = True
+    OptionButton12.Visible = False
+End Sub
+Private Sub OptionButton6_Click()
+    If OptionButton6.Value = True Then OptionButton14.Value = True
+    OptionButton12.Visible = False
+End Sub
+Private Sub OptionButton7_Click()
+    If OptionButton7.Value = True Then OptionButton14.Value = True
+    OptionButton12.Visible = False
+End Sub
+Private Sub OptionButton8_Click()
+    If OptionButton8.Value = True Then OptionButton12.Value = True
+    OptionButton12.Visible = True
+End Sub
+Private Sub OptionButton9_Click()
+    If OptionButton9.Value = True Then OptionButton12.Value = True
+    OptionButton12.Visible = True
+End Sub
+Private Sub OptionButton10_Click()
+    If OptionButton10.Value = True Then OptionButton12.Value = True
+    OptionButton12.Visible = True
+End Sub
+Private Sub OptionButton11_Click()
+    If OptionButton11.Value = True Then OptionButton12.Value = True
+    OptionButton12.Visible = True
+End Sub
+Private Sub SpinButton1_SpinUp()
+    Label2.Caption = "File Part Number " & SpinButton1.Value
+End Sub
+Private Sub SpinButton1_SpinDown()
+    Label2.Caption = "File Part Number " & SpinButton1.Value
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Image2.Picture = LoadPicture(Epsilon & "Documents\tsimgF.jpg")
+    Label2.Caption = "File Part Number " & SpinButton1.Value
+    If Not IsEmpty(Range("D15:D18,F16:F18")) Then Frame1.Visible = True
+    If Not IsEmpty(Range("J15,J17:J18")) Then Frame2.Visible = True
+    If Not IsEmpty(Range("D15:D18,F16:F18")) And IsEmpty(Range("J15,J17:J18")) Then
+        OptionButton12.Visible = False
+        OptionButton14.Value = True
+    End If
+    If IsEmpty(Range("D15:D18,F16:F18")) And Not IsEmpty(Range("J15,J17:J18")) Then
+        OptionButton12.Value = True
+    End If
+    If Not IsEmpty(Range("D15:D18,F16:F18")) And Not IsEmpty(Range("J15,J17:J18")) Then
+        OptionButton4.Value = False
+        OptionButton10.Value = False
+    End If
+End Sub

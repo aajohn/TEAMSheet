@@ -1,0 +1,333 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadInspections 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadInspections.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadInspections"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim qDate As String, iDate As String
+    Dim qFstDay As String, qLstDay As String
+    Dim qADate As String, qRDate As String
+    Dim insp As String
+    Dim rowR As Integer, rowA As Integer, rowB As Integer, rowG As Integer, rowBG As Integer, rowL As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    If Iota = 0 Then
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+            v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+            If InStr(UCase(Environ("USERNAME")), v1) Then
+                Iota = count
+                Exit For
+            End If
+            If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+                Iota = count
+                Exit For
+            End If
+        Next count
+    End If
+    insp = Sheets("LookUp").Range("C" & Iota)
+    Range("A21:AC500") = ""
+    rowR = 23
+    rowA = 221
+    rowB = 421
+    rowG = 621
+    rowL = 1021
+    '***********************************
+    qDate = Format(DateAdd("q", -1, Date), "q yyyy")
+    qFstDay = DateSerial(Year(Date), Int((Month(Date) - 1) / 3) * 3 + 1, 1)
+    qLstDay = DateSerial(Year(Date), Int((Month(Date) - 1) / 3) * 3 + (3 + 1), 0)
+    qADate = Format(DateAdd("q", -2, Date), "q yyyy")
+    qRDate = Format(DateAdd("q", -3, Date), "q yyyy")
+    Range("Q16") = "Inspection Due This Quarter" & vbLf & "(Qtr " & Left(qDate, 1) & " " & Format(qFstDay, "mmm") & " - " & Format(qLstDay, "mmm yyyy") & ")"
+    Range("J16") = "Inspection Due Last Quarter" & vbLf & "(Qtr " & qADate & "/" & Format(DateAdd("q", 4, qADate), "yy") & ")"
+    qDate = Format(DateAdd("q", -2, Date), "q yyyy")
+    '************************************
+    ActiveSheet.Unprotect
+    Call OpenData("tsds")
+    wBook = "tsds.xls"
+    Sheets("Datasheet").Select
+    count = Application.CountA(Columns("BH"))
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Inspections").Select
+    count2 = Lambda - count
+    Range("B18") = count2
+    Range("S6") = 0
+    Range("V6") = 0
+    Range("Y12") = 0
+    Range("F19") = 0
+    Range("L19") = 0
+    Range("S19") = 0
+    Range("Y19") = 0
+    Range("AF19") = 0
+    For count = 2 To Lambda
+        If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+            If Not Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) = "Reactive" Then
+                If Workbooks(wBook).Sheets("Datasheet").Range("AA" & count) = "" Then
+                    Range("B" & rowR) = "missing"
+                    Range("D" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                    Range("E" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                    Range("G" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                    Range("S" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                    Range("X" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                    Range("AC" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                    rowR = rowR + 1
+                    If Range("X" & rowR) = insp Then Range("F19") = Range("F19") + 1
+                    If Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) > 0 And Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) < 3 And Not Workbooks(wBook).Sheets("Datasheet").Range("Z" & count) = "New Operator" Then Range("V6") = Range("V6") + 1
+                End If
+                If InStr(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), "Due") > 0 Then
+                    check = False
+                    If Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4) < Right(qDate, 4) Then check = True
+                    If Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4) = Right(qDate, 4) And Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1) < Left(qDate, 1) Then check = True
+                    If check Then
+                        Range("B" & rowR) = Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4)
+                        Range("C" & rowR) = Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1)
+                        Range("D" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                        Range("E" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                        Range("G" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                        Range("S" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                        Range("X" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                        Range("AC" & rowR) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                        If Range("X" & rowR) = insp Then Range("F19") = Range("F19") + 1
+                        rowR = rowR + 1
+                        If Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) > 0 And Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) < 3 Then Range("V6") = Range("V6") + 1
+                    End If
+                    If Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4) = Right(qDate, 4) And Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1) = Left(qDate, 1) Then
+                        Range("B" & rowA) = Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4)
+                        Range("C" & rowA) = Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1)
+                        Range("D" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                        Range("E" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                        Range("G" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                        Range("S" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                        Range("X" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                        Range("AC" & rowA) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                        If Range("X" & rowA) = insp Then Range("L19") = Range("L19") + 1
+                        rowA = rowA + 1
+                        If Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) > 0 And Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) < 3 And Not Workbooks(wBook).Sheets("Datasheet").Range("Z" & count) = "New Operator" Then Range("Y12") = Range("Y12") + 1
+                    End If
+                    If Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 6) = Format(DateAdd("q", -1, Date), "q yyyy") Then
+                        Range("B" & rowB) = Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4)
+                        Range("C" & rowB) = Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1)
+                        Range("D" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                        Range("E" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                        Range("G" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                        Range("S" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                        Range("X" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                        Range("AC" & rowB) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                        If Range("X" & rowB) = insp Then Range("S19") = Range("S19") + 1
+                        rowB = rowB + 1
+                    End If
+                    If Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 6) = Format(Date, "q yyyy") Then
+                        Range("B" & rowL) = Right(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 4)
+                        Range("C" & rowL) = Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 9, 1)
+                        Range("D" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                        Range("E" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                        Range("G" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                        Range("S" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                        Range("X" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                        Range("AC" & rowL) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                        If Range("X" & rowL) = insp Then Range("S19") = Range("S19") + 1
+                        rowL = rowL + 1
+                    End If
+                End If
+                If Left(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 8) = "Arranged" Then
+                    iDate = Mid(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count), 14, Len(Workbooks(wBook).Sheets("Datasheet").Range("AA" & count)) - 21)
+                    iDate = Format(Right(iDate, Len(iDate) - InStr(iDate, " ")), "dd mmmm yyyy")
+                    Range("B" & rowG) = iDate
+                    Range("D" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("Y" & count)
+                    Range("E" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                    Range("G" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                    Range("S" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                    Range("X" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                    Range("AC" & rowG) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                    rowG = rowG + 1
+                End If
+            End If
+        End If
+        Label2.Width = (count / Lambda) * 100
+        DoEvents
+        If Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) > 0 And Workbooks(wBook).Sheets("Datasheet").Range("Y" & count) < 3 And Not Workbooks(wBook).Sheets("Datasheet").Range("Z" & count) = "New Operator" Then Range("S6") = Range("S6") + 1
+    Next count
+    Call CloseData("tsds", False)
+    Range("B21") = "RED - Inspection Overdue By More Than One Quarter (in or before Qtr " & qRDate & "/" & Format(DateAdd("q", 4, qRDate), "yy") & ") or Missing, Total " & rowR - 23
+    Range("B22") = "            Quarter (Year / Qtr)"
+    Range("D22") = "Freq"
+    Range("AC22") = "Previous Inspection"
+    Range("B21:AH22").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(128, 0, 0)
+    Selection.Font.Bold = True
+    Range("F17") = "Total " & rowR - 23
+    Range("I17") = rowR - 23
+    Range("F18") = "or " & Round((rowR - 23) / count2 * 100, 0) & "%"
+    If rowR = 23 Then rowR = 24
+    Range("B23:AH" & rowR - 1).Select
+    Selection.Font.Color = RGB(128, 0, 0)
+    Selection.Interior.ColorIndex = 2
+    Selection.Sort Key1:=Range("B23"), Order1:=xlAscending, Key2:=Range("C23"), Order2:=xlAscending, Key3:=Range("X21"), Order3:=xlAscending, Header:=xlGuess, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal, DataOption2:=xlSortNormal
+    Range("B23:B" & rowR).Select
+    Selection.HorizontalAlignment = xlRight
+    Range("B219") = "AMBER - Inspection Overdue From Last Quarter (Qtr " & qADate & "/" & Format(DateAdd("q", 4, qADate), "yy") & ") , Total " & rowA - 221
+    Range("B220") = "            Quarter (Year / Qtr)"
+    Range("D220") = "Freq"
+    Range("AC220") = "Previous Inspection"
+    Range("B219:AH220").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(228, 109, 10)
+    Selection.Font.Bold = True
+    Range("L17") = "Total " & rowA - 221
+    Range("O17") = rowA - 221
+    Range("L18") = "or " & Round((rowA - 221) / count2 * 100, 0) & "%"
+    If rowA = 221 Then rowA = 222
+    Range("B221:AH" & rowA - 1).Select
+    Selection.Font.Color = RGB(228, 109, 10)
+    Selection.Interior.ColorIndex = 2
+    Selection.Sort Key1:=Range("X221"), Order1:=xlAscending, Header:=xlGuess, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal, DataOption2:=xlSortNormal
+    Range("B419") = "BLUE - Inspections Due, Total " & rowB - 421
+    Range("B420") = "            Quarter (Year / Qtr)"
+    Range("D420") = "Freq"
+    Range("AC420") = "Previous Inspection"
+    Range("B419:AH420").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(31, 73, 125)
+    Selection.Font.Bold = True
+    Range("S17") = "Total " & rowB - 421
+    Range("V17") = rowB - 421
+    Range("S18") = "or " & Round((rowB - 421) / count2 * 100, 0) & "%"
+    Range("B421:AH" & rowB - 1).Select
+    Selection.Font.Color = RGB(31, 73, 125)
+    Selection.Interior.ColorIndex = 2
+    Selection.Sort Key1:=Range("B421"), Order1:=xlAscending, Header:=xlGuess, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal, DataOption2:=xlSortNormal
+    Range("B621:B" & rowG).Select
+    Selection.NumberFormat = "dd mmmm yyyy"
+    Range("B621:AH" & rowG - 1).Select
+    Selection.Font.Color = RGB(92, 122, 0)
+    Selection.Interior.ColorIndex = 2
+    Selection.Sort Key1:=Range("B621"), Order1:=xlAscending, Header:=xlGuess, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal, DataOption2:=xlSortNormal
+    For count = 621 To rowG
+        If Range("B" & count) > Date Then Exit For
+    Next count
+    Range("B621:AH" & count - 1).Select
+    Selection.Cut
+    Range("B821").Select
+    ActiveSheet.Paste
+    rowBG = 821 + (count - 621)
+    Range("B" & count & ":AH" & rowG - 1).Select
+    Selection.Cut
+    Range("B621").Select
+    ActiveSheet.Paste
+    rowG = 620 + rowG - count + 1
+    Range("B619") = "GREEN - Inspections Arranged, Total " & rowG - 621
+    Range("B620") = "Date Arranged"
+    Range("B620").Select
+    Selection.HorizontalAlignment = xlRight
+    Range("D620") = "Freq"
+    Range("AC620") = "Previous Inspection"
+    Range("B619:AH620").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(92, 122, 0)
+    Selection.Font.Bold = True
+    Range("Y17") = "Total " & rowG - 621
+    Range("AB17") = rowG - 621
+    Range("Y18") = "or " & Round((rowG - 621) / count2 * 100, 0) & "%"
+    Range("B819") = "BLUE/GREEN - Inspections to Follow Up, Total " & rowBG - 821
+    Range("B820") = "Date Arranged"
+    Range("B820").Select
+    Selection.HorizontalAlignment = xlRight
+    Range("D820") = "Freq"
+    Range("AC820") = "Previous Inspection"
+    Range("B819:AH820").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(49, 132, 155)
+    Selection.Font.Bold = True
+    Range("B821:AH" & rowBG - 1).Select
+    Selection.Font.Color = RGB(49, 132, 155)
+    Selection.Interior.ColorIndex = 2
+    Range("AF17") = "Total " & rowBG - 821
+    Range("AI17") = rowBG - 821
+    Range("AF18") = "or " & Round((rowBG - 821) / count2 * 100, 0) & "%"
+    Range("B1019") = "LIME - Inspections to Next Quarter, Total " & rowL - 1021
+    Range("B1020") = ""
+    Range("B1020").Select
+    Selection.HorizontalAlignment = xlRight
+    Range("D1020") = "Freq"
+    Range("AC1020") = "Previous Inspection"
+    Range("B1019:AH1020").Select
+    Selection.Font.ColorIndex = 2
+    Selection.Interior.Color = RGB(153, 204, 0)
+    Selection.Font.Bold = True
+    Range("B1021:AH" & rowL - 1).Select
+    Selection.Font.Color = RGB(153, 204, 0)
+    Selection.Interior.ColorIndex = 2
+    For count = 621 To rowG
+        If Range("X" & count) = insp Then Range("Y19") = Range("Y19") + 1
+    Next
+    For count = 821 To rowBG
+        If Range("X" & count) = insp Then Range("AF19") = Range("AF19") + 1
+    Next
+    Range("B1018:AH" & rowBG).Select
+    Selection.Delete Shift:=xlUp
+    Range("B818:AH" & rowG).Select
+    Selection.Delete Shift:=xlUp
+    Range("B618:AH" & rowB).Select
+    Selection.Delete Shift:=xlUp
+    Range("B417:AH" & rowA).Select
+    Selection.Delete Shift:=xlUp
+    Range("B218:AH" & rowR).Select
+    Selection.Delete Shift:=xlUp
+    lastrow = Cells(Rows.count, "B").End(xlUp).Row
+    Worksheets("Inspections").ScrollArea = "A1:AH" & lastrow + 2
+    Range("AB6").Select
+    If Range("AB6") < 0.9 Then
+        If Range("AB6") < 0.8 Then
+            Selection.Borders(xlEdgeLeft).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeRight).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeTop).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeBottom).Color = RGB(128, 0, 0)
+        Else
+            Selection.Borders(xlEdgeLeft).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeRight).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeTop).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeBottom).Color = RGB(228, 109, 10)
+        End If
+    Else
+        Selection.Borders(xlEdgeLeft).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeRight).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeTop).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeBottom).Color = RGB(92, 122, 0)
+    End If
+    Range("AF12").Select
+    If Range("AF12") < 0.9 Then
+        If Range("AF12") < 0.8 Then
+            Selection.Borders(xlEdgeLeft).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeRight).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeTop).Color = RGB(128, 0, 0)
+            Selection.Borders(xlEdgeBottom).Color = RGB(128, 0, 0)
+        Else
+            Selection.Borders(xlEdgeLeft).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeRight).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeTop).Color = RGB(228, 109, 10)
+            Selection.Borders(xlEdgeBottom).Color = RGB(228, 109, 10)
+        End If
+    Else
+        Selection.Borders(xlEdgeLeft).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeRight).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeTop).Color = RGB(92, 122, 0)
+        Selection.Borders(xlEdgeBottom).Color = RGB(92, 122, 0)
+    End If
+    Range("G9").Select
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub

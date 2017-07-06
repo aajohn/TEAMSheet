@@ -1,0 +1,54 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormFilesKept 
+   ClientHeight    =   2820
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormFilesKept.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormFilesKept"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    DRow = Range("G3")
+    If Not ListBox1.ListIndex = -1 Then
+        Call OpenData("tsds")
+        Sheets("Datasheet").Range("BL" & DRow) = ListBox1.Value
+        Call CloseData("tsds", True)
+        Sheets("Details").Select
+        ActiveSheet.Unprotect
+        Range("F14") = ListBox1.Value
+        ActiveSheet.Protect
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub ListBox1_Click()
+    CommandButton1.SetFocus
+End Sub
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Call CommandButton1_Click
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    lastrow = Sheets("LookUp").Cells(Rows.count, "AX").End(xlUp).Row - 3
+    For count = 0 To lastrow
+        ListBox1.AddItem
+        ListBox1.List(count) = Sheets("LookUp").Range("AX" & count + 3)
+    Next count
+    ListBox1.AddItem "Electronic"
+    ListBox1.AddItem "Archive"
+    If Not Range("F14") = "" Then
+        On Error Resume Next
+        ListBox1.Value = Range("F14")
+        On Error GoTo 0
+    End If
+End Sub

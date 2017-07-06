@@ -1,0 +1,316 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppIssue 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9510
+   OleObjectBlob   =   "UserFormAppIssue.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppIssue"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+'need to sort along with letters routine
+Private Sub CommandButton1_Click()
+    Dim vCount As Integer, vCount2 As Integer, dLocation As String
+    vCount = 2: vCount2 = 0
+    If TextBox1.Value = "" Then
+        TextBox1.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    Label10.Visible = True
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Label12.Caption
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    If CheckBox1.Value Then vCount = vCount + 1
+    If CheckBox2.Value Then vCount = vCount + 1
+    If CheckBox3.Value Then vCount = vCount + 1
+    If CheckBox4.Value Then vCount = vCount + 1
+    If CheckBox5.Value Then vCount = vCount + 1
+    If CheckBox6.Value Then vCount = vCount + 1
+    If CheckBox7.Value Then vCount = vCount + 1
+    If CheckBox8.Value Then vCount = vCount + 1
+    If CheckBox1.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        On Error Resume Next
+        Set wdApp = GetObject(, "Word.Application")
+        If err.Number <> 0 Then
+            Set wdApp = CreateObject("Word.Application")
+        End If
+        On Error GoTo 0
+        Fname = Epsilon & "Documents\Letters\PR Sheet.doc"
+        fName2 = dLocation & "\PR Sheet " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+        Set wdDoc = wdApp.Documents.Open(Fname)
+        wdDoc.SaveAs fName2
+        wdDoc.Bookmarks("S1").Range.text = Range("D5")
+        wdDoc.Bookmarks("S2").Range.text = Range("D21") & Range("J21")
+        wdDoc.Bookmarks("S3").Range.text = Range("D6")
+        wdDoc.Save
+        wdDoc.Close
+        wdApp.Quit
+        Application.Wait (Now + TimeValue("0:00:1"))
+        Set wdApp = Nothing
+        Set wdDoc = Nothing
+    End If
+    If CheckBox2.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("H", "H", "O", "M", "LA", "26", dLocation)
+    End If
+    If CheckBox3.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("L", "AB", "AE", "AC", "Sewer", "22-25", dLocation)
+    End If
+    If CheckBox4.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("", "", "AI5", "AG5", "HSE", "22-25", dLocation)
+    End If
+    If CheckBox5.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("I", "P", "S", "Q", "Police", "22-25", dLocation)
+    End If
+    If CheckBox6.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("", "", "AI3", "AG3", "FSA", "22-25", dLocation)
+    End If
+    If CheckBox7.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("", "", "AI4", "AI4", "WAG", "22-25", dLocation)
+    End If
+    If CheckBox8.Value Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("J", "T", "W", "U", "Fire", "22-25", dLocation)
+    End If
+    If Range("D20") = "New Application" Or Range("J20") = "New Application" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site", "10", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec", "10", dLocation)
+    End If
+    If Range("D20") = "Variation" Or Range("J20") = "Variation" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site", "11", dLocation)
+        Call MakeLetter("C", True, "", "", "Site2", "12", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec", "11", dLocation)
+        Call MakeLetter("C", False, "", "", "CoSec2", "12", dLocation)
+    End If
+    If Range("D20") = "Transfer - Full" Or Range("J20") = "Transfer - Full" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site", "13", dLocation)
+        Call MakeLetter("C", True, "", "", "Site2", "14", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec", "13", dLocation)
+        Call MakeLetter("C", False, "", "", "CoSec2", "14", dLocation)
+    End If
+    If Range("D20") = "Transfer - Part" Or Range("J20") = "Transfer - Part" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site", "15", dLocation)
+        Call MakeLetter("C", True, "", "", "Site2", "16", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec", "15", dLocation)
+        Call MakeLetter("C", False, "", "", "CoSec2", "16", dLocation)
+    End If
+    If Range("D20") = "Surrender - Full" Or Range("J20") = "Surrender - Full" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site2", "18", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec2", "18", dLocation)
+    End If
+    If Range("D20") = "Surrender - Part" Or Range("J20") = "Surrender - Part" Then
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", True, "", "", "Site", "17", dLocation)
+        vCount2 = vCount2 + 1
+        Call cLabel(vCount, vCount2)
+        Call MakeLetter("C", False, "", "", "CoSec", "17", dLocation)
+    End If
+    Label10.Caption = ""
+    Call msg("Letters", "Your Letter/s have been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub cLabel(vCount As Integer, vCount2 As Integer)
+    Label10.Caption = "Please wait." & vbLf & vbLf & "Generating your Letters.  Number " & vCount2 & " of " & vCount
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub MakeLetter(vTo As String, vTo2, vTo3 As String, vTo4 As String, ltrText As String, ltrNum As String, dLocation As String)
+    'vTo2 as boolean and integer
+    Dim Text1 As String, Text2 As String, ltrType As String
+    Dim appref As String
+    Dim vType As String, vType2 As String, vPart As String
+    Addr2 = "": Addr3 = ""
+    From = Range("D10")
+    If CheckBox12 Then ltrType = "1" Else ltrType = "0"
+    If CheckBox13 Then ltrType = ltrType & "1" Else ltrType = ltrType & "0"
+    If vTo = "C" Then
+        Addr = Range("D5") & "," & Range("D6")
+        If vTo2 Then
+        
+            vTo4 = Range("D7")
+        Else
+        
+            vTo4 = "Company Secretary"
+        End If
+        GoTo jmp
+    End If
+    If vTo = "" Then
+        Addr = Sheets("LookUp").Range(vTo3)
+        vTo4 = Sheets("LookUp").Range(vTo4)
+    Else
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row
+            If InStr(Sheets("LookUp").Range("H" & count), From) Then
+                Addr = Sheets("LookUp").Range(vTo & count)
+                Exit For
+            End If
+        Next
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, vTo2).End(xlUp).Row
+            If Sheets("LookUp").Range(vTo2 & count) = Addr Then
+                Addr = Sheets("LookUp").Range(vTo3 & count)
+                vTo4 = Sheets("LookUp").Range(vTo4 & count)
+                Exit For
+            End If
+        Next
+    End If
+jmp:
+    For count = 1 To Len(Addr)  'change to use replace
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = Addr3 & vbLf & vbLf & "For the Attention of " & vTo4
+    If ltrNum = "10" Or ltrNum = "11" Or ltrNum = "13" Or ltrNum = "15" Or ltrNum = "16" Or ltrNum = "17" Then ltrNum = ltrNum & " " & ltrType
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter " & ltrNum & ".doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " " & ltrText
+    Addr3 = ""
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)  'change to use replace
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & Iota) & vbLf & Addr3
+    appref = Range("D21") '** or J21
+    vType = "Issue of an Environmental Permit" '** or notice
+    vType2 = "issued an Environmental Permit"
+    If Range("D20") = "Surrender - Full" Then vType = "Surrender of an Environmental Permit"
+    If Range("D20") = "Surrender - Full" Then vType2 = "issued a surrender notice for an Environmental Permit"
+    vPart = "a copy. " '** or "an extract. "
+    If Range("D20") = "New Application" Then
+        Text2 = "This is a new permit.  "
+    Else
+        Text2 = "This permit replaces the one issued on <date>, number <number>.  "
+    End If
+    If CheckBox10.Value And Not ltrText = "Sewer" Then
+        Text2 = Text2 & "It comes into operation on <date> and permits the disposal of radioactive waste."
+    End If
+    If CheckBox11.Value And ltrText = "Sewer" Then
+        Text2 = Text2 & "It comes into operation on <date> and permits the disposal of radioactive waste by discharge to sewer."
+    End If
+    If CheckBox9.Value Then
+        Text1 = "It contains confidential information and should be disseminated no wider than is necessary within your organisation.  Its contents should not be divulged to anybody outside your organisation."
+    Else
+        If Not Range("D21") = "" Then
+            Text1 = "It contains sensitive information and should be disseminated no wider than is necessary within your organisation.  Its contents should not be divulged to anybody outside your organisation."
+        Else
+            Text1 = ""
+        End If
+    End If
+    If ltrText = "Fire" And Not Text1 = "" Then
+        Text1 = Left(Text1, Len(Text1) - 1) & ", except:" & vbLf & "  - local authorities or other public bodies who need the information to fulfill their emergency planning duties;" & vbLf & "  - other emergency services who need the information for their own operational health and safety purposes."
+    End If
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    On Error GoTo ErrHandler:
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.SaveAs fName2
+    On Error GoTo 0
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = appref
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    If vTo = "C" Then
+        ltrNum = Left(ltrNum, 2)
+        If ltrNum = "10" Or ltrNum = "11" Or ltrNum = "13" Or ltrNum = "15" Or ltrNum = "16" Or ltrNum = "17" Then
+            wdDoc.Bookmarks("L4").Range.text = AgencyAddress
+            aDate = DateAdd("m", 6, TextBox1.Value)
+            wdDoc.Bookmarks("L5").Range.text = Format(aDate, "d mmmm yyyy")
+        End If
+    End If
+    wdDoc.Bookmarks("L1").Range.text = vType
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    If ltrNum = "22-25" Then
+        wdDoc.Bookmarks("L4").Range.text = vType
+        wdDoc.Bookmarks("L5").Range.text = Application.Proper(Range("D5"))
+        wdDoc.Bookmarks("L6").Range.text = vPart
+        wdDoc.Bookmarks("L7").Range.text = Text1
+        wdDoc.Bookmarks("L8").Range.text = Text2
+    End If
+    wdDoc.Save
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Exit Sub
+ErrHandler:
+    LogFileName = "H:\RSR TEAMSheet\tsERROR.Log"
+    fileNum = FreeFile
+    Open LogFileName For Append As #fileNum
+    Print #fileNum, "***** " & Format(Date, "d mmmm yyyy") & Time
+    Print #fileNum, Fname
+    Print #fileNum, fName2
+    Print #fileNum, err.Number
+    Print #fileNum, err.Description
+    Close #fileNum
+    On Error Resume Next
+    wdApp.Quit
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    On Error GoTo 0
+    Call msg("Error Generating Letter", "Please email M Ainsworth.", 26)
+End Sub
+Sub FillVars(v1, v2)
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    If Not Range("J20") = "" Then
+        CheckBox1.Value = True
+        CheckBox2.Value = True
+    End If
+    If Not Range("D20") = "" Then CheckBox5.Value = True
+    If InStr(Range("D4"), "WALES") > 0 Then CheckBox7.Value = True
+    If v2 Then Label12.Caption = Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If v1 Then Label12.Caption = Left(Range("D5"), 5) & " " & Range("D15") & "_" & Right(Range("D21"), 4)
+End Sub

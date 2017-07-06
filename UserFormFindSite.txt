@@ -1,0 +1,235 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormFindSite 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   11115
+   OleObjectBlob   =   "UserFormFindSite.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormFindSite"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+Private Sub CheckBox1_Change()
+    Sheets("LookUp").Select
+    ActiveSheet.Unprotect
+    If CheckBox1.Value Then
+        Sheets("LookUp").Range("CE1") = "1"
+    Else
+        Sheets("LookUp").Range("CE1") = "0"
+    End If
+    ActiveSheet.Protect
+    Sheets("Details").Select
+End Sub
+Private Sub CommandButton1_Click()
+    If Not TextBox1.Value = "" Then
+        Call dataRow(TextBox1.Value)
+        If DRow = 0 Then
+            Call Createlist(1)
+        Else
+            Call CopyPasteData(DRow, True, False)
+            Call History
+            Unload Me: Exit Sub
+        End If
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton3_Click()
+    If Not TextBox1.Value = "" Then
+        DRow = 0
+        Call Createlist(2)
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton4_Click()
+    If Not TextBox1.Value = "" Then
+        DRow = 0
+        Call Createlist(3)
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton5_Click()
+    DRow = 0
+    Unload Me
+End Sub
+Private Sub CommandButton6_Click()
+    If ListBox1.Value <> 0 Then
+        If Left(ListBox1.List(ListBox1.ListIndex, 1), 1) = "Z" Then tempSite = True Else tempSite = False
+        Call dataRow(ListBox1.List(ListBox1.ListIndex, 1))
+        If DRow = 0 Then
+            Call CloseData("tsds", False)
+            Unload Me: Exit Sub
+        Else
+            Call CopyPasteData(DRow, True, False)
+            Call History
+            Unload Me: Exit Sub
+        End If
+    Else
+        DRow = 0
+        Exit Sub
+    End If
+End Sub
+Private Sub ListBox1_Click()
+    CommandButton6.SetFocus
+End Sub
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Call CommandButton6_Click
+End Sub
+Private Sub TextBox1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image20.jpg")
+    ListBox1.ColumnCount = 4
+    ListBox1.ColumnWidths = "5cm;1.2cm;7cm;2cm"
+    lastrow = Sheets("LookUp").Cells(Rows.count, "CA").End(xlUp).Row
+    For count = 1 To lastrow
+        ListBox1.AddItem
+        ListBox1.List(count - 1, 0) = Sheets("LookUp").Range("CA" & count)
+        ListBox1.List(count - 1, 1) = Sheets("LookUp").Range("CB" & count)
+        ListBox1.List(count - 1, 2) = Sheets("LookUp").Range("CC" & count)
+        ListBox1.List(count - 1, 3) = Sheets("LookUp").Range("CD" & count)
+    Next count
+    Label2.Caption = "History Shown"
+    Label2.Visible = True
+    If InStr(Sheets("LookUp").Range("CE1"), "1") > 0 Then CheckBox1.Value = True
+End Sub
+Sub Createlist(v1 As Integer)
+    Dim ColArray(9) As String
+    Dim msgTitle As String
+    Dim Y As Integer
+    Label2.Visible = False
+    v2 = VBA.UCase(TextBox1.Value)
+    check = True: count = 1: count2 = 1
+    ListBox1.Clear
+    ListBox1.ColumnCount = 4
+    ListBox1.ColumnWidths = "5cm;1.2cm;7cm;2cm"
+    Call OpenData("tsds")
+    If v1 = 1 Then
+        Do
+            count = count + 1
+            v3 = VBA.UCase(Sheets("Datasheet").Range("C" & count))
+            If count > Lambda Then check = False
+            If InStr(v3, v2) Then
+                ListBox1.AddItem
+                ListBox1.List(count2 - 1, 0) = v3
+                ListBox1.List(count2 - 1, 1) = Sheets("Datasheet").Range("A" & count)
+                ListBox1.List(count2 - 1, 2) = Sheets("Datasheet").Range("D" & count)
+                ListBox1.List(count2 - 1, 3) = Sheets("Datasheet").Range("J" & count)
+                count2 = count2 + 1
+                If count2 = 51 Then check = False
+            End If
+        Loop Until check = False
+        check = True: count = 1
+        Do
+            count = count + 1
+            v3 = VBA.UCase(Sheets("Temp Sites").Range("C" & count))
+            If count > Lambda Then check = False
+            If InStr(v3, v2) Then
+                ListBox1.AddItem
+                ListBox1.List(count2 - 1, 0) = v3
+                ListBox1.List(count2 - 1, 1) = Sheets("Temp Sites").Range("A" & count)
+                ListBox1.List(count2 - 1, 2) = Sheets("Temp Sites").Range("D" & count)
+                ListBox1.List(count2 - 1, 3) = Sheets("Temp Sites").Range("J" & count)
+                count2 = count2 + 1
+                If count2 = 51 Then check = False
+            End If
+        Loop Until check = False
+        msgTitle = "Find By Site Code or Name"
+    End If
+    If v1 = 2 Then
+        ColArray(0) = "M": ColArray(1) = "O": ColArray(2) = "P": ColArray(3) = "Q": ColArray(4) = "R": ColArray(5) = "S": ColArray(6) = "T": ColArray(7) = "U": ColArray(8) = "V": ColArray(9) = "W"
+        Do
+            count = count + 1
+            For Y = 0 To 9
+                v3 = Sheets("Datasheet").Range(ColArray(Y) & count)
+                If count > Lambda Then check = False
+                If InStr(v3, v2) > 0 Then
+                    ListBox1.AddItem
+                    ListBox1.List(count2 - 1, 0) = v3
+                    ListBox1.List(count2 - 1, 1) = Sheets("Datasheet").Range("A" & count)
+                    ListBox1.List(count2 - 1, 2) = Sheets("Datasheet").Range("C" & count)
+                    ListBox1.List(count2 - 1, 3) = Sheets("Datasheet").Range("J" & count)
+                    count2 = count2 + 1
+                    If count2 = 51 Then check = False
+                End If
+            Next Y
+        Loop Until check = False
+        msgTitle = "Find By Permit Number"
+    End If
+    If v1 = 3 Then
+        If InStr(v2, " ") = 0 Then
+            v2 = VBA.Mid(v2, 1, Len(v2) - 3) & " " & VBA.Mid(v2, Len(v2) - 2, 3)
+        End If
+        v2 = VBA.UCase(v2)
+        count = 1: check = True
+        Do
+            v3 = VBA.Mid(v2, count, 1)
+            If v3 = VBA.Chr(32) Then
+                check = False
+                v4 = Left(v2, count - 1)
+            End If
+            If count = Len(v2) Then check = False
+            count = count + 1
+        Loop Until check = False
+        If IsEmpty(v4) Then
+            v4 = v2
+            v2 = ""
+        End If
+        'Label2.Caption = "Results for " & v2
+        'Label3.Caption = "Results for " & v4
+        check = True: count = 1: count2 = 1
+        Do
+            count = count + 1
+            v3 = Sheets("Datasheet").Range("D" & count).Value
+            If count > Lambda Then check = False
+            If Not v2 = "" Then
+                If InStr(v3, v2) > 0 Then
+                    ListBox1.AddItem
+                    ListBox1.List(count2 - 1, 0) = Sheets("Datasheet").Range("C" & count)
+                    ListBox1.List(count2 - 1, 1) = Sheets("Datasheet").Range("A" & count)
+                    ListBox1.List(count2 - 1, 2) = v3
+                    ListBox1.List(count2 - 1, 3) = Sheets("Datasheet").Range("J" & count)
+                    count2 = count2 + 1
+                End If
+            End If
+            If InStr(v3, v4) > 0 Then
+                ListBox1.AddItem
+                ListBox1.List(count2 - 1, 0) = Sheets("Datasheet").Range("C" & count)
+                ListBox1.List(count2 - 1, 1) = Sheets("Datasheet").Range("A" & count)
+                ListBox1.List(count2 - 1, 2) = v3
+                ListBox1.List(count2 - 1, 3) = Sheets("Datasheet").Range("J" & count)
+                count2 = count2 + 1
+            End If
+            If count2 = 51 Then check = False
+        Loop Until check = False
+        msgTitle = "Find By Postcode"
+    End If
+    If count2 = 1 Then
+        Call CloseData("tsds", False)
+        Call msg(msgTitle, "No matches found for " & v2, 26)
+        DRow = -2
+        Exit Sub
+    End If
+    If count2 = 2 And v1 < 3 Then
+        If Left(ListBox1.List(0, 1), 1) = "Z" Then tempSite = True Else tempSite = False
+        Call dataRow(ListBox1.List(0, 1))
+        Call CopyPasteData(DRow, True, False)
+        Call History
+        Unload Me
+        Exit Sub
+    Else
+        Label2.Caption = "Number of Results " & count2 - 1
+        Label2.Visible = True
+    End If
+    Call CloseData("tsds", False)
+End Sub

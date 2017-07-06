@@ -1,0 +1,98 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadReports 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadReports.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadReports"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim count3 As Integer
+    Dim yr As String
+    Dim qStr As Date, qEnd As Date
+    Dim listrow As String
+    Dim insp As String
+    Dim rOutArray(9) As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    'tdate = Format(Date, "d/m/yyyy")
+    'lastrow = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+    'For count = 3 To lastrow
+    '    Range("B" & 2 + count) = Sheets("LookUp").Range("C" & count)
+    'Next count
+    'If Month(Date) < 4 Then
+    '    Sheets("Reports").Range("V3") = "Inspections YTD (" & Year(Date) - 1 & "/" & Year(Date) & ")"
+    '    yr = Year(Date)
+    '    Sheets("Reports").Range("M3") = "Inspections for Quarter 3 of " & Year(Date) - 1
+    '    qStr = DateSerial(Year(Date) - 1, 10, 1)
+    '    qEnd = DateSerial(Year(Date) - 1, 12, 30)
+    '    End If
+    'If Month(Date) = 4 Then
+    '    Sheets("Reports").Range("V3") = "Inspections for (" & Year(Date) - 1 & "/" & Year(Date) & ")"
+    '    yr = 0
+    '    End If
+    'If Month(Date) > 4 Then
+    '    Sheets("Reports").Range("V3") = "Inspections YTD (" & Year(Date) & "/" & Year(Date) + 1 & ")"
+    '    yr = Year(Date)
+    '    End If
+    'If Month(Date) > 3 And Month(Date) < 7 Then
+    '    Sheets("Reports").Range("M3") = "Inspections for Quarter 4 of " & Year(Date) - 1
+    '    qStr = DateSerial(Year(Date), 1, 1)
+    '    qEnd = DateSerial(Year(Date), 3, 30)
+    '    End If
+    'If Month(Date) > 6 And Month(Date) < 10 Then
+    '    Sheets("Reports").Range("M3") = "Inspections for Quarter 1 of " & Year(Date)
+    '    qStr = DateSerial(Year(Date), 4, 1)
+    '    qEnd = DateSerial(Year(Date), 6, 30)
+    '    End If
+    'If Month(Date) > 9 Then
+    '    Sheets("Reports").Range("M3") = "Inspections for Quarter 2 of " & Year(Date)
+    '    qStr = DateSerial(Year(Date), 7, 1)
+    '    qEnd = DateSerial(Year(Date), 9, 30)
+    '    End If
+    'Call OpenData("tsds")
+    'lastrow = Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row
+    'wBook = "tsds.xls"
+    'Windows("RSR TEAMSheet.xlsm").Activate
+    'For count2 = 2 To lastrow
+    '    insp = Workbooks(wBook).Sheets("Datasheet").Range("X" & count2)
+    '    'If IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("K" & count2)) Then
+    '    '    Else
+    '    'End If
+    '    insp = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count2)
+    'Sheets("Reports").Select
+    '    For count3 = 1 To 9
+    '        If count = 0 Then count3 = 9
+    '        If count = Range("B" & count3 + 4) Then
+    '            rOutArray(count3) = rOutArray(count3) + 1
+    '        End If
+    '    Next count3
+    Label2.Width = 100 '(count2 / lastrow) * 100
+    DoEvents
+    'Next count2
+    'Call CloseData("tsds", False)
+    'For count = 1 To 9
+    '    Range("C" & count + 4) = rOutArray(count)
+    'Next
+    'Range("B13") = "Unassigned"
+    listrow = "=LookUp!R3C3:R" & Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row & "C3"
+    ActiveWorkbook.Names.Add Name:="InspList", RefersToR1C1:=listrow
+    listrow = "=LookUp!R3C8:R" & Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row & "C8"
+    ActiveWorkbook.Names.Add Name:="LAList", RefersToR1C1:=listrow
+    listrow = "=LookUp!R3C16:R" & Sheets("LookUp").Cells(Rows.count, "P").End(xlUp).Row & "C16"
+    ActiveWorkbook.Names.Add Name:="PoliceList", RefersToR1C1:=listrow
+    Range("D16").Select
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub

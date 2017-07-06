@@ -1,0 +1,88 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadDoses 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadDoses.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadDoses"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim listrow As String
+    Dim HDose As Integer, HDose2 As Integer, CDose As Integer, lastrow2 As Integer, Dose As Integer, Dose2 As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    'need to check current year and use below  cell A1
+    Range("B3") = "Dose Records For " & Format(Date, "yyyy")
+    wBook = "RSR TEAMSheet.xlsm"
+    Call OpenData("tsds")
+    Sheets("Dose Current").Select
+    lastrow = Cells(Rows.count, "B").End(xlUp).Row
+    For count = 1 To lastrow
+        Workbooks(wBook).Sheets("Doses").Range("B" & (count * 2) + 4) = Range("B" & count)
+    Next
+    For count1 = 1 To lastrow
+        HDose = 0: HDose2 = 0: CDose = 0: Dose = 0: Dose2 = 0
+        count = (count1 * 9) - 4
+        lastrow2 = Cells(Rows.count, count).End(xlUp).Row
+        For count2 = 2 To lastrow2
+            CDose = CDose + Cells(count2, count + 4)
+            If Cells(count2, count + 4) > HDose Then
+                HDose = Cells(count2, count + 4)
+                HDose2 = count2
+            End If
+            If Cells(count2, count + 4) > 0 Then
+                If Cells(count2, count + 4) >= 10 Then
+                    Dose2 = Dose2 + 1
+                Else
+                    Dose = Dose + 1
+                End If
+            End If
+        Next count2
+        Workbooks(wBook).Sheets("Doses").Range("D" & 4 + (count1 * 2)) = CDose
+        If Dose > 0 Then Workbooks(wBook).Sheets("Doses").Range("G" & 5 + (count1 * 2)) = "Number of Doses above zero and less then 10 = " & Dose
+        If Dose2 > 0 Then Workbooks(wBook).Sheets("Doses").Range("J" & 5 + (count1 * 2)) = "Number of Doses above 10 = " & Dose2
+        Workbooks(wBook).Sheets("Doses").Range("D" & 5 + (count1 * 2)) = (count2 - 2) & " records"
+        Workbooks(wBook).Sheets("Doses").Range("F" & 4 + (count1 * 2)) = HDose
+        If HDose2 > 0 Then
+            Workbooks(wBook).Sheets("Doses").Range("G" & 4 + (count1 * 2)) = Cells(HDose2, count + 2)
+            Workbooks(wBook).Sheets("Doses").Range("H" & 4 + (count1 * 2)) = Cells(HDose2, count + 1)
+            Workbooks(wBook).Sheets("Doses").Range("J" & 4 + (count1 * 2)) = Cells(HDose2, count)
+            Workbooks(wBook).Sheets("Doses").Range("L" & 4 + (count1 * 2)) = Cells(HDose2, count + 6)
+            Workbooks(wBook).Sheets("Doses").Range("M" & 4 + (count1 * 2)) = Cells(HDose2, count + 7)
+        End If
+        Label2.Width = (count1 / lastrow) * 100
+        DoEvents
+    Next count1
+    Call CloseData("tsds", False)
+    Sheets("Doses").Select
+    listrow = "=LookUp!R3C3:R" & Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row & "C3"
+    ActiveWorkbook.Names.Add Name:="InspList", RefersToR1C1:=listrow
+    If Iota = 0 Then
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+            v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+            If InStr(UCase(Environ("USERNAME")), v1) Then
+                Iota = count
+                Exit For
+            End If
+            If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+                Iota = count
+                Exit For
+            End If
+        Next count
+    End If
+    Range("I31") = Sheets("LookUp").Range("C" & Iota)
+    Worksheets("Doses").ScrollArea = "a1:m40"
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub

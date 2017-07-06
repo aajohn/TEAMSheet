@@ -1,0 +1,86 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormIPlan 
+   ClientHeight    =   1980
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormIPlan.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormIPlan"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim ppeVar As String, ssVar As String, ppeVar2 As String, nairVar As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Label2.Width = 0
+    DoEvents
+    If Epsilon = "" Then Call LoadDocs
+    Fname = "H:\RSR TEAMSheet\Inspection Plan.docx"
+    If Dir(Fname, vbDirectory) = vbNullString Then
+        FileCopy "O:\RSR TEAMSheet\Documents\Inspection Plan.docx", Fname
+        Label2.Width = 20
+        DoEvents
+    End If
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\" & "Insp Plan " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+    ppeVar = Range("N39")
+    If Range("N39") = "" Then ppeVar2 = "PPE NOT RECORDED"
+    If Mid(Range("N39"), 1, 1) = "1" Then ppeVar2 = "PPE Not Required"
+    If Mid(Range("N39"), 1, 1) = "2" Then ppeVar2 = "PPE Required As Below"
+    ssVar = ""
+    If Range("N36") = "1" Then ssVar = "Site Specific Risk Assessment"
+    If Range("N37") = "1" Then ssVar = ssVar & "Intrinsically Safe (ATEX) zones"
+    If Range("N38") = "1" Then ssVar = ssVar & "High Hygiene Site (No Makeup, Jewellery etc)"
+    If Not Range("L29") = "" Then
+        If Range("L29") Then
+            nairVar = Chr$(13) & "NAIR Responder"
+        Else
+            nairVar = Chr$(13) & "not NAIR Responder"
+        End If
+    End If
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Label2.Width = 40
+    DoEvents
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdApp.Visible = False
+    wdDoc.SaveAs fName2
+    wdDoc.Bookmarks("IP1").Range.text = Right(Range("D38"), Len(Range("D38")) - 13)
+    wdDoc.Bookmarks("IP2").Range.text = Range("D7") & ", " & Range("D8")
+    wdDoc.Bookmarks("IP3").Range.text = Range("F7") & ", " & Range("F8")
+    wdDoc.Bookmarks("IP4").Range.text = Range("D3") & " - " & Range("D5") & ", " & Range("D6")
+    wdDoc.Bookmarks("IP5").Range.text = Range("M3") & " (" & Range("J4") & ") " & nairVar
+    wdDoc.Bookmarks("IP6").Range.text = Mid(Range("N40"), InStr(Range("N40"), " ") + 1) & " (" & Range("K35") & ")"
+    wdDoc.Bookmarks("IP7").Range.text = ssVar
+    wdDoc.Bookmarks("IP8").Range.text = ppeVar2
+    Label2.Width = 60
+    DoEvents
+    If Mid(ppeVar, 2, 1) = "1" Then wdDoc.Bookmarks("IP14").Range.text = "x"
+    If Mid(ppeVar, 3, 1) = "1" Then wdDoc.Bookmarks("IP12").Range.text = "x"
+    If Mid(ppeVar, 4, 1) = "1" Then wdDoc.Bookmarks("IP16").Range.text = "x"
+    If Mid(ppeVar, 5, 1) = "1" Then wdDoc.Bookmarks("IP17").Range.text = "x"
+    If Mid(ppeVar, 6, 1) = "1" Then wdDoc.Bookmarks("IP18").Range.text = "x"
+    If Mid(ppeVar, 7, 1) = "1" Then wdDoc.Bookmarks("IP21").Range.text = "x"
+    If Mid(ppeVar, 8, 1) = "1" Then wdDoc.Bookmarks("IP10").Range.text = "x"
+    If Mid(ppeVar, 9, 1) = "1" Then wdDoc.Bookmarks("IP11").Range.text = "x"
+    If Mid(ppeVar, 10, 1) = "1" Then wdDoc.Bookmarks("IP15").Range.text = "x"
+    If Mid(ppeVar, 11, 1) = "1" Then wdDoc.Bookmarks("IP13").Range.text = "x"
+    If Mid(ppeVar, 12, 1) = "1" Then wdDoc.Bookmarks("IP19").Range.text = "x"
+    If Mid(ppeVar, 13, 1) = "1" Then wdDoc.Bookmarks("IP20").Range.text = "x"
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    Label2.Width = 100
+    DoEvents
+    Drafts = True
+    Set wdDoc = Nothing
+    Unload Me
+End Sub

@@ -1,0 +1,62 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormNote 
+   ClientHeight    =   3225
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   7515
+   OleObjectBlob   =   "UserFormNote.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormNote"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim checkVal As String
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    If Label3.Caption = "Information Note" Then
+        If CheckBox1.Value Then
+            Sheets(wSheet).Range("BZ" & DRow) = "1" & Date & " " & TextBox1.Value
+        Else
+            Sheets(wSheet).Range("BZ" & DRow) = "0" & Date & " " & TextBox1.Value
+        End If
+        Call CloseData("tsds", True)
+        ActiveSheet.Unprotect
+        If CheckBox1.Value Then
+            Sheets("Details").Range("I3") = "1"
+        Else
+            Sheets("Details").Range("I3") = "0"
+        End If
+        Sheets("Details").Range("J4") = "Changed " & Format(Date, "d mmm yyyy")
+        Sheets("Details").Range("M3") = TextBox1.Value
+        ActiveSheet.Protect
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Public Sub FillVars(check)
+    Call RemoveCaption(Me)
+    DRow = Range("G3")
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image5.jpg")
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    If check Then ' True is Info False is spare
+        TextBox1.Value = Range("M3")
+        Label2.Caption = Range("J4")
+        Label1.Caption = "Examples; Parking, Operating Hours, Possible Changes/Issues" & vbLf & vbLf & "NO SOURCE INFORMATION, CATEGORIES OR USES"
+        Label3.Caption = "Information Note"
+        CheckBox1.Caption = "Information Marker (Flag Up Important Information)"
+        If Range("I3") = 1 Then CheckBox1.Value = True
+    End If
+    check = False
+End Sub
+Private Sub TextBox1_Change()
+    CommandButton1.Visible = True
+    check = True
+End Sub

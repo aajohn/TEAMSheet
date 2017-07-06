@@ -1,0 +1,151 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet5"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+Sub Doses()
+    Sheets("Doses").Select
+    ActiveSheet.Unprotect
+    Range("B6:L29") = ""
+    Call ScreenLayout("Doses")
+    Application.ScreenUpdating = False
+    UserFormLoadDoses.Show
+End Sub
+Sub ViewDoseLog()
+    If IsEmpty(Range("I31")) Then
+        Call msg("Individual Dose Record", "Please select from the drop down box next to the 'View Individual Record' button who the record is for", 8)
+        Range("I31").Select
+        Exit Sub
+    End If
+    UserFormViewDoseLog.Show
+    Call Doses
+End Sub
+Sub PrintDoseRecord()
+    Dim outRow As Integer, pTall As Byte, EAOff As String
+    '***********************************
+    Call msg("Annual Dose Record", "This option is currently disabled", 28)
+    Exit Sub
+    '***********************************
+    If IsEmpty(Range("I31")) Then
+        Call msg("Annual Dose Record", "Please select from the drop down box next to the 'Print Annual Dose Record' button who the record is for", 8)
+        Range("I31").Select
+        Exit Sub
+    End If
+    Application.ScreenUpdating = False
+    ActiveSheet.Unprotect
+    Worksheets("Doses").ScrollArea = ""
+    Range("B59") = "Radiation Dose Record for " & Range("I31") & " - 2013" 'needs to be from dose current/last
+    Range("B62:M200").Select
+    With Selection
+        .ClearContents
+        .WrapText = False
+        .MergeCells = False
+    End With
+    Selection.Borders(xlInsideHorizontal).LineStyle = xlNone
+    With Selection.Font
+        .Name = "Arial"
+        .Size = 8
+    End With
+    
+    wBook = "RSR TEAMSheet.xlsm"
+    Call OpenData("tsds")
+    Sheets("Dose Current").Select
+    For count = 1 To 20
+        If Sheets("Dose Current").Range("B" & count) = Workbooks(wBook).Sheets("Doses").Range("I31") Then Exit For
+    Next
+    MsgBox "Hello" & count
+    count = (count * 9) - 4
+    lastrow = Cells(Rows.count, count).End(xlUp).Row
+
+    MsgBox lastrow
+
+    'lastrow = 20
+    outRow = 62
+    MsgBox "3"
+    For count2 = 2 To lastrow
+        Workbooks(wBook).Sheets("Doses").Range("B" & outRow) = Sheets("Dose Current").Cells(count2, count) 'Left(Sheets("Dose Current").Cells(count2, count), Len(Sheets("Dose Current").Cells(count2, count)) - 5)
+        Workbooks(wBook).Sheets("Doses").Range("O" & outRow) = Right(Workbooks(wBook).Sheets("Doses").Range("B" & outRow), Len(Workbooks(wBook).Sheets("Doses").Range("B" & outRow)) - InStr(Workbooks(wBook).Sheets("Doses").Range("B" & outRow), " "))
+        Workbooks(wBook).Sheets("Doses").Range("C" & outRow) = Sheets("Dose Current").Cells(count2, count + 2) & " " & Sheets("Dose Current").Cells(count2, count + 1)
+        Workbooks(wBook).Sheets("Doses").Range("I" & outRow) = Sheets("Dose Current").Cells(count2, count + 3)
+        Workbooks(wBook).Sheets("Doses").Range("J" & outRow) = Sheets("Dose Current").Cells(count2, count + 4)
+        Workbooks(wBook).Sheets("Doses").Range("L" & outRow) = Sheets("Dose Current").Cells(count2, count + 6) & " " & Sheets("Dose Current").Cells(count2, count + 5) & " " & Sheets("Dose Current").Cells(count2, count + 7)
+        outRow = outRow + 1
+    Next
+    Call CloseData("tsds", False)
+    Range("B62:I" & outRow - 1).Select
+    With Selection
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+    End With
+    Range("J62:K" & outRow - 1).Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlTop
+    End With
+    Range("L62:M" & outRow - 1).Select
+    With Selection
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+    End With
+    Range("B62:O" & outRow - 1).Select
+    Selection.Sort Key1:=Range("O62"), Order1:=xlAscending, Header:=xlGuess, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal, DataOption2:=xlSortNormal
+    For count = 63 To outRow - 1
+        Range("K" & count).Select
+        ActiveCell.FormulaR1C1 = "=RC[-1]+R[-1]C"
+    Next count
+    Range("B" & outRow) = "The radiation dose from this year's visits is " & Range("J" & outRow - 1) & " µSv and the dose constraint is 10 µSv/y"
+    Range("B" & outRow & ":M" & outRow + 1).Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlTop
+        .MergeCells = True
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .Weight = xlThick
+        .ColorIndex = 36
+    End With
+    EAOff = Workbooks(wBook).Sheets("LookUp").Range("E" & Iota)
+    Range("B" & outRow + 2) = "Radiation Dose Record Owner:  " & Range("I31") & ", EA Office " & EAOff & "  Signature: ____________________  Date: ____________________ "
+    Range("B" & outRow + 4) = "Radiation Protection Supervisour:  Name ____________________  Signature: ____________________  Date: ____________________ "
+    Range("B" & outRow + 2 & ":M" & outRow + 4).Select
+    With Selection
+        .HorizontalAlignment = xlLeft
+        .VerticalAlignment = xlTop
+    End With
+    Range("B62:M" & outRow + 5).Select
+    With Selection
+        .Interior.ColorIndex = 43
+        .Interior.ColorIndex = 2
+        .Font.ColorIndex = 51
+    End With
+    Worksheets("Doses").ScrollArea = "a1:m40"
+    ActiveSheet.Protect
+    lastrow = outRow + 5
+    If lastrow < 54 Then pTall = 1 Else pTall = 2
+    ActiveSheet.PageSetup.PrintArea = "$A$59:$N$" & lastrow
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$2"
+        .CenterHeader = "&""Arial,Bold""PROTECT - REGULATORY"
+        .CenterFooter = "&""Arial,Bold""PROTECT - REGULATORY"
+        .RightFooter = "&""Arial""&8Printed by " & Environ("USERNAME") & " " & Format(Date, "d mmmm yyyy")
+        .CenterHorizontally = True
+        .CenterVertically = False
+        .Orientation = xlLandscape
+        .PaperSize = xlPaperA4
+        .FitToPagesWide = 1
+        .FitToPagesTall = pTall
+        .PrintErrors = xlPrintErrorsDisplayed
+    End With
+    Load UserFormPrintReport
+    Call UserFormPrintReport.FillVars("1", "Print Dose Record")
+    UserFormPrintReport.Show
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.ScreenUpdating = True
+    Range("A3").Select
+End Sub

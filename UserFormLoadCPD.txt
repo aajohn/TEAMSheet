@@ -1,0 +1,354 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadCPD 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadCPD.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadCPD"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim RefVar As Integer, ppeVar As String
+    Dim PasteRange As String
+    Dim MsgText As String
+    Dim iDate As Date
+    Dim tfrCheck As Boolean
+    Dim pCent As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image5.jpg")
+    Label2.Width = 0
+    DoEvents
+    CopyRow = Label4.Caption
+    Update = Label5.Caption
+    sVar = Label6.Caption
+    Call OpenData("tsds")
+    wBook = "tsds.xls"
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    If Update Then Application.ScreenUpdating = False
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Details").Select
+    ActiveSheet.Unprotect
+    Range("G3") = CopyRow
+    Range("F22") = ""
+    Sheets("LookUp").Range("BP2:BR500") = ""
+    Do
+        If Left(Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow), 1) = "s" Then
+            Call msg("Surrendered", "This permit has been " & Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow), 27)
+            Range("F22") = Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow)
+            Range("G3") = ""
+        End If
+        If Left(Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow), 1) = "t" Then
+            MsgText = "This permit has been " & Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow)
+            Call dataRow(Mid(Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow), 15, Len(Workbooks(wBook).Sheets(wSheet).Range("BH" & CopyRow)) - 14))
+            CopyRow = DRow
+            Label4.Caption = CopyRow
+            Range("G3") = CopyRow
+            Windows("RSR TEAMSheet.xlsm").Activate
+            tfrCheck = True
+        Else
+            tfrCheck = False
+        End If
+    Loop Until tfrCheck = False
+    If Not Workbooks(wBook).Sheets(wSheet).Range("BX" & CopyRow) = "" Then
+        Sheets("Details").Range("K46") = "PPE Changed " & Format(Mid(Workbooks(wBook).Sheets(wSheet).Range("BX" & CopyRow), 15, 10), "d mmm yyyy")
+    Else
+        Sheets("Details").Range("K46") = "PPE Not Recorded"
+    End If
+    If Not Workbooks(wBook).Sheets(wSheet).Range("BZ" & CopyRow) = "" Then
+        Sheets("Details").Range("I3") = Mid(Workbooks(wBook).Sheets(wSheet).Range("BZ" & CopyRow), 1, 1)
+        Sheets("Details").Range("J4") = "Changed " & Format(Mid(Workbooks(wBook).Sheets(wSheet).Range("BZ" & CopyRow), 2, 10), "d mmm yyyy")
+        Sheets("Details").Range("M3") = Right(Workbooks(wBook).Sheets(wSheet).Range("BZ" & CopyRow), Len(Workbooks(wBook).Sheets(wSheet).Range("BZ" & CopyRow)) - 12)
+    Else
+        Sheets("Details").Range("I3") = 0
+        Sheets("Details").Range("J4") = "Information Note Empty"
+        Sheets("Details").Range("M3") = ""
+    End If
+    If Not Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow) = "" Then
+        Range("N36") = Mid(Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow), 1, 1)
+        Range("N37") = Mid(Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow), 2, 1)
+        Range("N38") = Mid(Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow), 3, 1)
+        Range("K35") = "Changed " & Format(Mid(Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow), 4, 10), "d mmm yyyy")
+    Else
+        Range("K35") = "Safety Note Empty"
+        Range("N36") = 0
+        Range("N37") = 0
+        Range("N38") = 0
+    End If
+    lastrow = Sheets("LookUp").Cells(Rows.count, "BB").End(xlUp).Row - 2
+    For RefVar = 1 To lastrow
+        PasteRange = Sheets("LookUp").Range("BB" & RefVar + 2)
+        Sheets("Details").Range(PasteRange) = Workbooks(wBook).Sheets(wSheet).Cells(CopyRow, RefVar)
+    Next
+    ppeVar = Workbooks(wBook).Sheets(wSheet).Range("BX" & CopyRow)
+    Sheets("Details").Range("N40") = Workbooks(wBook).Sheets(wSheet).Range("BY" & CopyRow)
+    Sheets("LookUp").Range("BP1") = Workbooks(wBook).Sheets(wSheet).Range("BM" & CopyRow)
+    Sheets("LookUp").Range("BQ1") = Workbooks(wBook).Sheets(wSheet).Range("BN" & CopyRow)
+    If Range("G3") > 0 And InStr(Range("D10"), "Offshore") = 0 And Sheets("LookUp").Range("BT1") Then
+        Call Nearest(CopyRow) ' and not for temp files
+        If Len(MsgText) > 0 Then Call msg("Transfered", MsgText, 11)
+    End If
+    Call CloseData("tsds", sVar)
+    Sheets("Details").Select
+
+    '*************
+    Range("D11") = "Not Found"
+    lastrow = Sheets("LookUp").Cells(Rows.count, "BB").End(xlUp).Row - 3
+    For count = 3 To lastrow
+        If Range("D10") = Sheets("LookUp").Range("H" & count) Then
+            Range("D11") = Sheets("LookUp").Range("I" & count)
+            Exit For
+        End If
+    Next
+    If Left(Range("D3"), 1) = "Z" Then
+        Call Layout(True)
+    Else
+        Call Layout(False)
+    End If
+    Range("N39") = ppeVar
+    Range("K39:N45").Select
+    With Selection.Font
+        .ThemeColor = xlThemeColorAccent2
+        .TintAndShade = 0.799981688894314
+    End With
+    For count = 1 To 7
+        If Mid(ppeVar, count, 1) = "1" Then
+            Range("K" & count + 38).Select
+            With Selection.Font
+                .ThemeColor = xlThemeColorAccent5
+                .TintAndShade = -0.499984740745262
+            End With
+        End If
+    Next count
+    For count = 8 To 13
+        If Mid(ppeVar, count, 1) = "1" Then
+            Range("M" & count + 31).Select
+            With Selection.Font
+                .ThemeColor = xlThemeColorAccent5
+                .TintAndShade = -0.499984740745262
+            End With
+        End If
+    Next count
+    If Left(Range("F22"), 1) = "s" Then
+        If Not IsEmpty(Range("D21")) Then Range("D20") = "SURRENDERED"
+        If Not IsEmpty(Range("J21")) Then Range("J20") = "SURRENDERED"
+    End If
+    If Not Left(Range("D3"), 1) = "Z" Then ' remove when visits for temp sites
+        ActiveSheet.Shapes("Insp").Select
+        If Left(Sheets("Details").Range("D38"), 8) = "Arranged" Then
+            Selection.Characters.text = "Cancel / Change Inspection"
+            Selection.OnAction = "Sheet1.ChangeInspection"
+            ActiveSheet.Shapes("IPlan").Visible = True
+        Else
+            Selection.Characters.text = "Plan / Arrange Inspection"
+            Selection.OnAction = "Sheet1.PlanInspection"
+            ActiveSheet.Shapes("IPlan").Visible = False
+        End If
+    End If
+    ActiveSheet.Shapes("LampR").Visible = False
+    ActiveSheet.Shapes("LampA").Visible = False
+    ActiveSheet.Shapes("LampG").Visible = False
+    If Left(Sheets("Details").Range("D38"), 3) = "Due" And Not Left(Range("F22"), 1) = "s" Then
+        tdate = DateSerial(Year(Date), Int((Month(Date) - 1) / 3) * 3 + 1, 1)
+        iDate = DateSerial(Right(Sheets("Details").Range("D38"), 4), Mid(Sheets("Details").Range("D38"), 9, 1) * 3 + 1, 1)
+        If iDate = tdate Then
+            Call msg("Inspection", "Inspection is due this Quarter", 21)
+            ActiveSheet.Shapes("LampA").Visible = True
+        End If
+        If iDate < tdate Then
+            Call msg("Inspection", "Inspection is due OVERDUE", 21)
+            ActiveSheet.Shapes("LampR").Visible = True
+        End If
+        If iDate > tdate Then
+            ActiveSheet.Shapes("LampG").Visible = True
+        End If
+    End If
+    If Sheets("Details").Range("D38") = "" Then
+        ActiveSheet.Shapes("LampR").Visible = True
+    End If
+    If Sheets("Details").Range("D36") = "Reactive" Then
+        ActiveSheet.Shapes("LampA").Visible = True
+    End If
+    Range("A3").Select
+    If Update Then Application.ScreenUpdating = True
+    ActiveSheet.Protect
+    If Iota = 0 Then
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+            v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+            If InStr(UCase(Environ("USERNAME")), v1) Then
+                Iota = count
+                Exit For
+            End If
+            If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+                Iota = count
+                Exit For
+            End If
+        Next count
+    End If
+    Unload Me
+End Sub
+Sub FillVars(CopyRow, Update, sVar)
+    Label4.Caption = CopyRow
+    Label5.Caption = Update
+    Label6.Caption = sVar
+End Sub
+Private Sub Nearest(CopyRow)
+    Dim d1 As Double, d2 As Double
+    Dim x1 As Double, x2 As Double, y1 As Double, y2 As Double
+    ' using haversine formula, shortest distance between two points on a sphere
+    Const r As Double = 6371 ' mean radius of earth in km
+    Const pi As Double = 3.14159265358979
+    ActiveSheet.ListBox1.Activate
+    count = 2
+    wBook = "tsds.xls"
+    Application.ScreenUpdating = False
+    Windows("RSR TEAMSheet.xlsm").Activate
+    x1 = Workbooks(wBook).Sheets("Datasheet").Range("BM" & CopyRow)
+    y1 = Workbooks(wBook).Sheets("Datasheet").Range("BN" & CopyRow)
+    For count2 = 2 To Lambda
+        check = True
+        If count2 = CopyRow Then check = False
+        If InStr(Workbooks(wBook).Sheets("Datasheet").Range("J" & count2), "Offshore") > 0 Then check = False
+        If Not IsNumeric(Workbooks(wBook).Sheets("Datasheet").Range("BM" & count2)) Then check = False
+        If check Then
+            x2 = Workbooks(wBook).Sheets("Datasheet").Range("BM" & count2)
+            y2 = Workbooks(wBook).Sheets("Datasheet").Range("BN" & count2)
+            d1 = Sin(Abs(x2 - x1) * pi / 180 / 2) ^ 2 + Cos(x1 * pi / 180) * Cos(x2 * pi / 180) * Sin(Abs(y2 - y1) * pi / 180 / 2) ^ 2
+            d2 = 2 * Application.WorksheetFunction.Atan2(Sqr(1 - d1), Sqr(d1))
+            Sheets("LookUp").Range("BR" & count) = Format((r * d2) * 0.621371192237334, "Standard")
+            Sheets("LookUp").Range("BP" & count) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count2)
+            Sheets("LookUp").Range("BQ" & count) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count2)
+            count = count + 1
+        End If
+        Label2.Width = (count2 / Lambda) * 100
+        DoEvents
+    Next count2
+    Sheets("Lookup").Select
+    ActiveSheet.Unprotect
+    Sheets("LookUp").Range("BP2:BR" & count - 1).Select
+    Selection.Sort Key1:=Sheets("LookUp").Range("BR2"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    ActiveSheet.Protect
+    Sheets("details").Select
+End Sub
+Private Sub Layout(tmpVar As Boolean)
+    If tmpVar Then 'true for temp site
+        Range("B13") = "Temporary Operator"
+        Range("D3").Select
+        Selection.Font.ColorIndex = 3
+        Range("C13:L33").Select
+        Selection.Interior.ColorIndex = 43
+        Selection.Font.ColorIndex = 43
+        Range("C36:D36").Select
+        Selection.Interior.ColorIndex = 36
+        Selection.Font.ColorIndex = 36
+        Range("F35:G37").Select
+        Selection.Interior.ColorIndex = 36
+        Selection.Font.ColorIndex = 36
+        Range("C38:D38").Select
+        Selection.Interior.ColorIndex = 36
+        Selection.Font.ColorIndex = 36
+        ActiveSheet.Shapes("AutoShape 87").Visible = False
+        ActiveSheet.Shapes("AutoShape 188").Visible = False
+        ActiveSheet.Shapes("AutoShape 141").Visible = False
+        ActiveSheet.Shapes("AutoShape 199").Visible = False
+        ActiveSheet.Shapes("NAIR").Visible = False
+        ActiveSheet.Shapes("Convert").Visible = True
+        ActiveSheet.Shapes("Insp").Visible = False ' change at future point
+        ActiveSheet.Shapes("AutoShape 111").Visible = False ' change at future point
+    Else
+        Range("B13") = "Permitting"
+        Range("D3").Select
+        Selection.Font.ColorIndex = 51
+        Range("C13:L33").Select
+        Selection.Interior.ColorIndex = 36
+        Selection.Font.ColorIndex = 36
+        Range("D15:D18,F14:H14,H15,F16:H18,J15,J17:J18").Select
+        Selection.Interior.ColorIndex = 2
+        Selection.Font.ColorIndex = 51
+        Range("C15,F13,F15").Select
+        Selection.Font.ColorIndex = 10
+        Range("C20:C33").Select
+        Selection.Font.ColorIndex = 36
+        Range("C36:C38").Select
+        Selection.Font.ColorIndex = 10
+        Range("F35:G35").Select
+        Selection.Font.ColorIndex = 10
+        Range("D36,D38").Select
+        Selection.Interior.ColorIndex = 2
+        Selection.Font.ColorIndex = 51
+        Range("F37,G37").Select
+        Selection.Interior.ColorIndex = 2
+        Selection.Font.ColorIndex = 51
+        ActiveSheet.Shapes("AutoShape 87").Visible = True
+        ActiveSheet.Shapes("AutoShape 188").Visible = True
+        ActiveSheet.Shapes("AutoShape 141").Visible = True
+        ActiveSheet.Shapes("AutoShape 199").Visible = True
+        ActiveSheet.Shapes("NAIR").Visible = True
+        ActiveSheet.Shapes("Convert").Visible = False
+        ActiveSheet.Shapes("Insp").Visible = True ' change at future point
+        ActiveSheet.Shapes("AutoShape 111").Visible = True ' change at future point
+    End If
+    If Not Range("D20") = "" Or Not Range("J20") = "" And tmpVar = False Then
+        ActiveSheet.Shapes("Update").Visible = True
+        ActiveSheet.Shapes("ByeBye").Visible = True
+        ActiveSheet.Shapes("AddLtr").Visible = True
+    Else
+        ActiveSheet.Shapes("Update").Visible = False
+        ActiveSheet.Shapes("ByeBye").Visible = False
+        ActiveSheet.Shapes("AddLtr").Visible = False
+    End If
+    If Sheets("Details").Range("J20") = "New Application" Or Sheets("Details").Range("J20") = "Variation" And tmpVar = False Then
+        ActiveSheet.Shapes("FSA").Visible = True
+    Else
+        ActiveSheet.Shapes("FSA").Visible = False
+    End If
+    If Not IsEmpty(Range("J15,J17:J18")) And tmpVar = False Then
+        ActiveSheet.Shapes("NAIR").Visible = True
+        If Sheets("Details").Range("L29") Then
+            ActiveSheet.Shapes("NAIR").Select
+            Selection.Characters.text = "NAIR  ü"
+            With Selection.Characters(start:=1, Length:=6).Font
+                .Name = "Arial"
+                .FontStyle = "Regular"
+                .Size = 8
+            End With
+            With Selection.Characters(start:=7, Length:=1).Font
+                .Name = "Wingdings"
+                .FontStyle = "Bold"
+                .Size = 9
+            End With
+        Else
+            ActiveSheet.Shapes("NAIR").Select
+            Selection.Characters.text = "NAIR  û"
+            With Selection.Characters(start:=1, Length:=6).Font
+                .Name = "Arial"
+                .FontStyle = "Regular"
+                .Size = 8
+            End With
+            With Selection.Characters(start:=7, Length:=1).Font
+                .Name = "Wingdings"
+                .FontStyle = "Regular"
+                .Size = 9
+            End With
+        End If
+    Else
+        ActiveSheet.Shapes("NAIR").Visible = False
+    End If
+    If Not IsEmpty(Range("D46")) And Format(Date, "q") = 1 Then
+        ActiveSheet.Shapes("322report").Visible = True
+        ActiveSheet.Shapes("322report").Select
+        If Right(Range("D46"), 4) = Format(Date, "yyyy") Then
+            Selection.ShapeRange.Line.Visible = msoFalse
+        Else
+            Selection.ShapeRange.Line.Visible = msoTrue
+        End If
+    Else
+        ActiveSheet.Shapes("322report").Visible = False
+    End If
+End Sub

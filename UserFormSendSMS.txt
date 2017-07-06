@@ -1,0 +1,68 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormSendSMS 
+   ClientHeight    =   4425
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormSendSMS.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormSendSMS"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    If Not ListBox1.Column(1) = "" Then
+        eTo = ListBox1.Column(1) & "@sms.ea.gov"
+        If CheckBox1 Then eMsg = CheckBox1.Caption
+        If CheckBox5 Then eMsg = eMsg & " " & CheckBox5.Caption
+        If CheckBox2 Then eMsg = eMsg & " " & CheckBox2.Caption
+        If CheckBox3 Then
+            eMsg = eMsg & " " & CheckBox3.Caption
+        Else
+            If CheckBox4 Then eMsg = eMsg & " " & CheckBox4.Caption
+        End If
+        Call SendEmail(eTo, "", eMsg, "")
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Activate()
+    Dim addrlen, check2
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image1.jpg")
+    ListBox1.ColumnCount = 2
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ListBox1.AddItem
+        ListBox1.List(count, 0) = Sheets("LookUp").Range("C" & count + 3)
+        If Not IsEmpty(Sheets("LookUp").Range("G" & count + 3)) Then ListBox1.List(count, 1) = "0" & Sheets("LookUp").Range("G" & count + 3)
+    Next
+    ListBox1.Value = Sheets("Details").Range("D35")
+    CheckBox1.Caption = Sheets("Details").Range("D7")
+    CheckBox2.Caption = Sheets("Details").Range("D5")
+    Addr = Sheets("Details").Range("D6")
+    addrlen = Len(Addr)
+    check = True: check2 = False
+    If addrlen > 0 Then
+        Do
+            Addr2 = Mid(Addr, addrlen, 1)
+            If Addr2 = Chr(32) Then
+                If check2 Then
+                    check = False
+                Else
+                    check2 = True
+                End If
+            End If
+            Addr3 = Addr2 & Addr3
+            addrlen = addrlen - 1
+        Loop Until check = False
+    End If
+    CheckBox3.Caption = Sheets("Details").Range("D6")
+    CheckBox4.Caption = Addr3
+    CheckBox5.Caption = Sheets("Details").Range("D8")
+End Sub

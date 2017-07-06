@@ -1,0 +1,76 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormViewDoseLog 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9405
+   OleObjectBlob   =   "UserFormViewDoseLog.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormViewDoseLog"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Application.ScreenUpdating = False
+    Load UserFormRecordDose
+    Call UserFormRecordDose.FillVars("")
+    UserFormRecordDose.Show
+    Application.ScreenUpdating = True
+    Call Create_List
+End Sub
+Private Sub CommandButton4_Click()
+    Dim refCol As Integer
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    count2 = ListBox1.ListIndex + 2
+    Call OpenData("tsds")
+    lastrow = Sheets("Dose Current").Cells(Rows.count, "B").End(xlUp).Row
+    For count = 1 To lastrow
+        If Sheets("Dose Current").Range("B" & count) = Workbooks(wBook).Sheets("Doses").Range("I31") Then Exit For
+    Next
+    refCol = (count * 9) - 4
+    Sheets("Dose Current").Select
+    For count = refCol To refCol + 7
+        Sheets("Dose Current").Cells(count2, count).Select
+        Selection.Delete Shift:=xlUp
+    Next
+    Call CloseData("tsds", True)
+    Call Create_List
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image19.jpg")
+    Label1.Caption = "Individual Dose Record for " & Range("I31")
+    Call Create_List
+End Sub
+Private Sub Create_List()
+    Dim lp As Integer
+    Application.ScreenUpdating = False
+    ListBox1.Clear
+    ListBox1.ColumnCount = 4
+    ListBox1.ColumnWidths = "4.2cm;1cm;8cm;2cm"
+    Call OpenData("tsds")
+    lastrow = Sheets("Dose Current").Cells(Rows.count, "B").End(xlUp).Row
+    For count = 1 To lastrow
+        If Sheets("Dose Current").Range("B" & count) = Workbooks(wBook).Sheets("Doses").Range("I31") Then Exit For
+    Next
+    count = (count * 9) - 4
+    For lp = 0 To Sheets("Dose Current").Cells(Rows.count, count).End(xlUp).Row - 2
+        ListBox1.AddItem
+        ListBox1.List(lp, 0) = Sheets("Dose Current").Cells(lp + 2, count)
+        ListBox1.List(lp, 1) = Sheets("Dose Current").Cells(lp + 2, count + 2)
+        ListBox1.List(lp, 2) = Sheets("Dose Current").Cells(lp + 2, count + 1)
+        ListBox1.List(lp, 3) = Sheets("Dose Current").Cells(lp + 2, count + 4)
+    Next lp
+    Call CloseData("tsds", False)
+End Sub

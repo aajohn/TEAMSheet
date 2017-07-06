@@ -1,0 +1,58 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLetter 
+   ClientHeight    =   5820
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   7305
+   OleObjectBlob   =   "UserFormLetter.frx":0000
+End
+Attribute VB_Name = "UserFormLetter"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    From = ListBox1.Value
+    Application.ScreenUpdating = False
+    If OptionButton1 = True Or OptionButton3 = True Then
+        Call OpenWordDoc("n", From, "True", "False")
+    End If
+    Application.Wait (Now + TimeValue("0:00:2"))
+    If OptionButton2 = True Or OptionButton3 = True Then
+        Call OpenWordDoc("n", From, "False", "True")
+    End If
+    Call msg("Letters", "Your Letter/s have been created and saved to your RSR Temporary Drafts", 6)
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image9.jpg")
+    Address = Range("D6")
+    For count = 1 To Len(Address)
+        Addr2 = Mid(Address, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of " & Range("D7")
+    OptionButton1.Caption = Address
+    Address = "": Addr2 = "": Addr3 = ""
+    Address = Range("H6")
+    For count = 1 To Len(Address)
+        Addr2 = Mid(Address, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of the Company Secretary"
+    OptionButton2.Caption = Address
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ListBox1.AddItem
+        ListBox1.List(count) = Sheets("LookUp").Range("C" & count + 3)
+    Next
+    ListBox1.Value = Sheets("Details").Range("D35")
+End Sub

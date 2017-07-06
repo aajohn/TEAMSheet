@@ -1,0 +1,64 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormCheckData 
+   ClientHeight    =   3225
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4710
+   OleObjectBlob   =   "UserFormCheckData.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormCheckData"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim lastrow2 As Integer
+    If TextBox1.Value = "" Then Exit Sub
+    If TextBox2.Value = "" Then Exit Sub
+    If FVar <> "False" Then
+        Application.DisplayAlerts = False
+        On Error GoTo ErrHandler:
+        Workbooks.Open fileName:=FVar
+        On Error GoTo 0
+        '** need to chop end from FVar
+        Windows("RSR TEAMSheet.xlsm").Activate
+        Call OpenData("tsds")
+        lastrow2 = Workbooks(FVar).Sheets("Sheet1").Cells(Rows.count, TextBox1.Value).End(xlUp).Row
+        count = lastrow2 + 1
+        For count1 = 1 To Lambda
+            check = False
+            For count2 = 1 To lastrow2
+                If Sheets("Datasheet").Range("A" & count1) = Workbooks(FVar).Sheets(1).Range(TextBox1.Value & count2) Then
+                    Workbooks(FVar).Sheets("Sheet1").Range(TextBox2.Value & count2) = "Match"
+                    check = True
+                End If
+            Next count2
+            If check = False Then
+                Workbooks(FVar).Sheets("Sheet1").Range(TextBox1.Value & count) = Sheets("Datasheet").Range("A" & count1)
+                Workbooks(FVar).Sheets("Sheet1").Range(TextBox2.Value & count) = "Missing"
+                count = count + 1
+            End If
+        Next x
+        Call CloseData("tsds", False)
+        Windows(FVar).Activate
+        ActiveWorkbook.Save
+        ActiveWorkbook.Close
+        Unload Me
+ErrHandler:
+        Call msg("ERROR", "The filename cannot be found or is not a valid exel file", 26)
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    FVar = Application.GetOpenFilename("All Files (*.xls), *.xls")
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+End Sub

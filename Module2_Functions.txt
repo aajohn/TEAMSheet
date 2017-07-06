@@ -1,0 +1,73 @@
+Attribute VB_Name = "Module2_Functions"
+Option Explicit
+
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hWnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Private Declare Function DrawMenuBar Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function SetForegroundWindow Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function GetDesktopWindow Lib "user32" () As Long
+Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
+
+Public RunWhen As Double
+Public Const NUM_MINUTES = 15
+
+Sub RemoveCaption(objForm As Object)
+''======================================================
+''  Removes the top bar from a User Form
+''
+''+++++++++++++++++++++++++++++++++++++++++++++++++=================
+
+    Dim lStyle As Long
+    Dim hMenu As Long
+    Dim mhWndForm As Long
+    
+    If Val(Application.Version) < 9 Then
+        mhWndForm = FindWindow("ThunderXFrame", objForm.Caption)
+    Else
+        mhWndForm = FindWindow("ThunderDFrame", objForm.Caption)
+    End If
+    
+    lStyle = GetWindowLong(mhWndForm, -16)
+    lStyle = lStyle And Not &HC00000
+    SetWindowLong mhWndForm, -16, lStyle
+    DrawMenuBar mhWndForm
+End Sub
+
+Public Sub TimeOut()
+    Dim lExcelHwnd As Long
+    lExcelHwnd = FindWindow("XLMAIN", Application.Caption)
+    SetForegroundWindow lExcelHwnd
+    On Error Resume Next
+    UserFormTimeOut.Show
+    On Error GoTo 0
+End Sub
+
+Sub RSRExit()
+    If Drafts Then UserFormCheckDrafts.Show
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    Application.Quit
+End Sub
+
+Function ShellOper(strFileExe As String) As Long
+    Dim hWndDesk As Long
+    hWndDesk = GetDesktopWindow()
+    If Len(Dir(strFileExe)) = 0 Then GoTo ErrH
+    ShellOper = ShellExecute(hWndDesk, "Open", strFileExe, 0, 0, 3)
+    If ShellOper <= 32 Then
+        MsgBox "Unable to Open " & strFileExe
+    End If
+    Exit Function
+ErrH:
+    ShellOper = -1
+End Function
+
+Function GetBoiler(ByVal sFile As String) As String
+    Dim fso As Object
+    Dim ts As Object
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set ts = fso.GetFile(sFile).OpenAsTextStream(1, -2)
+    GetBoiler = ts.readall
+    ts.Close
+End Function

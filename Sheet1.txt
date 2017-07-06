@@ -1,0 +1,391 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+Sub StartCheck(varCheck As Boolean)
+    On Error Resume Next
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    RunWhen = Now + TimeSerial(0, NUM_MINUTES, 0)
+    Application.OnTime RunWhen, "TimeOut", , True
+    If IsEmpty(Range("D3")) Then
+        Call FindSite
+        If DRow = 0 Then Exit Sub
+    End If
+    If varCheck = True And Range("G3") = 0 Then
+        Call msg("Surrendered", "This permit has been " & Range("F22"), 27)
+        DRow = 0
+        Exit Sub
+    End If
+End Sub
+Sub DpBox()
+    If DpBoxState Then
+        ActiveSheet.Shapes("DBox").Visible = False
+        ActiveSheet.Shapes("DBox1").Visible = False
+        ActiveSheet.Shapes("DBox2").Visible = False
+        ActiveSheet.Shapes("DBox3").Visible = False
+        ActiveSheet.Shapes("DBox4").Visible = False
+        ActiveSheet.Shapes("DBox5").Visible = False
+        DpBoxState = False
+        ActiveSheet.Shapes("DBox0").Select
+        Selection.Characters.text = "v Contacts v"
+    Else
+        ActiveSheet.Shapes("DBox").Visible = True
+        ActiveSheet.Shapes("DBox1").Visible = True
+        ActiveSheet.Shapes("DBox2").Visible = True
+        ActiveSheet.Shapes("DBox3").Visible = True
+        ActiveSheet.Shapes("DBox4").Visible = True
+        ActiveSheet.Shapes("DBox5").Visible = True
+        DpBoxState = True
+        ActiveSheet.Shapes("DBox0").Select
+        Selection.Characters.text = "^ Contacts ^"
+    End If
+    Range("A3").Select
+End Sub
+Sub FindSite()
+    Application.ScreenUpdating = False
+    tdate = VBA.Format(VBA.Date, "d/m/yyyy")
+    UserFormFindSite.Show
+    check = False
+    If Range("D23") < tdate And Not IsEmpty(Range("D23")) Then check = True
+    If Range("J23") < tdate And Not IsEmpty(Range("J23")) Then check = True
+    If check Then Call msg("Application", "Application is Overdue", 26)
+End Sub
+Sub IECompany()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    If Range("J7") > 0 Then
+        Call LaunchIE(Sheets("LookUp").Range("CH2"), 1, Sheets("Details").Range("J7"))
+    Else
+        check = False
+        If InStr(Range("D5"), "LTD") > 0 Then check = True
+        If InStr(Range("D5"), "LIMITED") > 0 Then check = True
+        If InStr(Range("D5"), "PLC") > 0 Then check = True
+        If check Then
+            Call LaunchIE(Sheets("LookUp").Range("CH2"), 2, Sheets("Details").Range("D5"))
+        Else
+            Call msg("Company Search", "No Company Number" & vbLf & "Not a Company (Ltd, Limited or Plc)", 18)
+        End If
+    End If
+End Sub
+Sub SendLetter()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    If Not IsEmpty(Range("D5")) Then
+        If Not IsEmpty(Range("D6")) Then
+            UserFormLetter.Show
+        End If
+    End If
+End Sub
+Sub SendContact()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    eTo = Range("D9") & ";" & Range("F9")
+    If eTo <> "" Then
+        eSubj = "Radioactive Substances Regulation: "
+        Call SendEmail(eTo, eSubj, "", "")
+    Else
+        Call msg("e-mail Address", "No email address for site contact", 7)
+    End If
+End Sub
+Sub InspectionFollowUp()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    Load UserFormInspectionFollowUp
+    Call UserFormInspectionFollowUp.start
+    UserFormInspectionFollowUp.Show
+End Sub
+Sub AppRecieved()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    check = False
+    If Not IsEmpty(Sheets("Details").Range("D20")) And IsEmpty(Sheets("Details").Range("D32")) Then check = True
+    If Not IsEmpty(Sheets("Details").Range("J20")) And IsEmpty(Sheets("Details").Range("J32")) Then check = True
+    If check Then
+        DRow = 0
+        UserFormAppCheck.Show
+        If DRow = 1 Then Exit Sub
+    End If
+    DRow = 1
+    Load UserFormAppRecieved
+    Call UserFormAppRecieved.FillVars(False)
+    UserFormAppRecieved.Show
+    If DRow = 0 Then
+        DRow = Range("G3")
+        Exit Sub
+    End If
+    If Range("D20") = "Change of Fact" Or Range("J20") = "Change of Fact" Then
+        UserFormAppChangeofFact.Show
+    End If
+    If Range("D20") = "Transfer - Full" Or Range("J20") = "Transfer - Full" Then
+        UserFormAppTransF.Show
+    End If
+    Sheets("Details").Select
+    Range("D3").Select
+End Sub
+Sub AppUpdate()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    check = False
+    If Not IsEmpty(Range("D20")) And IsEmpty(Range("D33")) Then check = True
+    If Not IsEmpty(Range("J20")) And IsEmpty(Range("J33")) Then check = True
+    If check Then
+        UserFormAppUpdate.Show
+    Else
+        Call msg("Application", "This application has been issued", 18)
+    End If
+End Sub
+Sub UpdateContact()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormUpdateContact.Show
+End Sub
+Sub SendSMS()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    UserFormSendSMS.Show
+End Sub
+Sub PlanInspection()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormPlanInspection.Show
+End Sub
+Sub ChangeInspection()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    UserFormChangeInspection.Show
+End Sub
+Sub ChangeInsp()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormChangeInsp.Show
+End Sub
+Sub Con322Report()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormCon322Report.Show
+End Sub
+Sub UpdatePPE()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormUpdatePPE.Show
+End Sub
+Sub InfoNote()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    Load UserFormNote
+    Call UserFormNote.FillVars(True)
+    UserFormNote.Show
+End Sub
+Sub Intervention()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormIntervention.Show
+End Sub
+Sub SendForms()
+    Application.ScreenUpdating = False
+    UserFormSendForms.Show
+    Application.ScreenUpdating = True
+End Sub
+Sub floodAdvice()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormFloodAdvice.Show
+End Sub
+Sub PermitHistory()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormPermitHistory.Show
+End Sub
+Sub EAAddrLabels()
+    UserFormAdminAddrLabels.Show
+End Sub
+Sub AppNew()
+    UserFormAppNew.Show
+End Sub
+Sub Photo()
+    Call StartCheck(True)
+    UserFormPhoto.Show
+End Sub
+Sub FileNote()
+    Call StartCheck(True)
+    UserFormFileNote.Show
+End Sub
+Sub IPlan()
+    UserFormIPlan.Show
+End Sub
+Sub FSALtr() '** sort variables
+    Addr2 = "": Addr3 = ""
+    Addr = Sheets("LookUp").Range("AI3")
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = Addr3 & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("AG3")
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter 1.doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " FSA"
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = Range("J21")
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    aDate = DateAdd("w", 20, Date)
+    wdDoc.Bookmarks("L4").Range.text = Format(aDate, "d mmmm yyyy")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Call msg("FSA Letter", "Your Letter to the Food Standards Agency has been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+End Sub
+Sub AdditionalLetters()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormAppAddLetters.Show
+End Sub
+Sub EnforcementAction()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormEnforcement.Show
+End Sub
+Sub ComplianceHistory()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormComplianceHistory.Show
+End Sub
+Sub FilesKept()
+    Call StartCheck(True)
+    Application.ScreenUpdating = False
+    UserFormFilesKept.Show
+End Sub
+Sub InspNote()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    eTo = Range("D35")
+    eSubj = "MESSAGE"
+    eMsg = "Please can you contact " & Range("D7") & " " & Range("D8") & " or " & Range("F7") & " " & Range("F8") & " from " & Range("D5") & " (" & Range("D3") & ")."
+    Call SendEmail(eTo, eSubj, eMsg, "")
+End Sub
+Sub ShowMaps()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    UserFormShowMaps.Show
+End Sub
+Sub ChangeNAIR()
+    Dim nCheck As Boolean
+    DRow = Range("G3")
+    nCheck = True
+    If Range("L29") Then nCheck = False
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AH" & DRow) = nCheck
+    Call CloseData("tsds", True)
+    Sheets("Details").Select
+    ActiveSheet.Unprotect
+    Range("L29") = nCheck
+    If Not IsEmpty(Range("J15,J17:J18")) Then
+        ActiveSheet.Shapes("NAIR").Visible = True
+        If nCheck Then
+            ActiveSheet.Shapes("NAIR").Select
+            Selection.Characters.text = "NAIR  ü"
+            With Selection.Characters(start:=1, Length:=6).Font
+                .Name = "Arial"
+                .FontStyle = "Regular"
+                .Size = 8
+            End With
+            With Selection.Characters(start:=7, Length:=1).Font
+                .Name = "Wingdings"
+                .FontStyle = "Bold"
+                .Size = 9
+            End With
+        Else
+            ActiveSheet.Shapes("NAIR").Select
+            Selection.Characters.text = "NAIR  û"
+            With Selection.Characters(start:=1, Length:=6).Font
+                .Name = "Arial"
+                .FontStyle = "Regular"
+                .Size = 8
+            End With
+            With Selection.Characters(start:=7, Length:=1).Font
+                .Name = "Wingdings"
+                .FontStyle = "Regular"
+                .Size = 9
+            End With
+        End If
+    Else
+        ActiveSheet.Shapes("NAIR").Visible = False
+    End If
+    ActiveSheet.Protect
+End Sub
+Sub FileLabel()
+    Call StartCheck(False)
+    If DRow = 0 Then Exit Sub
+    Application.ScreenUpdating = False
+    UserFormFileLabel.Show
+End Sub
+Sub tempSite()
+    UserFormTempSite.Show
+End Sub
+Sub Swap()
+    Application.ScreenUpdating = False
+    UserFormSwap.Show
+End Sub
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    If Not ListBox1.Value = "" Then
+        Call dataRow(Left(ListBox1.Value, InStr(ListBox1.Value, " ") - 1))
+        If DRow = 0 Then
+            Call CloseData("tsds", False)
+        Else
+            Call CopyPasteData(DRow, True, False)
+        End If
+    End If
+End Sub
+Sub CheckData()
+    UserFormCheckData.Show
+End Sub
+Sub AmendSite()
+    Call StartCheck(True)
+    If DRow = 0 Then Exit Sub
+    'Application.ScreenUpdating = False
+    'Load UserFormInspectionFollowUp
+    'Call UserFormInspectionFollowUp.start
+    UserFormAmendSite.Show
+End Sub

@@ -1,0 +1,74 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet2"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+Sub PrintReport2()
+    Dim pTall As Byte
+    Application.ScreenUpdating = False
+    lastrow = Sheets("Inspections").Cells(Rows.count, "B").End(xlUp).Row + 1
+    ActiveSheet.PageSetup.PrintArea = "$A$20:$AI$" & lastrow
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$2"
+        .CenterHeader = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .CenterFooter = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .RightFooter = "&""Arial""&8Printed by " & Environ("USERNAME")
+        .CenterHorizontally = True
+        .CenterVertically = False
+        .Orientation = xlPortrait
+        .PaperSize = xlPaperA4
+        .FitToPagesWide = 1
+        .FitToPagesTall = 1
+        .PrintErrors = xlPrintErrorsDisplayed
+    End With
+    Load UserFormPrintReport
+    Call UserFormPrintReport.FillVars("2", "Print Report")
+    UserFormPrintReport.Show
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.ScreenUpdating = True
+End Sub
+Sub PrintReport3()
+    Dim pTall As Byte
+    Application.ScreenUpdating = False
+    ActiveSheet.PageSetup.PrintArea = "$BA$16:$CX$80"
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = ""
+        .CenterHeader = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .CenterFooter = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .RightFooter = "&""Arial""&8Printed by " & Environ("USERNAME") & " on " & Date
+        .CenterHorizontally = True
+        .CenterVertically = False
+        .Orientation = xlLandscape
+        .PaperSize = xlPaperA4
+        .FitToPagesWide = 1
+        .FitToPagesTall = 1
+        .PrintErrors = xlPrintErrorsDisplayed
+    End With
+    Load UserFormPrintReport
+    Call UserFormPrintReport.FillVars("2", "Print Report")
+    UserFormPrintReport.Show
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.ScreenUpdating = True
+End Sub
+Sub InspectionPlan()
+    ActiveSheet.Unprotect
+    If Not Sheets("LookUp").Range("A48") = "" Then
+        Range("AM18") = Sheets("LookUp").Range("C" & Iota)
+    Else
+        UserFormLoadInspectionPlanTL.Show
+    End If
+    If Range("AM18") = "" Then Exit Sub
+    Me.ScrollArea = ""
+    UserFormLoadInspectionPlan.Show
+    Application.ScreenUpdating = True
+    Worksheets("Inspections").ScrollArea = ""
+    Range("BA16").Select
+    ActiveWindow.Zoom = True
+    Worksheets("Inspections").ScrollArea = "BA16:CX79"
+    ActiveSheet.Protect
+End Sub

@@ -1,0 +1,126 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormEnforcement 
+   ClientHeight    =   4425
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormEnforcement.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormEnforcement"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    If OptionButton1 Then
+        Dim TLName As String, OurRef As String
+        Dim Address2 As String
+        Dim DMDate As Date
+        Dim dLocation As String
+        Dim var As String
+#If VBA6 Then
+        Address = Replace(Range("H6"), ",", vbLf)
+#Else
+        Address = Application.Substitute(Range("H6"), ",", vbLf)
+#End If
+        Address = " " & Range("D5") & vbLf & " " & Address & vbLf & vbLf & "For the attention of the Company Secretary"
+        'Address2 = " " & Range("D5") & vblf & " " & addr3 ***** for covering letter
+        dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+        If Len(Dir(dLocation, vbDirectory)) = 0 Then
+            MkDir dLocation
+        End If
+        Fname = Epsilon & "Documents\Letters\Blank Warning Letter 1.doc"
+        fName2 = dLocation & "\WarnLtr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+        Addr2 = "": Addr3 = "": AgencyAddress = ""
+        count = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        Addr = Sheets("LookUp").Range("D" & count)
+        AgencyAddress = Sheets("LookUp").Range("B" & count)
+        For count = 1 To Len(Addr)
+            Addr2 = Mid(Addr, count, 1)
+            If Addr2 = "," Then Addr2 = vbLf
+            Addr3 = Addr3 + Addr2
+        Next
+        Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+        If Not Range("D15") = "" Then
+            OurRef = Range("D15") & " & "
+        Else
+            If Not Range("D16") = "" Then OurRef = Range("D16") & " & "
+            If Not Range("D17") = "" Then OurRef = OurRef & Range("D17") & " & "
+            If Not Range("D18") = "" Then OurRef = OurRef & Range("D18") & " & "
+            If Not Range("F16") = "" Then OurRef = OurRef & Range("F16") & " & "
+            If Not Range("F17") = "" Then OurRef = OurRef & Range("F17") & " & "
+            If Not Range("F18") = "" Then OurRef = OurRef & Range("F18") & " & "
+        End If
+        If Not Range("J15") = "" Then
+            OurRef = OurRef & Range("J15") & " & "
+        Else
+            If Not Range("J17") = "" Then OurRef = OurRef & Range("J17") & " & "
+            If Not Range("J18") = "" Then OurRef = OurRef & Range("J18") & " & "
+        End If
+        OurRef = Mid(OurRef, 1, Len(OurRef) - 3)
+        On Error Resume Next
+        Set wdApp = GetObject(, "Word.Application")
+        If err.Number <> 0 Then
+            Set wdApp = CreateObject("Word.Application")
+        End If
+        On Error GoTo 0
+        Set wdDoc = wdApp.Documents.Open(Fname)
+        wdDoc.Bookmarks("Address").Range.text = Address
+        wdDoc.Bookmarks("OurRef").Range.text = OurRef
+        wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+        wdDoc.Bookmarks("From").Range.text = Addr3
+        wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+        wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+        wdDoc.Bookmarks("L4").Range.text = TextBox1.Value
+        wdDoc.SaveAs fName2
+        wdDoc.Close
+
+        '*** covering letter ***
+
+        'fName = Epsilon & "Documents\Letters\Blank Issue Notice 2.doc"
+        'fName2 = dLocation & "\Notice " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Info"
+        'lastrow = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        'TLName = Sheets("LookUp").Range("C" & lastrow)
+        'Set wdDoc = wdApp.Documents.Open(fName)
+        '    wdDoc.Bookmarks("Address").Range.text = Address2
+        '    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+        '    wdDoc.Bookmarks("DMDate").Range.text = Format(Range("D22"), "d mmmm yyyy")
+        '    aDate = DateAdd("w", 10, Date)
+        '    wdDoc.Bookmarks("EndDate").Range.text = Format(aDate, "d mmmm yyyy")
+        '    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+        '    wdDoc.Bookmarks("TLName").Range.text = TLName
+        'wdDoc.SaveAs fName2
+        'wdDoc.Close
+        wdApp.Quit
+        DoEvents
+        Application.Wait (Now + TimeValue("0:00:1"))
+        Set wdApp = Nothing
+        Set wdDoc = Nothing
+        Call InterventionLog("Warning Letter on " & Format(Date, "d mmmm yyyy"))
+        Call msg("Warning Letter", "Your Warning Letter and Covering Letter have been created and saved to your RSR Temporary Drafts", 6)
+        Drafts = True
+    End If
+    If OptionButton2 Then
+        'no permit
+        Call msg("Warning Letter, No Permit", "Not yet available", 6)
+    End If
+    If OptionButton3 Then
+        'enforcement notice
+        Call msg("Enforcement Notice", "Not yet available", 6)
+    End If
+    If OptionButton4 Then
+        'suspension notice
+        Call msg("Suspension Notice", "Not yet available", 6)
+    End If
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+End Sub

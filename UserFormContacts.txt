@@ -1,0 +1,79 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormContacts 
+   ClientHeight    =   5520
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   10905
+   OleObjectBlob   =   "UserFormContacts.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormContacts"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    count = ListBox1.ListIndex
+    eTo = ListBox1.List(count, 4)
+    If eTo <> "" Then
+        eSubj = "Radioactive Substances Regulation: "
+        Call SendEmail(eTo, eSubj, "", "")
+        Unload Me
+    Else
+        Call msg("e-mail Address", "No email address for contact", 7)
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Load UserFormContacts2
+    Call UserFormContacts2.FillVars("", "", "", "", "", 0)
+    UserFormContacts2.Show
+    Call Create_List
+End Sub
+Private Sub CommandButton4_Click()
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    count = ListBox1.ListIndex
+    Load UserFormContacts2
+    Call UserFormContacts2.FillVars(ListBox1.List(count, 0), ListBox1.List(count, 1), ListBox1.List(count, 2), ListBox1.List(count, 3), ListBox1.List(count, 4), count + 1)
+    UserFormContacts2.Show
+    Call Create_List
+End Sub
+Private Sub CommandButton5_Click()
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    count = ListBox1.ListIndex + 1
+    Call OpenData("tsct")
+    Range("A" & count & ":E" & count).Select
+    Selection.Delete Shift:=xlUp
+    ActiveWorkbook.Save
+    Application.DisplayAlerts = False
+    ActiveWorkbook.Close
+    Call Create_List
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image1.jpg")
+    Call Create_List
+End Sub
+Private Sub Create_List()
+    ListBox1.Clear
+    ListBox1.ColumnCount = 5
+    ListBox1.ColumnWidths = "2.8cm;2.8cm;2.2cm;2.2cm"
+    Call OpenData("tsct")
+    For count = 0 To Lambda
+        ListBox1.AddItem
+        ListBox1.List(count, 0) = Range("A" & count + 1)
+        ListBox1.List(count, 1) = Range("B" & count + 1)
+        ListBox1.List(count, 2) = Range("C" & count + 1)
+        ListBox1.List(count, 3) = Range("D" & count + 1)
+        ListBox1.List(count, 4) = Range("E" & count + 1)
+    Next count
+    ListBox1.RemoveItem (count - 1)
+    Application.DisplayAlerts = False
+    Call CloseData("tsct", False)
+End Sub

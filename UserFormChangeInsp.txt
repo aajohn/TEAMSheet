@@ -1,0 +1,146 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormChangeInsp 
+   ClientHeight    =   4230
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5310
+   OleObjectBlob   =   "UserFormChangeInsp.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormChangeInsp"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+
+Private Sub ComboBox1_Change()
+
+End Sub
+
+Private Sub CommandButton1_Click()
+    Dim OldInsp As String
+    OldInsp = Range("D35")
+    DRow = Range("G3")
+    If Not ListBox1.ListIndex = -1 Then
+        If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+        Call OpenData("tsds")
+        Sheets(wSheet).Range("X" & DRow) = ListBox1.Value
+        Call CloseData("tsds", True)
+        Sheets("Details").Select
+        ActiveSheet.Unprotect
+        Range("D35") = ListBox1.Value
+        ActiveSheet.Protect
+        Call InterventionLog("Change of Inspector from " & OldInsp & " to " & ListBox1.Value & " on " & Format(Date, "d mmm yyyy"))
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Dim OldInsp As String
+    DRow = Range("G3")
+    OldInsp = Range("D35")
+    If Not ListBox1.ListIndex = -1 Then
+        Call OpenData("tsds")
+        If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+        Sheets(wSheet).Range("X" & DRow) = ListBox1.Value
+        Call CloseData("tsds", True)
+        Sheets("Details").Select
+        ActiveSheet.Unprotect
+        Range("D35") = ListBox1.Value
+        ActiveSheet.Protect
+        eMsg = "This email is to let you know that your site will now be regulated by "
+        count = 1
+        If ListBox1.Value = Sheets("LookUp").Range("C" & Iota) Then
+            count = 2
+            eMsg = eMsg & "myself and not " & OldInsp & ".  I"
+        End If
+        If OldInsp = Sheets("LookUp").Range("C" & Iota) Then
+            count = 3
+            eMsg = eMsg & ListBox1.Value & " and not myself.  They"
+        End If
+        If count = 1 Then eMsg = eMsg & ListBox1.Value & ".  They"
+        eMsg = eMsg & " will contact you in due course regarding any routine Inspections or ongoing matters.  However if you need to contact "
+        If count = 2 Then
+            eMsg = eMsg & "myself then my details are below."
+        Else
+            For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+                If ListBox1.Value = Sheets("LookUp").Range("C" & count) Then Exit For
+            Next count
+            eMsg = eMsg & "them their details are;<br><br>" & Sheets("LookUp").Range("C" & count) & "<br>" & Sheets("LookUp").Range("D" & count)
+        End If
+        eMsg = eMsg & "<br><br>I would be grateful if you could confirm receipt of this email."
+        eTo = Range("D9") & ";" & Range("F9")
+        eSubj = "Radioactive Substances Regulation: Change of Contact"
+        Call SendEmail(eTo, eSubj, eMsg, "")
+        Call InterventionLog("Change of Inspector from " & OldInsp & " to " & ListBox1.Value & " on " & Format(Date, "d mmm yyyy"))
+        Unload Me
+    End If
+End Sub
+Private Sub CommandButton3_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton4_Click()
+    Dim oldFreq As String
+    Dim pDate As Date, inspDate As String
+    If ComboBox1.ListIndex = -1 Then Exit Sub
+    If CheckBox1 Then
+        If Not Range("D37") = "New Operator" And Not Range("D37") = "" Then
+            pDate = (Right(Range("D37"), (Len(Range("D37")) - InStr(Range("D37"), " "))))
+            If Not ComboBox1.Value = "Reactive" Then
+                pDate = DateAdd("m", (ComboBox1.Value * 12) - 3, pDate)
+                inspDate = "Due Qtr " & Format(pDate, "q yyyy")
+            Else
+                inspDate = ""
+            End If
+        Else
+            inspDate = ""
+        End If
+    End If
+    oldFreq = Range("D36")
+    ActiveSheet.Unprotect
+    Range("D36") = ComboBox1.Value
+    If CheckBox1 Then Range("D38") = inspDate
+    ActiveSheet.Protect
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    Call OpenData("tsds")
+    Sheets(wSheet).Range("Y" & DRow) = ComboBox1.Value
+    If CheckBox1 Then Sheets(wSheet).Range("AA" & DRow) = inspDate
+    Call CloseData("tsds", True)
+    Call InterventionLog("Visit frequency changed from " & oldFreq & " to " & ComboBox1.Value & " on " & Format(Date, "d mmm yyyy") & " by " & Sheets("LookUp").Range("C" & Iota))
+    Unload Me
+End Sub
+Private Sub ListBox1_Click()
+    CommandButton1.SetFocus
+End Sub
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Call CommandButton1_Click
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image22.jpg")
+    Label1.Caption = "Change from " & Sheets("Details").Range("D35")
+    count2 = 0
+    lastrow = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+    If Not Sheets("Details").Range("D35") = "" Then
+        For count = 0 To lastrow
+            ListBox1.AddItem
+            If Not Sheets("LookUp").Range("C" & count + 3) = Sheets("Details").Range("D35") Then
+                ListBox1.List(count2) = Sheets("LookUp").Range("C" & count + 3)
+                count2 = count2 + 1
+            End If
+        Next count
+        ListBox1.RemoveItem (count2)
+    Else
+        For count = 0 To lastrow
+            ListBox1.AddItem
+            ListBox1.List(count) = Sheets("LookUp").Range("C" & count + 3)
+        Next count
+    End If
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "BE").End(xlUp).Row - 3
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("BE" & count + 3)
+    Next count
+    If Not Range("D36") = "" Then ComboBox1.Value = Range("D36")
+    If Left(Range("D3"), 1) = "Z" Then Frame1.Visible = False
+End Sub

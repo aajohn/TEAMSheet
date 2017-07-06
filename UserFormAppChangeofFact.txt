@@ -1,0 +1,47 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppChangeofFact 
+   ClientHeight    =   5820
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   8115
+   OleObjectBlob   =   "UserFormAppChangeofFact.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppChangeofFact"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton3_Click()
+    Call Sheet1.IECompany
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Label2.Caption = Sheets("Details").Range("D5")
+    Label4.Caption = Sheets("Details").Range("H6")
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ListBox1.AddItem
+        ListBox1.List(count) = Sheets("LookUp").Range("C" & count + 3).Value
+    Next count
+    count = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+    ListBox1.Value = Sheets("LookUp").Range("C" & count - 1)
+End Sub
+Private Sub CommandButton1_Click()
+    If Not TextBox1.Value = "" Or Not TextBox2.Value = "" Then
+        count = Sheets("Details").Range("G3").Value
+        Call OpenData("tsds")
+        If Not TextBox1.Value = "" Then Range("C" & count) = TextBox1.Value
+        If Not TextBox2.Value = "" Then Range("H" & count) = TextBox2.Value
+    
+        Call CopyPasteData(count, True, True)
+        Unload Me
+    Else
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub

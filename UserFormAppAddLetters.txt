@@ -1,0 +1,248 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppAddLetters 
+   ClientHeight    =   3225
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4710
+   OleObjectBlob   =   "UserFormAppAddLetters.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppAddLetters"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim TLName As String, OurRef As String
+    Dim DMDate As Date
+    Addr2 = "": Addr3 = ""
+    Addr = Range("J6")
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of the Company Secretary"
+    Address2 = " " & Range("D5") & vbLf & " " & Addr3
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter 2.doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Info"
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+    If Not Range("D21") = "" And Not Range("J21") = "" Then OurRef = Range("D21") & " & " & Range("J21")
+    If Not Range("D21") = "" And Range("J21") = "" Then OurRef = Range("D21")
+    If Not Range("J21") = "" And Range("D21") = "" Then OurRef = Range("J21")
+    If Not Range("D22") = "" Then
+        DMDate = Range("D22")
+    Else
+        DMDate = Range("J22")
+    End If
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    Fname = Epsilon & "Documents\Letters\Blank Issue Notice 2.doc"
+    fName2 = dLocation & "\Notice " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Info"
+    lastrow = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+    TLName = Sheets("LookUp").Range("C" & lastrow)
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address2
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("DMDate").Range.text = Format(Range("D22"), "d mmmm yyyy")
+    aDate = DateAdd("w", 10, Date)
+    wdDoc.Bookmarks("EndDate").Range.text = Format(aDate, "d mmmm yyyy")
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("TLName").Range.text = TLName
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Call msg("Notice for Further Information", "Your Notice for Further Information and Covering Letter have been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Dim TLName As String, OurRef As String
+    Dim DMDate As Date
+    Addr2 = "": Addr3 = ""
+    Addr = Range("J6")
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of " & Range("D7")
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter 3.doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Change"
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Call msg("Letter Agreeing Changes", "Your Letter has been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Dim TLName As String, OurRef As String
+    Dim Address2 As String
+    Dim DMDate As Date
+    Addr2 = "": Addr3 = ""
+    Addr = Range("J6")
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of " & Range("D7")
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter 3.doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Change"
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Call msg("Letter Agreeing Changes", "Your Letter has been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub CommandButton4_Click()
+    Dim TLName As String, OurRef As String
+    Dim Address2 As String
+    Dim DMDate As Date
+    Addr2 = "": Addr3 = ""
+    Addr = Range("J6")
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Address = " " & Range("D5") & vbLf & " " & Addr3 & vbLf & vbLf & "For the attention of " & Range("D7")
+    dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+    If Len(Dir(dLocation, vbDirectory)) = 0 Then
+        MkDir dLocation
+    End If
+    Fname = Epsilon & "Documents\Letters\Blank Issue Letter 6.doc"
+    fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Just"
+    Addr = Sheets("LookUp").Range("D" & Iota)
+    AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+    For count = 1 To Len(Addr)
+        Addr2 = Mid(Addr, count, 1)
+        If Addr2 = "," Then Addr2 = vbLf
+        Addr3 = Addr3 + Addr2
+    Next
+    Addr3 = Sheets("LookUp").Range("C" & count) & vbLf & Addr3
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = Addr3
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("L2").Range.text = Application.Proper(Range("D5"))
+    wdDoc.Bookmarks("L3").Range.text = Range("D6")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    DoEvents
+    Application.Wait (Now + TimeValue("0:00:1"))
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Call msg("Justification Letter", "Your Letter has been created and saved to your RSR Temporary Drafts", 6)
+    Drafts = True
+    Unload Me
+End Sub
+Private Sub CommandButton6_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+End Sub

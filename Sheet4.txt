@@ -1,0 +1,262 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Sheet4"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+Sub reports()
+    Sheets("Reports").Select
+    ActiveSheet.Unprotect
+    Range("B5:K13,M5:T13,V5:AC13,AE5:AL13") = ""
+    ActiveSheet.Shapes("PrintReport").Visible = False
+    Call ScreenLayout("Reports")
+    Application.ScreenUpdating = False
+    UserFormLoadReports.Show
+End Sub
+Sub GenerateReport()
+    Dim police As String
+    ActiveSheet.Unprotect
+    Application.ScreenUpdating = False
+    Range("B18:AM500") = ""
+    OpenData ("tsds")
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Reports").Select
+    wBook = "tsds.xls"
+    If Not IsEmpty(Range("D16")) Or Not IsEmpty(Range("I16")) Or Not IsEmpty(Range("N16")) Then
+        If Range("H15") = "or" Then
+            count2 = 18
+            For count = 2 To Lambda
+                check = False
+                If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+                    If Not IsEmpty(Range("D16")) Then
+                        If Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = Range("D16") And Not Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = "" Then check = True
+                    End If
+                    If Not IsEmpty(Range("I16")) Then
+                        If Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = Range("I16") And Not Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = "" Then check = True
+                    End If
+                    If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("J" & count)) Then
+                        police = Application.Match(Workbooks(wBook).Sheets("Datasheet").Range("J" & count), Sheets("Lookup").Range("H3:H70"))
+                    Else
+                        police = 0
+                    End If
+                    If Not IsEmpty(Range("N16")) Then
+                        If Sheets("lookup").Range("I" & police + 2) = Range("N16") Then check = True
+                    End If
+                End If
+                If check Then
+                    Range("B" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                    Range("H" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                    Range("J" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("D" & count)
+                    Range("Z" & count2) = Left(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), 1) & Mid(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), InStr(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), " ") + 1, 1)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("Z" & count) = "New Operator" Then
+                        Range("AA" & count2) = Right(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count), Len(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)) - InStr(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count), " "))
+                    Else
+                        Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                    End If
+                    Range("AE" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                    Range("AI" & count2) = Sheets("lookup").Range("I" & police + 2)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("AL" & count) = "" Then Range("AM" & count2) = Left(Workbooks(wBook).Sheets("Datasheet").Range("AI" & count), 1)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("AX" & count) = "" Then Range("AM" & count2) = Range("AM" & count2) & Left(Workbooks(wBook).Sheets("Datasheet").Range("AU" & count), 1)
+                    count2 = count2 + 1
+                End If
+            Next count
+            Range("I" & count2) = "   ** End of Report - " & count2 - 18 & " lines **"
+        Else
+            count2 = 18
+            For count = 2 To Lambda
+                check = False
+                If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+                    If Not IsEmpty(Range("D16")) And Not IsEmpty(Range("I16")) And IsEmpty(Range("N16")) Then
+                        If Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = Range("D16") And Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = Range("I16") Then check = True
+                    End If
+                    If IsEmpty(Range("D16")) And Not IsEmpty(Range("I16")) And Not IsEmpty(Range("N16")) Then
+                        If Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = Range("I16") Then check = True
+                    End If
+                    If Not IsEmpty(Range("D16")) And IsEmpty(Range("I16")) And Not IsEmpty(Range("N16")) Then
+                        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("J" & count)) Then
+                            police = Application.Match(Workbooks(wBook).Sheets("Datasheet").Range("J" & count), Sheets("Lookup").Range("H3:H70"))
+                        Else
+                            police = 0
+                        End If
+                        If Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = Range("D16") And Sheets("lookup").Range("I" & police + 2) = Range("N16") Then check = True
+                    End If
+                    If Not IsEmpty(Range("D16")) And Not IsEmpty(Range("I16")) And Not IsEmpty(Range("N16")) Then
+                        If Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = Range("D16") And Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = Range("I16") Then check = True
+                    End If
+                    If check = False Then
+                        If Not IsEmpty(Range("D16")) And IsEmpty(Range("I16")) And IsEmpty(Range("N16")) Then
+                            If Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = Range("D16") And Not Workbooks(wBook).Sheets("Datasheet").Range("X" & count) = "" Then check = True
+                        End If
+                        If IsEmpty(Range("D16")) And Not IsEmpty(Range("I16")) And IsEmpty(Range("N16")) Then
+                            If Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = Range("I16") And Not Workbooks(wBook).Sheets("Datasheet").Range("J" & count) = "" Then check = True
+                        End If
+                        If IsEmpty(Range("D16")) And IsEmpty(Range("I16")) And Not IsEmpty(Range("N16")) Then
+                            If Sheets("lookup").Range("I" & police + 2) = Range("N16") Then check = True
+                        End If
+                    End If
+                End If
+                If check Then
+                    Range("B" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                    Range("H" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                    Range("J" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("D" & count)
+                    Range("Z" & count2) = Left(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), 1) & Mid(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), InStr(Workbooks(wBook).Sheets("Datasheet").Range("X" & count), " ") + 1, 1)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("Z" & count) = "New Operator" Then
+                        Range("AA" & count2) = Right(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count), Len(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)) - InStr(Workbooks(wBook).Sheets("Datasheet").Range("Z" & count), " "))
+                    Else
+                        Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("Z" & count)
+                    End If
+                    Range("AE" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("J" & count)
+                    Range("AI" & count2) = Sheets("lookup").Range("I" & police + 2)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("AL" & count) = "" Then Range("AM" & count2) = Left(Workbooks(wBook).Sheets("Datasheet").Range("AI" & count), 1)
+                    If Not Workbooks(wBook).Sheets("Datasheet").Range("AX" & count) = "" Then Range("AM" & count2) = Range("AM" & count2) & Left(Workbooks(wBook).Sheets("Datasheet").Range("AU" & count), 1)
+                    count2 = count2 + 1
+                End If
+            Next count
+            Range("I" & count2) = "   ** End of Report - " & count2 - 18 & " lines **"
+        End If
+        Worksheets("Reports").ScrollArea = "A1:AN" & count2 + 1
+        ActiveSheet.Shapes("PrintReport").Visible = True
+    Else
+        Call msg("Generate Report", "You have not selected an Inspector, Local Authority or Police Force for your report.", 8)
+        ActiveSheet.Shapes("PrintReport").Visible = False
+    End If
+    Call CloseData("tsds", False)
+    Application.ScreenUpdating = True
+    ActiveSheet.Protect
+End Sub
+Sub GenerateReport2()
+    ActiveSheet.Unprotect
+    Application.ScreenUpdating = False
+    lastrow = Cells(Rows.count, "I").End(xlUp).Row + 1
+    If lastrow < 18 Then lastrow = 18
+    Range("B18:AM" & lastrow) = ""
+    OpenData ("tsds")
+    wBook = "tsds.xls"
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Reports").Select
+    count2 = 18
+    For count = 2 To Lambda
+        If Workbooks(wBook).Sheets("Datasheet").Range("AE" & count) = "" Then
+            If InStr(Workbooks(wBook).Sheets("Datasheet").Range("J" & count), "Offshore") = 0 Then
+                If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+                    Range("B" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                    Range("I" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                    Range("K" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("D" & count)
+                    Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                    count2 = count2 + 1
+                End If
+            End If
+        End If
+    Next count
+    Call CloseData("tsds", False)
+    Range("I" & count2) = "   ** End of Report - " & count2 - 18 & " lines **"
+    Worksheets("Reports").ScrollArea = "A1:AN" & count2 + 1
+    Application.ScreenUpdating = True
+    ActiveSheet.Protect
+End Sub
+Sub GenerateReport3()
+    Dim overDue As Integer
+    ActiveSheet.Unprotect
+    Application.ScreenUpdating = False
+    lastrow = Cells(Rows.count, "I").End(xlUp).Row + 1
+    If lastrow < 18 Then lastrow = 18
+    Range("B18:AM" & lastrow) = ""
+    OpenData ("tsds")
+    wBook = "tsds.xls"
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Reports").Select
+    count2 = 18
+    overDue = 0
+    For count = 2 To Lambda
+        If Not Workbooks(wBook).Sheets("Datasheet").Range("AG" & count) = "" Then
+            If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+                Range("B" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                Range("I" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                Range("K" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("D" & count)
+                Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                Range("AE" & count2) = "Last Report " & Format(Workbooks(wBook).Sheets("Datasheet").Range("AG" & count), "dmmmmyyyy")
+                If Not Format(Workbooks(wBook).Sheets("Datasheet").Range("AG" & count), "yyyy") = Format(Date, "yyyy") And Format(Date, "m") = 1 Then Range("AE" & count2) = Range("AE" & count2) & " DUE"
+                If Not Format(Workbooks(wBook).Sheets("Datasheet").Range("AG" & count), "yyyy") = Format(Date, "yyyy") And Format(Date, "m") > 1 Then
+                    Range("AE" & count2) = Range("AE" & count2) & " OVERDUE"
+                    overDue = overDue + 1
+                End If
+                count2 = count2 + 1
+            End If
+        End If
+    Next count
+    Call CloseData("tsds", False)
+    Range("I" & count2) = "   ** End of Report - " & count2 - 18 & " lines,  Number OverDue " & overDue & " (" & WorksheetFunction.Round((overDue / count2) * 100, 1) & "%) **"
+    Worksheets("Reports").ScrollArea = "A1:AN" & count2 + 1
+    Application.ScreenUpdating = True
+    ActiveSheet.Protect
+End Sub
+Sub GenerateReport4()
+    ActiveSheet.Unprotect
+    Application.ScreenUpdating = False
+    lastrow = Cells(Rows.count, "I").End(xlUp).Row + 1
+    If lastrow < 18 Then lastrow = 18
+    Range("B18:AM" & lastrow) = ""
+    OpenData ("tsds")
+    wBook = "tsds.xls"
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Reports").Select
+    count2 = 18
+    For count = 2 To Lambda
+        If Workbooks(wBook).Sheets("Datasheet").Range("BH" & count) = "" Then
+            If InStr(Workbooks(wBook).Sheets("Datasheet").Range("C" & count), "NHS") > 0 Or InStr(Workbooks(wBook).Sheets("Datasheet").Range("C" & count), "LHB") > 0 Or InStr(Workbooks(wBook).Sheets("Datasheet").Range("C" & count), "HOSPITAL") > 0 Or InStr(Workbooks(wBook).Sheets("Datasheet").Range("C" & count), "YSBYTY") > 0 Or InStr(Workbooks(wBook).Sheets("Datasheet").Range("D" & count), "Hospital") > 0 Or InStr(Workbooks(wBook).Sheets("Datasheet").Range("D" & count), "Ysbyty") > 0 Then
+                Range("B" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+                Range("I" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+                Range("K" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("D" & count)
+                Range("AA" & count2) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+                'Range("AE" & count2) =
+                count2 = count2 + 1
+            End If
+        End If
+    Next count
+    Call CloseData("tsds", False)
+    Range("I" & count2) = "   ** End of Report - " & count2 - 18 & " lines **"
+    Worksheets("Reports").ScrollArea = "A1:AN" & count2 + 1
+    Application.ScreenUpdating = True
+    ActiveSheet.Protect
+End Sub
+Sub AndOr()
+    ActiveSheet.Unprotect
+    If Range("H15") = "or" Then
+        Range("H15,M15") = "and"
+    Else
+        Range("H15,M15") = "or"
+    End If
+    ActiveSheet.Protect
+End Sub
+Sub clear_box()
+    Range("D16:I16:N16") = ""
+End Sub
+Sub PrintReport()
+    Dim pTall As Byte
+    Application.ScreenUpdating = False
+    lastrow = Sheets("Reports").Cells(Rows.count, "I").End(xlUp).Row + 1
+    If lastrow < 54 Then pTall = 1 Else pTall = 2
+    ActiveSheet.PageSetup.PrintArea = "$A$17:$AN$" & lastrow
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$2"
+        .CenterHeader = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .CenterFooter = "&""Arial,Bold""OFFICIAL - SENSITIVE"
+        .RightFooter = "&""Arial""&8Printed by " & Environ("USERNAME")
+        .CenterHorizontally = True
+        .CenterVertically = False
+        .Orientation = xlLandscape
+        .PaperSize = xlPaperA4
+        .FitToPagesWide = 1
+        .FitToPagesTall = pTall
+        .PrintErrors = xlPrintErrorsDisplayed
+    End With
+    Load UserFormPrintReport
+    Call UserFormPrintReport.FillVars("2", "Print Report")
+    UserFormPrintReport.Show
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.ScreenUpdating = True
+End Sub

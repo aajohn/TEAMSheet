@@ -1,0 +1,240 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppNew 
+   ClientHeight    =   7230
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9510
+   OleObjectBlob   =   "UserFormAppNew.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppNew"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+Private Sub CommandButton1_Click()
+    Call ExportData(True)
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    If Not TextBox1.Value = "" Then
+        If IsNumeric(Left(TextBox1.Value, 1)) Then TextBox1.Value = Sheets("LookUp").Range("A2") & TextBox1.Value
+        Call dataRow(TextBox1.Value)
+        Call CloseData("tsds", False)
+        If DRow = 0 Then
+            Label2.Visible = True
+            ComboBox1.Visible = True
+            ComboBox2.Visible = True
+            ComboBox3.Visible = True
+            TextBox2.Visible = True
+            TextBox3.Visible = True
+            TextBox4.Visible = True
+            TextBox5.Visible = True
+            TextBox6.Visible = True
+            TextBox7.Visible = True
+            TextBox8.Visible = True
+            TextBox9.Visible = True
+            TextBox10.Visible = True
+            TextBox11.Visible = True
+            TextBox12.Visible = True
+            TextBox13.Visible = True
+            TextBox14.Visible = True
+            TextBox15.Visible = True
+            TextBox16.Visible = True
+            TextBox17.Visible = True
+            TextBox18.Visible = True
+            CommandButton4.Visible = True
+            CommandButton1.Visible = True
+            CommandButton5.Visible = True
+            CheckBox1.Visible = True
+        Else
+            Call msg("Site Code", "The Site Code (" & TextBox1.Value & ") you have entered is already alocated a site.  Click close to show details.", 26)
+            Call CopyPasteData(DRow, True, False)
+            Unload Me
+        End If
+    End If
+End Sub
+Private Sub CommandButton4_Click()
+    Dim appIE As Object
+    If TextBox15.Value = "" Then Exit Sub
+    Call LaunchIE(Sheets("LookUp").Range("CH2"), 1, TextBox15.Value)
+End Sub
+Private Sub CommandButton5_Click()
+    Call ExportData(False)
+End Sub
+Private Sub CommandButton6_Click()
+    Call CheckPostcode
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    count = 0: check = False
+    Do
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("A" & count + 3).Value
+        count = count + 1
+        If Sheets("LookUp").Range("A" & count + 3).Value = "" Then check = True
+    Loop Until check = True
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row - 3
+        ComboBox2.AddItem
+        ComboBox2.List(count) = Sheets("LookUp").Range("H" & count + 3).Value
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+        ComboBox3.AddItem
+        ComboBox3.List(count) = Sheets("LookUp").Range("C" & count + 3).Value
+    Next count
+End Sub
+Private Sub ExportData(check)
+    Dim pCodeCheck As Boolean
+    If ComboBox1.Value = "" Then
+        ComboBox1.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If ComboBox2.Value = "" Then
+        ComboBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If ComboBox3.Value = "" Then
+        ComboBox3.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox2.Value = "" Then
+        TextBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox6.Value = "" Then
+        TextBox6.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox7.Value = "" Then
+        TextBox7.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox8.Value = "" Then
+        TextBox8.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox10.Value = "" Then
+        TextBox10.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox14.Value = "" Then
+        TextBox14.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If TextBox16.Value = "" And TextBox17.Value = "" Then
+        TextBox16.BackColor = RGB(255, 204, 102)
+        TextBox17.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    
+    If Not TextBox2.Value = "" Then
+        Addr = Application.Proper(TextBox2.Value) & ", "
+    End If
+    
+    If Not TextBox3.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox3.Value) & ", "
+    End If
+    
+    If Not TextBox4.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox4.Value) & ", "
+    End If
+    
+    If Not TextBox5.Value = "" Then
+        Addr = Addr & Application.Proper(TextBox5.Value) & ", "
+    End If
+    
+    If Not TextBox6.Value = "" Then
+        Addr = Addr & UCase(TextBox6.Value) & ", "
+    End If
+    
+    Addr = Left(Addr, Len(Addr) - 2)
+    
+    If Not TextBox14.Value = "" Then
+        Addr2 = Application.Proper(TextBox14.Value) & ", "
+    End If
+    
+    If Not TextBox13.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox13.Value) & ", "
+    End If
+    
+    If Not TextBox12.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox12.Value) & ", "
+    End If
+    
+    If Not TextBox11.Value = "" Then
+        Addr2 = Addr2 & Application.Proper(TextBox11.Value) & ", "
+    End If
+    
+    If Not TextBox10.Value = "" Then
+        Addr2 = Addr2 & UCase(TextBox10.Value) & ", "
+    End If
+    
+    Addr2 = Left(Addr2, Len(Addr2) - 2)
+    
+    Call OpenData("tsds")
+    Lambda = Lambda + 1
+    Range("A" & Lambda) = TextBox1.Value                        'site code
+    Range("B" & Lambda) = ComboBox1.Value                       'area
+    Range("C" & Lambda) = UCase(TextBox18.Value)                'operator
+    Range("D" & Lambda) = Addr                                  'address
+    Range("E" & Lambda) = Application.Proper(TextBox7.Value)    'contact
+    Range("F" & Lambda) = TextBox8.Value                        'phone
+    Range("G" & Lambda) = TextBox9.Value                        'email
+    Range("H" & Lambda) = Addr2                                 'reg office addr
+    Range("I" & Lambda) = TextBox15.Value                       'co. reg. number
+    Range("J" & Lambda) = ComboBox2.Value                       'LA
+    Range("M" & Lambda) = UCase(TextBox16.Value)                'sealed EPR number
+    
+    If check = True Then
+        
+        If TextBox16.Value = "" Then
+            Range("Y" & Lambda) = "2"                           'visit freq
+        Else
+            Range("Y" & Lambda) = "1"
+        End If
+    
+    Else
+        Range("Y" & Lambda) = "4"
+    End If
+    
+    Range("Z" & Lambda) = "New Operator"
+    
+    If CheckBox1 Then Range("N" & Lambda) = "YES"
+    Range("O" & Lambda) = UCase(TextBox17.Value)
+    Range("X" & Lambda) = ComboBox3.Value
+    Range("A2:BZ" & Lambda).Select
+    Selection.Sort Key1:=Range("C2"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    
+    Call dataRow(TextBox1.Value)
+    
+    Call CopyPasteData(DRow, True, True)
+    Application.ScreenUpdating = True
+    Application.ScreenUpdating = False
+    
+    If check Then
+        Load UserFormAppRecieved
+        Call UserFormAppRecieved.FillVars(True)
+        UserFormAppRecieved.Show
+    Else
+        eTo = Range("D35")
+        eSubj = "Application Recieved"
+        eMsg = "An application has been recieved for a new Operator, site code <b>" & Range("D3") & "</b>.<br><br>I will be sending the file to you shortly."
+        Call SendEmail(eTo, eSubj, eMsg, "")
+    End If
+    Unload Me
+End Sub
