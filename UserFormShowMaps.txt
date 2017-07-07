@@ -1,0 +1,65 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormShowMaps 
+   ClientHeight    =   12825
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   14010
+   OleObjectBlob   =   "UserFormShowMaps.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormShowMaps"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Dim addrlen As String
+    Dim pCode As String
+    Call RemoveCaption(Me)
+    Label1.Caption = "Please wait ...." & vbLf & vbLf & "Getting maps from the web"
+    DoEvents
+    Addr = Range("D6")
+    addrlen = Len(Addr)
+    If addrlen = 0 Then Unload Me
+    If InStr(Addr, " ") = 0 Then Unload Me
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = Chr(32) Then
+            Addr2 = "+"
+            check = False
+        End If
+        pCode = Addr2 & pCode
+        addrlen = addrlen - 1
+    Loop Until check = False
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = Chr(32) Then
+            check = False
+        End If
+        pCode = Addr2 & pCode
+        addrlen = addrlen - 1
+    Loop Until check = False
+    pCode = Right(pCode, Len(pCode) - 1)
+    WebBrowser1.Navigate "http://maps.google.co.uk/maps?q=" & pCode & "&z=15&output=embed"
+    Do
+        DoEvents
+    Loop Until WebBrowser1.ReadyState <> 1
+    WebBrowser2.Navigate "http://maps.google.co.uk/maps?q=" & pCode & "&t=h&z=18&output=embed"
+    Do
+        DoEvents
+    Loop Until WebBrowser2.ReadyState <> 1
+    WebBrowser3.Navigate Sheets("LookUp").Range("CH3") & pCode & Sheets("LookUp").Range("CH4")
+    Do
+        DoEvents
+    Loop Until WebBrowser3.ReadyState <> 1
+End Sub
+Private Sub WebBrowser2_DocumentComplete(ByVal pDisp As Object, URL As Variant)
+    WebBrowser2.Document.Body.Scroll = "no"
+    Label1.Caption = Range("D5") & vbLf & vbLf & Range("D6")
+End Sub

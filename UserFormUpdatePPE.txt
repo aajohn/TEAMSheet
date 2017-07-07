@@ -1,0 +1,156 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormUpdatePPE 
+   ClientHeight    =   6975
+   ClientLeft      =   30
+   ClientTop       =   330
+   ClientWidth     =   7515
+   OleObjectBlob   =   "UserFormUpdatePPE.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormUpdatePPE"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CheckBox1_Click()
+    If CheckBox1.Value = True Then
+        CheckBox2.Value = False
+        CheckBox3.Value = False
+        CheckBox4.Value = False
+        CheckBox5.Value = False
+        CheckBox6.Value = False
+        CheckBox7.Value = False
+        CheckBox8.Value = False
+        CheckBox9.Value = False
+        CheckBox10.Value = False
+        CheckBox11.Value = False
+        CheckBox12.Value = False
+        CheckBox13.Value = False
+    End If
+End Sub
+Private Sub CommandButton1_Click()
+    Dim ppeVar As String
+    Dim checkVal As String
+    DRow = Range("G3")
+    ppeVar = "2222222222222"
+    If CheckBox1.Value Then Mid(ppeVar, 1, 1) = "1"
+    If CheckBox2.Value Then Mid(ppeVar, 2, 1) = "1"
+    If CheckBox3.Value Then Mid(ppeVar, 3, 1) = "1"
+    If CheckBox4.Value Then Mid(ppeVar, 4, 1) = "1"
+    If CheckBox5.Value Then Mid(ppeVar, 5, 1) = "1"
+    If CheckBox6.Value Then Mid(ppeVar, 6, 1) = "1"
+    If CheckBox7.Value Then Mid(ppeVar, 7, 1) = "1"
+    If CheckBox8.Value Then Mid(ppeVar, 8, 1) = "1"
+    If CheckBox9.Value Then Mid(ppeVar, 9, 1) = "1"
+    If CheckBox10.Value Then Mid(ppeVar, 10, 1) = "1"
+    If CheckBox11.Value Then Mid(ppeVar, 11, 1) = "1"
+    If CheckBox12.Value Then Mid(ppeVar, 12, 1) = "1"
+    If CheckBox13.Value Then Mid(ppeVar, 13, 1) = "1"
+    If ppeVar = "2222222222222" Then ppeVar = "1222222222222"
+    If CheckBox14.Value Then
+        checkVal = "1"
+    Else
+        checkVal = "0"
+    End If
+    If CheckBox15.Value Then
+        checkVal = checkVal & "1"
+    Else
+        checkVal = checkVal & "0"
+    End If
+    If CheckBox16.Value Then
+        checkVal = checkVal & "1"
+    Else
+        checkVal = checkVal & "0"
+    End If
+
+    Call OpenData("tsds")
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    If Not Left(FVar, 13) = ppeVar Then
+        Sheets(wSheet).Range("BX" & DRow) = ppeVar & " " & Date
+    End If
+    Sheets(wSheet).Range("BY" & DRow) = checkVal & Date & " " & TextBox1.Value
+    Call CloseData("tsds", True)
+    Sheets("Details").Select
+    ActiveSheet.Unprotect
+    Range("K46") = "PPE Changed " & Format(Date, "d mmm yyyy")
+    Range("N36") = Left(checkVal, 1)
+    Range("N37") = Mid(checkVal, 2, 1)
+    Range("N38") = Right(checkVal, 1)
+    Range("N39") = ppeVar
+    Range("N40") = checkVal & Date & " " & TextBox1.Value
+    Range("K39:N45").Select
+    With Selection.Font
+        .ThemeColor = xlThemeColorAccent2
+        .TintAndShade = 0.799981688894314
+    End With
+    For count = 1 To 7
+        If Mid(ppeVar, count, 1) = "1" Then
+            Range("K" & count + 38).Select
+            With Selection.Font
+                .ThemeColor = xlThemeColorAccent5
+                .TintAndShade = -0.499984740745262
+            End With
+        End If
+    Next count
+    For count = 8 To 13
+        If Mid(ppeVar, count, 1) = "1" Then
+            Range("M" & count + 31).Select
+            With Selection.Font
+                .ThemeColor = xlThemeColorAccent5
+                .TintAndShade = -0.499984740745262
+            End With
+        End If
+    Next count
+    If TextBox1.Value = "" Then
+        Range("K35") = "Safety Note Empty"
+    Else
+        Range("K35") = "Note Changed " & Format(Date, "d mmm yyyy")
+    End If
+    ActiveSheet.Protect
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Dim ppeVar As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image25.jpg")
+    CheckBox1.Caption = Range("K39")
+    CheckBox2.Caption = Range("K40")
+    CheckBox3.Caption = Range("K41")
+    CheckBox4.Caption = Range("K42")
+    CheckBox5.Caption = Range("K43")
+    CheckBox6.Caption = Range("K44")
+    CheckBox7.Caption = Range("K45")
+    CheckBox8.Caption = Range("M39")
+    CheckBox9.Caption = Range("M40")
+    CheckBox10.Caption = Range("M41")
+    CheckBox11.Caption = Range("M42")
+    CheckBox12.Caption = Range("M43")
+    CheckBox13.Caption = Range("M44")
+    ppeVar = Range("N39")
+    If Not ppeVar = "" Then
+        Label1.Caption = "Last changed" & vbLf & Format(Mid(ppeVar, 15, 10), "d mmm yyyy")
+        If Mid(ppeVar, 1, 1) = "2" Then CheckBox1.Value = False
+        If Mid(ppeVar, 2, 1) = "1" Then CheckBox2.Value = True
+        If Mid(ppeVar, 3, 1) = "1" Then CheckBox3.Value = True
+        If Mid(ppeVar, 4, 1) = "1" Then CheckBox4.Value = True
+        If Mid(ppeVar, 5, 1) = "1" Then CheckBox5.Value = True
+        If Mid(ppeVar, 6, 1) = "1" Then CheckBox6.Value = True
+        If Mid(ppeVar, 7, 1) = "1" Then CheckBox7.Value = True
+        If Mid(ppeVar, 8, 1) = "1" Then CheckBox8.Value = True
+        If Mid(ppeVar, 9, 1) = "1" Then CheckBox9.Value = True
+        If Mid(ppeVar, 10, 1) = "1" Then CheckBox10.Value = True
+        If Mid(ppeVar, 11, 1) = "1" Then CheckBox11.Value = True
+        If Mid(ppeVar, 12, 1) = "1" Then CheckBox12.Value = True
+        If Mid(ppeVar, 13, 1) = "1" Then CheckBox13.Value = True
+    End If
+    TextBox1.Value = Mid(Range("N40"), InStr(Range("N40"), " ") + 1)
+    Label2.Caption = "Last changed" & vbLf & Format(Mid(Range("N40"), 3, 10), "d mmm yyyy")
+    If Range("N36") = 1 Then CheckBox14.Value = True
+    If Range("N37") = 1 Then CheckBox15.Value = True
+    If Range("N38") = 1 Then CheckBox16.Value = True
+End Sub

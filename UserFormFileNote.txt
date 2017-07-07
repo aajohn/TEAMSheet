@@ -1,0 +1,55 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormFileNote 
+   ClientHeight    =   2430
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5115
+   OleObjectBlob   =   "UserFormFileNote.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormFileNote"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image9.jpg")
+End Sub
+Private Sub CommandButton1_Click()
+    Dim marking As String, markerF As String, markerH As String
+    Fname = Epsilon & "Documents\Others\Blank File Note.doc"
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\"
+    fName2 = fName2 & "File Note " & Left(Range("D5"), 5)
+    markerF = "F": markerH = "H"
+    If OptionButton1 Then
+        marking = "Not Protectivly Marked"
+        markerF = "FF": markerH = "HH"
+    End If
+    If OptionButton2 Then marking = "OFFICIAL"
+    If OptionButton3 Then marking = "OFFICIAL - SENSITIVE"
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    wdApp.Visible = False
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.Bookmarks(markerH).Range.text = marking
+    wdDoc.Bookmarks(markerF).Range.text = marking
+    wdDoc.Bookmarks("T").Range.text = Format(Date, "dddd d mmmm yyyy") & vbLf & Range("D3") & " " & Range("D5")
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    Drafts = True
+    Set wdDoc = Nothing
+    Set wdApp = Nothing
+    Call msg("File Note", "Your File Note has been created and saved to your RSR Temporary Drafts", 6)
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub

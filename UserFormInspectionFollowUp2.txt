@@ -1,0 +1,422 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormInspectionFollowUp2 
+   ClientHeight    =   8025
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   10305
+   OleObjectBlob   =   "UserFormInspectionFollowUp2.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormInspectionFollowUp2"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim breachArray(7)
+    Dim ID As String, Permit As String, parts As String
+    Fname = Epsilon & "Documents\Blank RASCAR2.docx"
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts" & "\RASCAR " & Format(Date, "dd mmm yy") & " " & Left(Range("D5"), 5)
+    If InStr(Label1.Caption, "SEALED") > 0 Then
+        fName2 = fName2 & " Sealed"
+        If Not Range("D15") = "" Then
+            Permit = Range("D15") & "   "
+        Else
+            If Not Range("D16") = "" Then Permit = Range("D16") & " & "
+            If Not Range("D17") = "" Then Permit = Permit & Range("D17") & " & "
+            If Not Range("D18") = "" Then Permit = Permit & Range("D18") & " & "
+            If Not Range("F16") = "" Then Permit = Permit & Range("F16") & " & "
+            If Not Range("F17") = "" Then Permit = Permit & Range("F17") & " & "
+            If Not Range("F18") = "" Then Permit = Permit & Range("F18") & "   "
+        End If
+    Else
+        fName2 = fName2 & " Open"
+        If Not Range("J15") = "" Then
+            Permit = Range("J15") & "   "
+        Else
+            If Not Range("J17") = "" Then Permit = Range("J17") & " & "
+            If Not Range("J18") = "" Then Permit = Permit & Range("J18") & "   "
+        End If
+    End If
+    If ComboBox31.ListIndex = 0 Then ID = "I/"
+    If ComboBox31.ListIndex = 1 Then ID = "A/"
+    If ComboBox31.ListIndex = 2 Then ID = "CMS/"
+    If ComboBox31.ListIndex = 3 Then ID = "RDR/"
+    If ComboBox31.ListIndex = 4 Then ID = "PR/"
+    ID = ID & Format(rDate, "yymmdd") & "/" & Mid(Permit, 1, Len(Permit) - 3)
+    If CheckBox1 Then
+        parts = "All conditions"
+    Else
+        If CheckBox2 Then parts = "Management Conditions, "
+        If CheckBox3 Then parts = parts & "Operational Conditions, "
+        If CheckBox4 Then parts = parts & "Information Conditions, "
+        parts = Mid(parts, 1, Len(parts) - 2)
+    End If
+    check = False
+    If TextBox1.Value = "" Then
+        breachArray(1) = "--"
+    Else
+        breachArray(1) = TextBox1.Value
+        check = True
+    End If
+    If TextBox2.Value = "" Then
+        breachArray(2) = "--"
+    Else
+        breachArray(2) = TextBox2.Value
+        check = True
+    End If
+    If TextBox3.Value = "" Then
+        breachArray(3) = "--"
+    Else
+        breachArray(3) = TextBox3.Value
+        check = True
+    End If
+    If TextBox4.Value = "" Then
+        breachArray(4) = "--"
+    Else
+        breachArray(4) = TextBox4.Value
+        check = True
+    End If
+    If TextBox5.Value = "" Then
+        breachArray(5) = "--"
+    Else
+        breachArray(5) = TextBox5.Value
+        check = True
+    End If
+    If TextBox6.Value = "" Then
+        breachArray(6) = "--"
+    Else
+        breachArray(6) = TextBox6.Value
+        check = True
+    End If
+    If TextBox7.Value = "" Then
+        breachArray(7) = "--"
+    Else
+        breachArray(7) = TextBox7.Value
+        check = True
+    End If
+    If check And TextBox8.Value = "" Then
+        TextBox8.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    End If
+    '***** CREATE RASCAR FORM *****
+    Label39.Visible = True
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.SaveAs fName2
+    wdApp.Visible = False
+    wdDoc.Bookmarks("B1").Range.text = ID
+    If InStr(Label1.Caption, "SEALED") > 0 Then
+        wdDoc.Bookmarks("B2").Range.text = "YES"
+        wdDoc.Bookmarks("H").Range.text = "OFFICIAL - SENSITIVE"
+        wdDoc.Bookmarks("F").Range.text = "OFFICIAL - SENSITIVE"
+    Else
+        wdDoc.Bookmarks("B2").Range.text = "NO"
+    End If
+    wdDoc.Bookmarks("B3").Range.text = Range("D3")
+    wdDoc.Bookmarks("B8").Range.text = Mid(Permit, 1, Len(Permit) - 3)
+    wdDoc.Bookmarks("B4").Range.text = Range("D5") ' & "/" & Range("D6")
+    wdDoc.Bookmarks("B5").Range.text = Range("D5")
+    wdDoc.Bookmarks("B6").Range.text = Range("D35")
+    wdDoc.Bookmarks("B7").Range.text = Format(rDate, "d mmmm yyyy")
+    wdDoc.Bookmarks("B12").Range.text = ComboBox31.Value
+    wdDoc.Bookmarks("B20").Range.text = parts
+    wdDoc.Bookmarks("B21").Range.text = Range("D7")
+    wdDoc.Bookmarks("B22").Range.text = Format(Date, "d mmmm yyyy") & vbLf & ComboBox33.Value
+    wdDoc.Bookmarks("C1").Range.text = ComboBox1.Value
+    wdDoc.Bookmarks("C2").Range.text = breachArray(1)
+    wdDoc.Bookmarks("C3").Range.text = ComboBox2.Value
+    wdDoc.Bookmarks("C4").Range.text = ComboBox3.Value
+    wdDoc.Bookmarks("C5").Range.text = ComboBox4.Value
+    wdDoc.Bookmarks("C6").Range.text = ComboBox5.Value
+    wdDoc.Bookmarks("C7").Range.text = ComboBox6.Value
+    wdDoc.Bookmarks("C8").Range.text = breachArray(2)
+    wdDoc.Bookmarks("C9").Range.text = ComboBox7.Value
+    wdDoc.Bookmarks("C10").Range.text = ComboBox8.Value
+    wdDoc.Bookmarks("C11").Range.text = ComboBox9.Value
+    wdDoc.Bookmarks("C12").Range.text = ComboBox10.Value
+    wdDoc.Bookmarks("C13").Range.text = breachArray(3)
+    wdDoc.Bookmarks("C14").Range.text = ComboBox11.Value
+    wdDoc.Bookmarks("C15").Range.text = ComboBox12.Value
+    wdDoc.Bookmarks("C16").Range.text = breachArray(4)
+    wdDoc.Bookmarks("C17").Range.text = ComboBox13.Value
+    wdDoc.Bookmarks("C18").Range.text = ComboBox14.Value
+    wdDoc.Bookmarks("C19").Range.text = ComboBox15.Value
+    wdDoc.Bookmarks("C20").Range.text = ComboBox16.Value
+    wdDoc.Bookmarks("C21").Range.text = ComboBox17.Value
+    wdDoc.Bookmarks("C22").Range.text = breachArray(5)
+    wdDoc.Bookmarks("C23").Range.text = ComboBox18.Value
+    wdDoc.Bookmarks("C24").Range.text = ComboBox19.Value
+    wdDoc.Bookmarks("C25").Range.text = ComboBox20.Value
+    wdDoc.Bookmarks("C26").Range.text = ComboBox21.Value
+    wdDoc.Bookmarks("C27").Range.text = breachArray(6)
+    wdDoc.Bookmarks("C28").Range.text = ComboBox22.Value
+    wdDoc.Bookmarks("C29").Range.text = breachArray(7)
+    If check Then
+        wdDoc.Bookmarks("C33").Range.text = TextBox8.Value
+        If OptionButton1.Value Then wdDoc.Bookmarks("C30").Range.text = Chr(252)
+        If OptionButton2.Value Then wdDoc.Bookmarks("C31").Range.text = Chr(252)
+        If OptionButton3.Value Then wdDoc.Bookmarks("C32").Range.text = Chr(252)
+    End If
+    wdDoc.Bookmarks("S").Select
+    wdDoc.Save
+    wdDoc.Close
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Drafts = True
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AB" & DRow) = Format(Date, "d mmm yyyy")
+    Call CloseData("tsds", True)
+    If check = True Then
+        If OptionButton2.Value Then
+            Call InterventionLog("Site Warning on " & FVar & " (CCS Number " & TextBox1.Value & ")")
+        Else
+            Call InterventionLog("None Compliance Recorded " & FVar & " (CCS Number " & TextBox1.Value & ")")
+        End If
+    End If
+    Call CreateLetter("Blank RASCAR Letter", "1", False, "", "", "", "", "", "", "", "", True)
+    Call msg("RASCAR1 Form", "Your RASCAR1 form and covering letter have been created and saved to your RSR Temporary Drafts", 21)
+    Unload Me
+End Sub
+
+Sub FillVars(v1)
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    If v1 Then Label1.Caption = "RASCAR1 Form OPEN Sources"
+    ComboBox1.AddItem "A"
+    ComboBox1.AddItem "4"
+    ComboBox1.AddItem "3"
+    ComboBox1.AddItem "2"
+    ComboBox1.AddItem "1"
+    ComboBox1.AddItem "NA"
+    ComboBox1.AddItem "N"
+    ComboBox1.ListIndex = 0
+    ComboBox2.AddItem "A"
+    ComboBox2.AddItem "4"
+    ComboBox2.AddItem "3"
+    ComboBox2.AddItem "2"
+    ComboBox2.AddItem "1"
+    ComboBox2.AddItem "NA"
+    ComboBox2.AddItem "N"
+    ComboBox2.ListIndex = 0
+    ComboBox3.AddItem "A"
+    ComboBox3.AddItem "4"
+    ComboBox3.AddItem "3"
+    ComboBox3.AddItem "2"
+    ComboBox3.AddItem "1"
+    ComboBox3.AddItem "NA"
+    ComboBox3.AddItem "N"
+    ComboBox3.ListIndex = 0
+    ComboBox4.AddItem "A"
+    ComboBox4.AddItem "4"
+    ComboBox4.AddItem "3"
+    ComboBox4.AddItem "2"
+    ComboBox4.AddItem "1"
+    ComboBox4.AddItem "NA"
+    ComboBox4.AddItem "N"
+    ComboBox4.Value = "NA"
+    If v1 Then ComboBox4.ForeColor = RGB(255, 0, 0)
+    ComboBox5.AddItem "A"
+    ComboBox5.AddItem "4"
+    ComboBox5.AddItem "3"
+    ComboBox5.AddItem "2"
+    ComboBox5.AddItem "1"
+    ComboBox5.AddItem "NA"
+    ComboBox5.AddItem "N"
+    ComboBox5.Value = "A"
+    ComboBox6.AddItem "A"
+    ComboBox6.AddItem "4"
+    ComboBox6.AddItem "3"
+    ComboBox6.AddItem "2"
+    ComboBox6.AddItem "1"
+    ComboBox6.AddItem "NA"
+    ComboBox6.AddItem "N"
+    ComboBox6.ListIndex = 0
+    ComboBox7.AddItem "A"
+    ComboBox7.AddItem "4"
+    ComboBox7.AddItem "3"
+    ComboBox7.AddItem "2"
+    ComboBox7.AddItem "1"
+    ComboBox7.AddItem "NA"
+    ComboBox7.AddItem "N"
+    ComboBox7.ListIndex = 0
+    ComboBox8.AddItem "A"
+    ComboBox8.AddItem "4"
+    ComboBox8.AddItem "3"
+    ComboBox8.AddItem "2"
+    ComboBox8.AddItem "1"
+    ComboBox8.AddItem "NA"
+    ComboBox8.AddItem "N"
+    ComboBox8.ListIndex = 0
+    ComboBox9.AddItem "A"
+    ComboBox9.AddItem "4"
+    ComboBox9.AddItem "3"
+    ComboBox9.AddItem "2"
+    ComboBox9.AddItem "1"
+    ComboBox9.AddItem "NA"
+    ComboBox9.AddItem "N"
+    ComboBox9.Value = "NA"
+    If v1 Then ComboBox9.ListIndex = 0
+    ComboBox10.AddItem "A"
+    ComboBox10.AddItem "4"
+    ComboBox10.AddItem "3"
+    ComboBox10.AddItem "2"
+    ComboBox10.AddItem "1"
+    ComboBox10.AddItem "NA"
+    ComboBox10.AddItem "N"
+    ComboBox10.ListIndex = 0
+    ComboBox11.AddItem "A"
+    ComboBox11.AddItem "4"
+    ComboBox11.AddItem "3"
+    ComboBox11.AddItem "2"
+    ComboBox11.AddItem "1"
+    ComboBox11.AddItem "NA"
+    ComboBox11.AddItem "N"
+    ComboBox11.ListIndex = 0
+    ComboBox12.AddItem "A"
+    ComboBox12.AddItem "4"
+    ComboBox12.AddItem "3"
+    ComboBox12.AddItem "2"
+    ComboBox12.AddItem "1"
+    ComboBox12.AddItem "NA"
+    ComboBox12.AddItem "N"
+    ComboBox12.ListIndex = 0
+    ComboBox13.AddItem "A"
+    ComboBox13.AddItem "4"
+    ComboBox13.AddItem "3"
+    ComboBox13.AddItem "2"
+    ComboBox13.AddItem "1"
+    ComboBox13.AddItem "NA"
+    ComboBox13.AddItem "N"
+    ComboBox13.Value = "NA"
+    If v1 Then ComboBox13.ForeColor = RGB(255, 0, 0)
+    ComboBox14.AddItem "A"
+    ComboBox14.AddItem "4"
+    ComboBox14.AddItem "3"
+    ComboBox14.AddItem "2"
+    ComboBox14.AddItem "1"
+    ComboBox14.AddItem "NA"
+    ComboBox14.AddItem "N"
+    ComboBox14.Value = "NA"
+    If v1 Then ComboBox14.ForeColor = RGB(255, 0, 0)
+    ComboBox15.AddItem "A"
+    ComboBox15.AddItem "4"
+    ComboBox15.AddItem "3"
+    ComboBox15.AddItem "2"
+    ComboBox15.AddItem "1"
+    ComboBox15.AddItem "NA"
+    ComboBox15.AddItem "N"
+    ComboBox15.Value = "NA"
+    If v1 Then ComboBox15.ForeColor = RGB(255, 0, 0)
+    ComboBox16.AddItem "A"
+    ComboBox16.AddItem "4"
+    ComboBox16.AddItem "3"
+    ComboBox16.AddItem "2"
+    ComboBox16.AddItem "1"
+    ComboBox16.AddItem "NA"
+    ComboBox16.AddItem "N"
+    ComboBox16.Value = "NA"
+    If v1 Then ComboBox16.ListIndex = 0
+    If v1 Then ComboBox16.ForeColor = RGB(255, 0, 0)
+    ComboBox17.AddItem "A"
+    ComboBox17.AddItem "4"
+    ComboBox17.AddItem "3"
+    ComboBox17.AddItem "2"
+    ComboBox17.AddItem "1"
+    ComboBox17.AddItem "NA"
+    ComboBox17.AddItem "N"
+    ComboBox17.Value = "NA"
+    If v1 Then ComboBox17.ListIndex = 0
+    If v1 Then ComboBox17.ForeColor = RGB(255, 0, 0)
+    ComboBox18.AddItem "A"
+    ComboBox18.AddItem "4"
+    ComboBox18.AddItem "3"
+    ComboBox18.AddItem "2"
+    ComboBox18.AddItem "1"
+    ComboBox18.AddItem "NA"
+    ComboBox18.AddItem "N"
+    ComboBox18.Value = "NA"
+    If v1 Then ComboBox18.ListIndex = 0
+    ComboBox19.AddItem "A"
+    ComboBox19.AddItem "4"
+    ComboBox19.AddItem "3"
+    ComboBox19.AddItem "2"
+    ComboBox19.AddItem "1"
+    ComboBox19.AddItem "NA"
+    ComboBox19.AddItem "N"
+    ComboBox19.ListIndex = 0
+    ComboBox20.AddItem "A"
+    ComboBox20.AddItem "4"
+    ComboBox20.AddItem "3"
+    ComboBox20.AddItem "2"
+    ComboBox20.AddItem "1"
+    ComboBox20.AddItem "NA"
+    ComboBox20.AddItem "N"
+    ComboBox20.ListIndex = 0
+    ComboBox21.AddItem "A"
+    ComboBox21.AddItem "4"
+    ComboBox21.AddItem "3"
+    ComboBox21.AddItem "2"
+    ComboBox21.AddItem "1"
+    ComboBox21.AddItem "NA"
+    ComboBox21.AddItem "N"
+    ComboBox21.ListIndex = 0
+    ComboBox22.AddItem "A"
+    ComboBox22.AddItem "4"
+    ComboBox22.AddItem "3"
+    ComboBox22.AddItem "2"
+    ComboBox22.AddItem "1"
+    ComboBox22.AddItem "NA"
+    ComboBox22.AddItem "N"
+    ComboBox22.Value = "N"
+    ComboBox31.AddItem "Site Inspection"
+    ComboBox31.AddItem "Audit"
+    ComboBox31.AddItem "Check monitoring/sampling"
+    ComboBox31.AddItem "Report/data review"
+    ComboBox31.AddItem "Procedure review"
+    ComboBox31.ListIndex = 0
+    ComboBox33.AddItem "Posted"
+    ComboBox33.AddItem "Faxed"
+    If v1 Then ComboBox33.AddItem "e-mailed"
+    ComboBox33.ListIndex = 0
+End Sub
+
+Private Sub CommandButton3_Click()
+    Call LaunchIE(Sheets("LookUp").Range("CH7"), 0)
+End Sub
+
+Private Sub TextBox1_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox2_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox3_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox4_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox5_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox6_Change()
+    Frame1.Visible = True
+End Sub
+
+Private Sub TextBox7_Change()
+    Frame1.Visible = True
+End Sub

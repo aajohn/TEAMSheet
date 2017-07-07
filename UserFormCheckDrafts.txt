@@ -1,0 +1,30 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormCheckDrafts 
+   ClientHeight    =   2430
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4905
+   OleObjectBlob   =   "UserFormCheckDrafts.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormCheckDrafts"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton2_Click()
+' press NO and form goes away
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    On Error Resume Next
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+End Sub
+Private Sub CommandButton1_Click()
+' press YES then open windows explorer
+    Drafts = Shell("C:\Windows\explorer.exe H:\RSR TEAMSheet\Temporary Drafts", 1)
+    Unload Me
+End Sub

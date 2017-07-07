@@ -1,0 +1,217 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormStartUp 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9915
+   OleObjectBlob   =   "UserFormStartUp.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormStartUp"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Unload Me
+End Sub
+Sub UserForm_Activate()
+    Dim col As Integer
+    Dim var As String
+    Dim mNum As String, mTxt As String
+    Call RemoveCaption(Me)
+    Delta = Range("A102")
+    Label9.Visible = False
+    Label10.Visible = False
+    CommandButton1.Visible = False
+    Call LoadDocs
+    Image1.Picture = LoadPicture(Delta & "tsimg.jpg")
+    Label4.Caption = "Status: Checking setup"
+    Label6.Caption = "version " & Range("C47")
+    Label8.Width = 50
+    DoEvents
+    Range("A1").Select
+    With ActiveWindow
+        .DisplayHeadings = False
+        .DisplayHorizontalScrollBar = False
+        .DisplayVerticalScrollBar = True
+        .DisplayWorkbookTabs = False
+        .Zoom = True
+    End With
+    With Application
+        .DisplayFormulaBar = False
+        .DisplayStatusBar = False
+        .AutoRecover.Enabled = False
+        .ScreenUpdating = False
+    End With
+    With Application
+        .OnKey "{F1}", "Sheet1.FindSite"
+        .OnKey "{F3}", ""
+        .OnKey "{F5}", ""
+        .OnKey "{F10}", ""
+        .OnKey "{F11}", ""
+        .OnKey "{F12}", ""
+        .OnKey "+{F3}", ""
+        .OnKey "+{F5}", ""
+        .OnKey "+{F10}", ""
+        .OnKey "+{F11}", ""
+        .OnKey "+{F12}", ""
+        .OnKey "^{F1}", ""
+        .OnKey "^{F4}", ""
+        .OnKey "^{F5}", ""
+        .OnKey "^{F9}", ""
+        .OnKey "^{F10}", ""
+        .OnKey "^{F11}", ""
+        .OnKey "%{F1}", ""
+        .OnKey "%{F2}", ""
+        .OnKey "%{F4}", ""
+        .OnKey "%{F8}", ""
+        .OnKey "%{F11}", ""
+        .OnKey "%+{F1}", ""
+        .OnKey "%+{F2}", ""
+        .OnKey "^+{F12}", ""
+    End With
+    Label4.Caption = "Status: Checking File Locations"
+    Label8.Width = 100
+    DoEvents
+    LogFileName = "H:\RSR TEAMSheet\tsver.Log"
+    On Error Resume Next
+    Kill LogFileName
+    On Error GoTo 0
+    '***** version
+    fileNum = FreeFile
+    Open LogFileName For Append As #fileNum
+    Print #fileNum, "8.3"
+    Close #fileNum
+    Label4.Caption = "Status: Loading Information"
+    Label8.Width = 150
+    DoEvents
+    Sheets("LookUp").Select
+    ActiveSheet.Unprotect
+    Sheets("LookUp").Range("BR2:BR22") = ""
+    LogFileName = Delta & "tslup.Log"
+    fileNum = FreeFile
+    Range("A1").Select
+    Open LogFileName For Input Access Read Shared As #fileNum
+    For col = 1 To 52
+        count = 1
+        Do
+            Line Input #fileNum, var
+            Cells(count, col) = var
+            count = count + 1
+        Loop Until Left(var, 6) = "column"
+        Cells(count - 1, col) = ""
+    Next col
+    Close #fileNum
+    LogFileName = Epsilon & "Documents\tslnk.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    count = 1
+    Do
+        Line Input #fileNum, var
+        Cells(count, 86) = var
+        count = count + 1
+    Loop Until EOF(fileNum)
+    Close #fileNum
+    For count = 1 To 7
+        If Sheets("LookUp").Range("A2") = Sheets("LookUp").Range("BI" & count) Then
+            Sheets("LookUp").Range("A1") = Sheets("LookUp").Range("BJ" & count)
+            Exit For
+        End If
+    Next
+    Range("A1").Select
+    ActiveSheet.Protect
+    Application.Cursor = xlNormal
+    Drafts = False
+    Application.Wait Now + TimeValue("00:00:01")
+    Iota = 99
+    For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+        If InStr(UCase(Environ("USERNAME")), v1) Then
+            Iota = count
+            Exit For
+        End If
+        If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+            Iota = count
+            Exit For
+        End If
+    Next count
+    var = ""
+    On Error Resume Next
+    LogFileName = "H:\RSR TEAMSheet\tshst.Log"
+    fileNum = FreeFile
+    Sheets("LookUp").Select
+    ActiveSheet.Unprotect
+    Open LogFileName For Input Access Read Shared As #fileNum
+    For count = 1 To 10
+        Line Input #fileNum, var
+        Range("CA" & count) = var
+        Line Input #fileNum, var
+        Range("CB" & count) = var
+        Line Input #fileNum, var
+        Range("CC" & count) = var
+        Line Input #fileNum, var
+        Range("CD" & count) = var
+    Next count
+    Close #fileNum
+    On Error GoTo 0
+    ActiveWorkbook.Names.Add Name:="NearestList", RefersToR1C1:=" "
+    LogFileName = "H:\RSR TEAMSheet\tslfo.Log"
+    If Not Dir(LogFileName, vbDirectory) = vbNullString Then
+        Sheets("LookUp").Select
+        ActiveSheet.Unprotect
+        Range("CE1") = "1"
+        ActiveSheet.Protect
+    End If
+    Range("A1").Select
+    ActiveSheet.Protect
+    Sheets("Details").Select
+    If Sheets("LookUp").Range("F" & Iota) = "A" Or Sheets("LookUp").Range("F" & Iota) = "L" Then ActiveSheet.Shapes("Admin").Visible = True
+    Range("A48") = Sheets("LookUp").Range("F" & Iota)
+    LogFileName = "O:\RSR TEAMSheet\Documents\tsmsg.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, mNum
+    Line Input #fileNum, mTxt
+    Close #fileNum
+    var = 0
+    LogFileName = "H:\RSR TEAMSheet\tsmsg.Log"
+    fileNum = FreeFile
+    On Error Resume Next
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, var
+    Close #fileNum
+    On Error GoTo 0
+    If Not mNum = var Then
+        Label9.Visible = True
+        Label10.Visible = True
+        Label4.Visible = False
+        Label7.Visible = False
+        Label8.Visible = False
+        CommandButton1.Visible = True
+        Image2.Picture = LoadPicture("O:\RSR TEAMSheet\Documents\Image5.jpg")
+        Label10.Caption = mTxt
+        LogFileName = "H:\RSR TEAMSheet\tsmsg.Log"
+        On Error Resume Next
+        Kill LogFileName
+        On Error GoTo 0
+        fileNum = FreeFile
+        Open LogFileName For Append As #fileNum
+        Print #fileNum, mNum
+        Close #fileNum
+        Exit Sub
+    Else
+        Unload Me
+    End If
+    LogFileName = "H:\RSR TEAMSheet\tssrt2.Log"
+    If Not Dir(LogFileName, vbDirectory) = vbNullString Then
+        ActiveSheet.Shapes("Swap").Visible = True
+    End If
+    If Sheets("LookUp").Range("AY4") = "" Then ActiveSheet.Shapes("AutoShape 199").Visible = False
+    Range("A3").Select
+End Sub
+
+Private Sub UserForm_Initialize()
+
+End Sub

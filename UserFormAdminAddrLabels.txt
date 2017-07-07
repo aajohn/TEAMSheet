@@ -1,0 +1,139 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAdminAddrLabels 
+   ClientHeight    =   5520
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   6315
+   OleObjectBlob   =   "UserFormAdminAddrLabels.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAdminAddrLabels"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Public labSelect As Boolean
+Private Sub ComboBox1_Change()
+    Call showLabel(1, ComboBox1.ListIndex)
+End Sub
+Private Sub ComboBox2_Change()
+    Call showLabel(2, ComboBox2.ListIndex)
+End Sub
+Private Sub ComboBox3_Change()
+    Call showLabel(3, ComboBox3.ListIndex)
+End Sub
+Private Sub ComboBox4_Change()
+    Call showLabel(4, ComboBox4.ListIndex)
+End Sub
+Private Sub ComboBox5_Change()
+    Call showLabel(5, ComboBox5.ListIndex)
+End Sub
+Sub showLabel(count, count1)
+    If count = 1 Then
+        Addr = "OFFICIAL - SENSITIVE" & vbLf & vbLf & "Return Address" & vbLf & Sheets("LookUp").Range("AZ" & count1 + 3)
+        Label6.Caption = ComboBox1.Value
+    End If
+    If count = 2 Then
+        Addr = Sheets("LookUp").Range("O" & count1 + 3) & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("M" & count1 + 3)
+        Label6.Caption = ComboBox2.Value
+    End If
+    If count = 3 Then
+        Addr = Sheets("LookUp").Range("S" & count1 + 3) & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("Q" & count1 + 3)
+        Label6.Caption = ComboBox3.Value
+    End If
+    If count = 4 Then
+        Addr = Sheets("LookUp").Range("W" & count1 + 3) & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("U" & count1 + 3)
+        Label6.Caption = ComboBox4.Value
+    End If
+    If count = 5 Then
+        lastrow = Sheets("LookUp").Cells(Rows.count, "AB").End(xlUp).Row - 3
+        If count1 <= lastrow Then
+            Addr = Sheets("LookUp").Range("AE" & count1 + 3) & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("AC" & count1 + 3)
+        Else
+            Addr = Sheets("LookUp").Range("AI" & count1 - lastrow + 2) & vbLf & vbLf & "For the Attention of " & Sheets("LookUp").Range("AG" & count1 - lastrow + 2)
+        End If
+        Label6.Caption = ComboBox5.Value
+    End If
+    If count = 1 Then labSelect = True Else labSelect = False
+    Label5.Caption = Addr
+End Sub
+Private Sub CommandButton1_Click()
+    Application.ScreenUpdating = False
+    If labSelect Then
+        Addr = Sheets("LookUp").Range("AZ" & ComboBox1.ListIndex + 3)
+        Fname = Epsilon & "Documents\Others\Return Address Labels.doc"
+    Else
+        Addr = Label5.Caption
+        Fname = Epsilon & "Documents\Others\Return Address Labels 2.doc"
+    End If
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\Labels " & Label6.Caption
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    wdApp.Visible = False
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdDoc.SaveAs fName2
+    wdDoc.Bookmarks("A1").Range.text = Addr
+    wdDoc.Bookmarks("A2").Range.text = Addr
+    wdDoc.Bookmarks("A3").Range.text = Addr
+    wdDoc.Bookmarks("A4").Range.text = Addr
+    wdDoc.Bookmarks("A5").Range.text = Addr
+    wdDoc.Bookmarks("A6").Range.text = Addr
+    wdDoc.Bookmarks("A7").Range.text = Addr
+    wdDoc.Bookmarks("A8").Range.text = Addr
+    wdDoc.Bookmarks("A9").Range.text = Addr
+    wdDoc.Bookmarks("A10").Range.text = Addr
+    wdDoc.Bookmarks("A11").Range.text = Addr
+    wdDoc.Bookmarks("A12").Range.text = Addr
+    wdDoc.Bookmarks("A13").Range.text = Addr
+    wdDoc.Bookmarks("A14").Range.text = Addr
+    wdDoc.Save
+    wdDoc.Close
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+    Drafts = True
+    Application.ScreenUpdating = False
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image3.jpg")
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "AY").End(xlUp).Row - 3
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("AY" & count + 3)
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row - 3
+        ComboBox2.AddItem
+        ComboBox2.List(count) = Sheets("LookUp").Range("H" & count + 3)
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "P").End(xlUp).Row - 3
+        ComboBox3.AddItem
+        ComboBox3.List(count) = Sheets("LookUp").Range("P" & count + 3)
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "T").End(xlUp).Row - 3
+        ComboBox4.AddItem
+        ComboBox4.List(count) = Sheets("LookUp").Range("T" & count + 3)
+    Next count
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "AB").End(xlUp).Row - 3
+        ComboBox5.AddItem
+        ComboBox5.List(count) = Sheets("LookUp").Range("AB" & count + 3)
+    Next count
+    count1 = ComboBox5.ListCount
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "AF").End(xlUp).Row - 3
+        ComboBox5.AddItem
+        ComboBox5.List(count1 + count) = Sheets("LookUp").Range("AF" & count + 3)
+    Next count
+    ComboBox1.ListIndex = -1
+    ComboBox2.ListIndex = -1
+    ComboBox3.ListIndex = -1
+    ComboBox4.ListIndex = -1
+    ComboBox5.ListIndex = -1
+End Sub

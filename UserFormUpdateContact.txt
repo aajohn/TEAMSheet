@@ -1,0 +1,89 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormUpdateContact 
+   ClientHeight    =   3585
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   6315
+   OleObjectBlob   =   "UserFormUpdateContact.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormUpdateContact"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    If Not TextBox1.Value = "" Then Sheets(wSheet).Range("E" & DRow) = Application.Proper(TextBox1.Value)
+    If Not TextBox2.Value = "" Then Sheets(wSheet).Range("F" & DRow) = TextBox2.Value
+    If Not TextBox3.Value = "" Then Sheets(wSheet).Range("G" & DRow) = TextBox3.Value
+    If Not TextBox4.Value = "" Then Sheets(wSheet).Range("BI" & DRow) = Application.Proper(TextBox4.Value)
+    If Not TextBox5.Value = "" Then Sheets(wSheet).Range("BJ" & DRow) = TextBox5.Value
+    If Not TextBox6.Value = "" Then Sheets(wSheet).Range("BK" & DRow) = TextBox6.Value
+    Call CloseData("tsds", True)
+    ActiveSheet.Unprotect
+    If Not TextBox1.Value = "" Then Range("D7") = Application.Proper(TextBox1.Value)
+    If Not TextBox2.Value = "" Then Range("D8") = TextBox2.Value
+    If Not TextBox3.Value = "" Then Range("D9") = TextBox3.Value
+    If Not TextBox4.Value = "" Then Range("F7") = Application.Proper(TextBox4.Value)
+    If Not TextBox5.Value = "" Then Range("F8") = TextBox5.Value
+    If Not TextBox6.Value = "" Then Range("F9") = TextBox6.Value
+    ActiveSheet.Protect
+    If Not tempSite Then
+        eMsg = "We have updated the contact details for " & Range("D3") & "<br><br><font color=""green"">Contact One:<br> " & Range("D7") & " " & Range("D8") & " " & Range("D9") & "<br><br>Contact Two:<br> " & Range("F7") & " " & Range("F8") & " " & Range("F9") & "<font color=""black"">"
+        eTo = "RSR.Rotherham2.NE@environment-agency.gov.uk"
+        eSubj = "Updated Contact Details"
+        Call SendEmail(eTo, eSubj, eMsg, "")
+    End If
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub TextBox1_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox1.Value = Range("D7")
+End Sub
+Private Sub TextBox1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub TextBox2_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox2.Value = Range("D8")
+End Sub
+Private Sub TextBox2_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub TextBox3_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox3.Value = Range("D9")
+End Sub
+Private Sub TextBox3_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub TextBox4_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox4.Value = Range("F7")
+End Sub
+Private Sub TextBox4_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub TextBox5_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox5.Value = Range("F8")
+End Sub
+Private Sub TextBox5_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub TextBox6_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox6.Value = Range("F9")
+End Sub
+Private Sub TextBox6_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image9.jpg")
+    Label1.Caption = Range("C7") & ":  " & Range("D7") & " and " & Range("F7")
+    Label2.Caption = Range("C8") & ":  " & Range("D8") & " and " & Range("F8")
+    Label3.Caption = Range("C9") & ":  " & Range("D9") & " and " & Range("F9")
+End Sub

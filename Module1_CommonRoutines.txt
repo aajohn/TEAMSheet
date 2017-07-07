@@ -1,0 +1,726 @@
+Attribute VB_Name = "Module1_CommonRoutines"
+Option Explicit
+
+Public DpBoxState As Boolean
+Public Alpha As String
+Public Beta As String
+Public Delta As String
+Public Delta2 As String
+Public Epsilon As String 'O:\RSR TEAMSheet\
+Public wBook As String
+Public wSheet As String
+Public eTo As String
+Public eSubj As String
+Public eMsg As String
+Public eAttach As String
+Public LogFileName As String
+Public Fname As String
+Public fName2 As String
+Public result() As String
+Public From As String
+Public Addr As String
+Public Addr2 As String
+Public Addr3 As String
+Public Address As String
+Public AgencyAddress As String
+Public CopyRow As Integer
+Public Iota As Integer
+Public DRow As Integer
+Public fileNum As Integer
+Public lastrow As Integer
+Public Lambda As Integer
+Public count As Integer
+Public count1 As Integer
+Public count2 As Integer
+Public Update As Boolean
+Public sVar As Boolean
+Public check As Boolean
+Public check1 As Boolean
+Public check2 As Boolean
+Public Drafts As Boolean
+Public tempSite As Boolean
+Public Theta As Boolean
+Public tdate As Date
+Public rDate As Date
+Public aDate As Date
+Public wdApp As Object
+Public wdDoc As Object
+Public FVar
+Public v1
+Public v2
+Public v3
+Public v4
+Public v5
+
+Sub msg(msg1 As String, msg2 As String, msgN As Integer)
+    Load UserFormMessage
+    Call UserFormMessage.FillVars(msg1, msg2, msgN)
+    UserFormMessage.Show
+End Sub
+
+Sub SendEmail(eTo, eSubj, eMsg, eAttach)
+    Dim OutApp As Object
+    Dim OutMail As Object
+    
+    Set OutApp = CreateObject("Outlook.Application")
+    Set OutMail = OutApp.CreateItem(0)
+    
+    Dim Signature As String
+    
+    count = 2: check = True
+    
+    If InStr(eTo, "sms") = 0 Then
+        OutMail.Display
+        Signature = OutMail.HTMLBody
+    End If
+    
+    With OutMail
+        .BodyFormat = olFormatHTML
+        .To = eTo
+        .Subject = eSubj
+        .HTMLBody = "<font face=""Arial"" size=""2"">" & eMsg & vbNewLine & Signature
+    End With
+    
+    If Epsilon = "" Then Call LoadDocs
+    
+    If Left(eAttach, 4) = "form" Then
+        OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR A Form.pdf"
+        
+        If Right(eAttach, 2) = "YY" Or Right(eAttach, 2) = "YN" Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR A Guidance.pdf"
+        End If
+        
+        If Mid(eAttach, 5, 1) = "P" Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR B" & Mid(eAttach, 6, 1) & " Form.pdf"
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR E" & Mid(eAttach, 6, 1) & " Form.pdf"
+            
+            If Right(eAttach, 2) = "YY" Or Right(eAttach, 2) = "YN" Then
+                OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR B" & Mid(eAttach, 6, 1) & " Guidance.pdf"
+                OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR E" & Mid(eAttach, 6, 1) & " Guidance.pdf"
+            End If
+        
+        Else
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR " & Mid(eAttach, 5, 2) & " Form.pdf"
+            
+            If Right(eAttach, 2) = "YY" Or Right(eAttach, 2) = "YN" Then
+                OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR " & Mid(eAttach, 5, 2) & " Guidance.pdf"
+            End If
+        
+        End If
+        
+        If Mid(eAttach, 5, 2) = "B1" Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR B1 Permit.pdf"
+        End If
+        
+        OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR F Form.pdf"
+        
+        If Right(eAttach, 2) = "YY" Or Right(eAttach, 2) = "YN" Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR F Guidance.pdf"
+        End If
+        
+        OutMail.Attachments.Add Epsilon & "Documents\Forms\EPR Charging Scheme.pdf"
+        
+        If Right(eAttach, 1) = "Y" Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\Justification Guidance.pdf"
+        End If
+        
+        eAttach = ""
+    End If
+    
+    If Left(eAttach, 3) = "htc" Then
+        
+        If InStr(eAttach, "1") > 0 Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR HTC CAT5 Sources.pdf"
+        End If
+        
+        If InStr(eAttach, "2") > 0 Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR HTC Sealed Sources.pdf"
+        End If
+        
+        If InStr(eAttach, "3") > 0 Then
+            OutMail.Attachments.Add Epsilon & "Documents\Forms\RSR HTC Open Sources.pdf"
+        End If
+        
+        eAttach = ""
+    
+    End If
+    
+    If Not eAttach = "" Then
+        OutMail.Attachments.Add Epsilon & "Documents\" & eAttach
+    End If
+    
+    Set OutMail = Nothing
+    
+    Set OutApp = Nothing
+
+End Sub
+
+Sub AppointToOutlook(aSubj As String, aLoc As String, aStr, aBody As String, rMin As Integer)
+    Dim OutApp As Object
+    Dim OutApt As Object
+    On Error Resume Next
+    Set OutApp = GetObject(, "Outlook.Application")
+    If OutApp Is Nothing Then
+        Set OutApp = CreateObject("Outlook.Application")
+    End If
+    On Error GoTo 0
+    Set OutApt = OutApp.CreateItem(1)
+    With OutApt
+        .Subject = aSubj
+        .Location = aLoc
+        .start = aStr
+        .Duration = 120
+        .BusyStatus = 2
+        .ReminderSet = True
+        .ReminderMinutesBeforeStart = rMin
+        .Body = aBody
+        .Categories = "TeamSheet"
+        .Save
+    End With
+    Set OutApt = Nothing
+    Set OutApp = Nothing
+End Sub
+
+Sub OutlookShowCal()
+    Dim OutApp As Outlook.Application
+    Dim OutNs As Namespace
+    On Error Resume Next
+    Set OutApp = GetObject(, "Outlook.Application")
+    If err.Number = 429 Then
+        Set OutApp = CreateObject("Outlook.Application")
+    End If
+    On Error GoTo 0
+    Set OutNs = OutApp.GetNamespace("MAPI")
+    If OutApp.ActiveExplorer Is Nothing Then
+        OutApp.Explorers.Add(OutNs.GetDefaultFolder(olFolderCalendar)).Activate
+    Else
+        Set OutApp.ActiveExplorer.CurrentFolder = OutNs.GetDefaultFolder(olFolderCalendar)
+        OutApp.ActiveExplorer.Display
+    End If
+    Set OutNs = Nothing
+    Set OutApp = Nothing
+End Sub
+
+Sub OutlookMtgRequest(aTo, aSubj, aLoc, aStr, aBody, rMin As Integer)
+    Dim OutApp As New Outlook.Application
+    Dim OutAppt As AppointmentItem
+    Dim OutExp As Outlook.Explorer
+    Set OutApp = New Outlook.Application
+    Set OutAppt = OutApp.CreateItem(olAppointmentItem)
+    Set OutExp = OutApp.Session.GetDefaultFolder(olFolderInbox).GetExplorer
+    With OutAppt
+        .RequiredAttendees = aTo
+        .Subject = aSubj
+        .Importance = 1
+        .start = aStr
+        .Location = aLoc
+        .Body = aBody
+        .MeetingStatus = 1
+        .ResponseRequested = True
+        .Categories = "TeamSheet"
+        .ReminderMinutesBeforeStart = rMin
+    End With
+    Set OutApp = Nothing
+    Set OutAppt = Nothing
+    Set OutExp = Nothing
+End Sub
+
+Sub ScreenLayoutOff()
+    Dim ws As Worksheet
+    For Each ws In Worksheets
+        ws.Unprotect
+    Next
+    Sheets("Details").Select
+    ActiveWindow.DisplayHeadings = True
+    With ActiveWindow
+        .DisplayHeadings = True
+        .DisplayHorizontalScrollBar = True
+        .DisplayVerticalScrollBar = True
+        .DisplayWorkbookTabs = True
+    End With
+    With Application
+        .ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
+        .DisplayFormulaBar = True
+        .DisplayStatusBar = True
+        .AutoRecover.Enabled = True
+    End With
+End Sub
+
+Sub OpenWordDoc(File2, From, sAddr, cAddr)
+    Dim nDoc, Address, Address2, Address3, OurRef, Office, AgencyAddress, x, From2, From3, From4, RefCell
+    Dim wdDoc2 As Object
+    If Epsilon = "" Then Call LoadDocs
+    Fname = Epsilon & "Documents\Blank Letter.doc"
+    fName2 = "H:\RSR TEAMSheet\Temporary Drafts\"
+    If File2 = "n" Then
+        fName2 = fName2 & "Letter " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+    Else
+        fName2 = fName2 & File2 & " " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
+    End If
+    If cAddr Then fName2 = fName2 & " CoSec"
+    check = True: count = 0: From2 = "": From3 = "": From4 = "": AgencyAddress = ""
+    Do
+        count = count + 1
+        RefCell = "C" & count + 2
+        Office = Sheets("LookUp").Range(RefCell)
+        If Office = From Then check = False
+        If count = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row Then check = False
+        AgencyAddress = Sheets("LookUp").Range("B" & count + 2)
+    Loop Until check = False
+    RefCell = "D" & count + 2
+    From3 = From & vbLf & Sheets("LookUp").Range(RefCell)
+    For count2 = 1 To Len(From3)
+        From2 = Mid(From3, count2, 1)
+        If From2 = "," Then From2 = vbLf
+        From4 = From4 + From2
+    Next
+    If sAddr Then
+        Address = Range("D6")
+        For count2 = 1 To Len(Address)
+            Address2 = Mid(Address, count2, 1)
+            If Address2 = "," Then Address2 = vbLf
+            Address3 = Address3 + Address2
+        Next
+        Address = " " & Range("D5") & vbLf & " " & Address3 & vbLf & vbLf & "For the attention of " & Range("D7")
+    End If
+    If cAddr Then
+        Address = "": Address2 = "": Address3 = ""
+        Address = Range("J6")
+        For count2 = 1 To Len(Address)
+            Address2 = Mid(Address, count2, 1)
+            If Address2 = "," Then Address2 = vbLf
+            Address3 = Address3 + Address2
+        Next
+        Address = " " & Range("D5") & vbLf & " " & Address3 & vbLf & vbLf & "For the attention of the Company Secretary"
+    End If
+    On Error Resume Next
+    Set wdApp = GetObject(, "Word.Application")
+    If err.Number <> 0 Then
+        Set wdApp = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
+    If Not File2 = "n" Then
+        nDoc = Epsilon & "Documents\Letters\Text " & File2 & ".doc"
+        Set wdDoc2 = wdApp.Documents.Open(nDoc)
+        wdApp.Visible = False
+        wdApp.Selection.WholeStory
+        wdApp.Selection.Copy
+    End If
+    If Not Range("D15") = "" Then
+        OurRef = Range("D15") & " & "
+    Else
+        If Not Range("D16") = "" Then OurRef = Range("D16") & " & "
+        If Not Range("D17") = "" Then OurRef = OurRef & Range("D17") & " & "
+        If Not Range("D18") = "" Then OurRef = OurRef & Range("D18") & " & "
+        If Not Range("F16") = "" Then OurRef = OurRef & Range("F16") & " & "
+        If Not Range("F17") = "" Then OurRef = OurRef & Range("F17") & " & "
+        If Not Range("F18") = "" Then OurRef = OurRef & Range("F18") & " & "
+    End If
+    If Not Range("J15") = "" Then
+        OurRef = OurRef & Range("J15") & " & "
+    Else
+        If Not Range("J17") = "" Then OurRef = OurRef & Range("J17") & " & "
+        If Not Range("J18") = "" Then OurRef = OurRef & Range("J18") & " & "
+    End If
+    OurRef = Mid(OurRef, 1, Len(OurRef) - 3)
+    Set wdDoc = wdApp.Documents.Open(Fname)
+    wdApp.Visible = False
+    wdDoc.Bookmarks("Address").Range.text = Address
+    wdDoc.Bookmarks("OurRef").Range.text = OurRef
+    wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+    wdDoc.Bookmarks("From").Range.text = From4
+    wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+    wdDoc.Bookmarks("Type").Select
+    If Not File2 = "n" Then wdApp.Selection.Paste
+    If Not File2 = "n" Then wdDoc2.Close
+    If File2 = "Change of Fact" Then
+        wdDoc.Bookmarks("Operator").Range.text = Range("D5")
+        wdDoc.Bookmarks("Site").Range.text = Range("D6")
+    End If
+    wdDoc.SaveAs fName2
+    wdDoc.Close
+    wdApp.Quit
+    Drafts = True
+    Set wdApp = Nothing
+    Set wdDoc = Nothing
+End Sub
+
+Sub dataRow(siteCode As String)
+    Dim sitecode2 As String
+    Application.ScreenUpdating = False
+    siteCode = VBA.UCase(siteCode)
+    check = True: count = 1
+    Windows("RSR TEAMSheet.xlsm").Activate
+    If IsNumeric(VBA.Left(siteCode, 1)) Then siteCode = Sheets("LookUp").Range("A2") & siteCode
+    If VBA.Left(siteCode, 1) = Sheets("LookUp").Range("A2") Or VBA.Left(siteCode, 1) = "Z" Then
+        Call OpenData("tsds")
+        Windows("tsds.xls").Activate
+        If VBA.Left(siteCode, 1) = "Z" Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+        Sheets(wSheet).Select
+        Do
+            count = count + 1
+            sitecode2 = Range("A" & count)
+            If count > Lambda Then check = False
+            If sitecode2 = siteCode Then check = False
+        Loop Until check = False
+        DRow = count
+        If count > Lambda Then DRow = 0
+    Else
+        DRow = 0
+    End If
+    If VBA.Left(siteCode, 1) = "Z" And DRow > 0 Then
+        tempSite = True
+    Else
+        tempSite = False
+    End If
+End Sub
+
+Sub CopyPasteData(CopyRow, Update, sVar)
+    Load UserFormLoadCPD
+    Call UserFormLoadCPD.FillVars(CopyRow, Update, sVar)
+    UserFormLoadCPD.Show
+    DoEvents
+End Sub
+
+Sub Tracking()
+    Sheets("Tracking").Select
+    ActiveSheet.Unprotect
+    Range("B5:K23") = ""
+    Call ScreenLayout("Tracking")
+    Application.ScreenUpdating = False
+    UserFormLoadTracking.Show
+End Sub
+
+Sub Display()
+    Application.ScreenUpdating = False
+    Call ScreenLayout("Details")
+    Worksheets("Details").ScrollArea = "A1:O48"
+    ActiveSheet.Protect
+End Sub
+
+Sub MySites()
+    Application.ScreenUpdating = False
+    Call ScreenLayout("MySites")
+    UserFormLoadMySites.Show
+End Sub
+
+Sub Inspections()
+    Worksheets("Inspections").ScrollArea = ""
+    Call ScreenLayout("Inspections")
+    UserFormLoadInspections.Show
+End Sub
+
+Sub Instruments()
+    Call ScreenLayout("Instruments")
+    Worksheets("Instruments").ScrollArea = "A1:M45"
+    Range("C4:J18,C21:J35,C38:J45") = ""
+    Range("L3") = 0
+    Range("C4").Select
+    UserFormLoadInstruments.Show
+End Sub
+
+Sub ScreenLayout(tSheet As String)
+    Sheets(tSheet).Select
+    ActiveSheet.Unprotect
+    Range("A3").Select
+    With ActiveWindow
+        .DisplayHeadings = False
+        .DisplayHorizontalScrollBar = False
+        .DisplayVerticalScrollBar = True
+        .DisplayWorkbookTabs = False
+    End With
+    ActiveSheet.DisplayPageBreaks = False
+    Range("A1").Select
+    ActiveWindow.Zoom = True
+End Sub
+
+Sub RemoveApp()
+    Dim pDate As Date
+    Dim text As String
+    Dim olApp As Outlook.Application
+    Dim olNs As Namespace
+    Dim olFldr As MAPIFolder
+    Dim olApt As AppointmentItem
+    Application.ScreenUpdating = False
+    Set olApp = New Outlook.Application
+    Set olNs = olApp.GetNamespace("MAPI")
+    Set olFldr = olNs.GetDefaultFolder(olFolderCalendar)
+    FVar = Mid(Sheets("Details").Range("D38"), 16, Len(Sheets("Details").Range("D38")) - 15)
+    FVar = Mid(FVar, 1, Len(FVar) - 8)
+    FVar = Format(FVar, "dd/mm/yyyy") & " " & Format(Right(Sheets("Details").Range("D38"), 5), "hh:mm:ss")
+    For Each olApt In olFldr.Items
+        If InStr(olApt.start, FVar) > 0 Then
+            olApt.Delete
+        End If
+    Next olApt
+    Set olApt = Nothing
+    Set olFldr = Nothing
+    Set olNs = Nothing
+    Set olApp = Nothing
+    DRow = Range("G3")
+    count = 0: check = True
+    If Not Range("D37") = "" Then
+        count = InStr(Range("D37"), " ")
+        pDate = Right(Range("D37"), Len(Range("D37")) - count)
+        If IsNumeric(Range("D36")) Then
+            If Range("D36") > 0 Then
+                pDate = DateAdd("m", (Range("D36") * 12) - 3, pDate)
+            Else
+                pDate = DateAdd("m", 9, pDate)
+            End If
+            text = "Due Qtr " & Format(pDate, "q yyyy")
+        End If
+    Else
+        text = ""
+    End If
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AA" & DRow) = text
+    Call CopyPasteData(DRow, True, True)
+End Sub
+
+Sub LaunchIE(webAddr As String, varN As Byte, oppDetails As String)
+    Dim appIE As Object
+    On Error GoTo ErrHandler:
+    Set appIE = CreateObject("InternetExplorer.application")
+    appIE.Visible = True
+    appIE.Navigate webAddr
+    Do While appIE.Busy: Loop
+    Application.Wait Now + TimeValue("00:00:02")
+    If varN = 1 Then
+        appIE.Document.getElementById("cnumb").Value = oppDetails
+        Do While appIE.Busy: Loop
+        '    DoEvents: Call SendKeys("{tab}")
+        '    DoEvents: Call SendKeys("{tab}")
+        '    DoEvents: Call SendKeys("{enter}")
+    End If
+    If varN = 2 Then
+        appIE.Document.getElementById("cname").Value = oppDetails
+        Do While appIE.Busy: Loop
+        '    DoEvents: Call SendKeys("{tab}")
+        '    DoEvents: Call SendKeys("{tab}")
+        '    DoEvents: Call SendKeys("{tab}")
+        '    DoEvents: Call SendKeys("{enter}")
+    End If
+    On Error GoTo 0
+    Exit Sub
+ErrHandler:
+    appIE.Quit
+    Call msg("Error - Internet Explorer", varN & "  errnumber" & err.Number & vbLf & err.Description, 26)
+End Sub
+Sub Log(vEnd, v1, v2)
+    Call OpenData("tsplg")
+    wBook = "tsplg.xls"
+    lastrow = Workbooks(wBook).Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row + 1
+    Windows("RSR TEAMSheet.xlsm").Activate
+    If v1 Then
+        Workbooks(wBook).Sheets("Datasheet").Range("A" & lastrow) = Range("D3")
+        Workbooks(wBook).Sheets("Datasheet").Range("B" & lastrow) = Range("D5")
+        Workbooks(wBook).Sheets("Datasheet").Range("C" & lastrow) = Range("D20")
+        Workbooks(wBook).Sheets("Datasheet").Range("D" & lastrow) = Range("D21")
+        Workbooks(wBook).Sheets("Datasheet").Range("E" & lastrow) = Range("D22")
+        Workbooks(wBook).Sheets("Datasheet").Range("F" & lastrow) = Range("D32")
+        Workbooks(wBook).Sheets("Datasheet").Range("G" & lastrow) = vEnd
+        lastrow = lastrow + 1
+    End If
+    If v2 Then
+        Workbooks(wBook).Sheets("Datasheet").Range("A" & lastrow) = Range("D3")
+        Workbooks(wBook).Sheets("Datasheet").Range("B" & lastrow) = Range("D5")
+        Workbooks(wBook).Sheets("Datasheet").Range("C" & lastrow) = Range("J20")
+        Workbooks(wBook).Sheets("Datasheet").Range("D" & lastrow) = Range("J21")
+        Workbooks(wBook).Sheets("Datasheet").Range("E" & lastrow) = Range("J22")
+        Workbooks(wBook).Sheets("Datasheet").Range("F" & lastrow) = Range("J32")
+        Workbooks(wBook).Sheets("Datasheet").Range("G" & lastrow) = vEnd
+    End If
+    Call CloseData("tsplg", True)
+End Sub
+Sub SortTracking(col)
+    ActiveSheet.Unprotect
+    Range("B5:K24").Select
+    Selection.Sort Key1:=Range(col), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    Range("G4:K4").Select
+    Selection.Font.Bold = False
+    Range(Left(col, 1) & "4").Select
+    Selection.Font.Bold = True
+    Range("B4").Select
+    ActiveSheet.Protect
+End Sub
+Sub Contacts()
+    Application.ScreenUpdating = False
+    UserFormContacts.Show
+End Sub
+Sub OutcomeLog(logCol As Integer)
+    Dim odate As String
+    odate = Format(Date, "mm yyyy")
+    Call OpenData("tsolg")
+    lastrow = Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row
+    For count = 1 To lastrow
+        If Sheets("Datasheet").Range("A" & count) = odate Then Exit For
+    Next
+    If count > lastrow Then Sheets("Datasheet").Range("A" & count) = odate
+    Sheets("Datasheet").Cells(count, logCol + 2) = Sheets("Datasheet").Cells(count, logCol + 2) + 1
+    Call CloseData("tsolg", True)
+End Sub
+Sub InterventionLog(logTxt As String)
+    LogFileName = Delta & "tsinv.Log"
+    fileNum = FreeFile
+    logTxt = Range("D3") & "," & logTxt
+    Open LogFileName For Append As #fileNum
+    Print #fileNum, logTxt
+    Close #fileNum
+End Sub
+Sub History()
+    check = True
+    Application.ScreenUpdating = False
+    Sheets("LookUp").Select
+    ActiveSheet.Unprotect
+    Range("CA1:CD1").Select
+    Selection.Insert Shift:=xlDown
+    For count = 2 To 11
+        If Sheets("Details").Range("D3") = Sheets("LookUp").Range("CB" & count) Then
+            check = False
+            Range("CA" & count & ":CD" & count).Select
+            Selection.Cut
+            Range("CA1:CD1").Select
+            ActiveSheet.Paste
+            Range("CA" & count & ":CD" & count).Select
+            Selection.Delete Shift:=xlUp
+        End If
+    Next count
+    If check Then
+        Sheets("LookUp").Range("CA1") = Sheets("Details").Range("D5")
+        Sheets("LookUp").Range("CB1") = Sheets("Details").Range("D3")
+        Sheets("LookUp").Range("CC1") = Sheets("Details").Range("D6")
+        Sheets("LookUp").Range("CD1") = Sheets("Details").Range("D10")
+    End If
+    ActiveSheet.Protect
+    Sheets("Details").Select
+    Application.ScreenUpdating = True
+End Sub
+Sub HistorySave()
+    Application.ScreenUpdating = False
+    LogFileName = "H:\RSR TEAMSheet\tshst.Log"
+    On Error Resume Next
+    Kill LogFileName
+    fileNum = FreeFile
+    Open LogFileName For Append As #fileNum
+    Sheets("LookUp").Select
+    For count = 1 To 10
+        Print #fileNum, Range("CA" & count)
+        Print #fileNum, Range("CB" & count)
+        Print #fileNum, Range("CC" & count)
+        Print #fileNum, Range("CD" & count)
+    Next count
+    Close #fileNum
+    On Error GoTo 0
+    LogFileName = "H:\RSR TEAMSheet\tslfo.Log"
+    On Error Resume Next
+    Kill LogFileName
+    On Error GoTo 0
+    If Range("CE1") = "1" Then
+        fileNum = FreeFile
+        Open LogFileName For Append As #fileNum
+        Print #fileNum, "*****************"
+        Close #fileNum
+    End If
+    Sheets("Details").Select
+End Sub
+Sub GetPostCode(Addr As String, var As String)
+    Dim addrlen As Integer
+    On Error GoTo err
+    addrlen = Len(Addr)
+    If Addr <> "" Then
+        If InStr(Addr, " ") = 0 Then
+            FVar = " "
+            Exit Sub
+        End If
+        check = True
+        Do
+            Addr2 = Mid(Addr, addrlen, 1)
+            If Addr2 = Chr(32) Then
+                Addr2 = var
+                check = False
+            End If
+            Addr3 = Addr2 & Addr3
+            addrlen = addrlen - 1
+        Loop Until check = False
+        check = True
+        Do
+            Addr2 = Mid(Addr, addrlen, 1)
+            If Addr2 = Chr(32) Then
+                check = False
+            End If
+            Addr3 = Addr2 & Addr3
+            addrlen = addrlen - 1
+        Loop Until check = False
+        FVar = Addr3
+    Else
+err:
+        On Error GoTo 0
+        FVar = " "
+    End If
+End Sub
+Sub ReportInstruments()
+    'need to get round read/write access to O drive
+    LogFileName = "O:\RSR TEAMSheet\Reports\Data tsinst\tsinst" & Workbooks("RSR TEAMSheet.xlsm").Sheets("LookUp").Range("A2") & ".Log"
+    On Error Resume Next
+    Kill LogFileName
+    fileNum = FreeFile
+    Open LogFileName For Append As #fileNum
+    Sheets("LookUp").Select
+    For count = 2 To 16
+        Print #fileNum, Range("CA" & count)
+        Print #fileNum, Range("CB" & count)
+        Print #fileNum, Range("CC" & count)
+        Print #fileNum, Range("CD" & count)
+        Print #fileNum, Range("CE" & count)
+        Print #fileNum, Range("CF" & count)
+        Print #fileNum, Range("CG" & count)
+    Next count
+    For count = 2 To 16
+        Print #fileNum, Range("CI" & count)
+        Print #fileNum, Range("CJ" & count)
+        Print #fileNum, Range("CK" & count)
+        Print #fileNum, Range("CL" & count)
+        Print #fileNum, Range("CM" & count)
+        Print #fileNum, Range("CN" & count)
+        Print #fileNum, Range("CO" & count)
+    Next count
+    For count = 2 To 9
+        Print #fileNum, Range("CQ" & count)
+        Print #fileNum, Range("CR" & count)
+        Print #fileNum, Range("CS" & count)
+        Print #fileNum, Range("CT" & count)
+        Print #fileNum, Range("CU" & count)
+        Print #fileNum, Range("CV" & count)
+        Print #fileNum, Range("CW" & count)
+    Next count
+    Close #fileNum
+End Sub
+Sub wbLoad(Alpha As String, Beta As String, Delta As String)
+    Dim wBook As Workbook
+    Application.OnKey "^{F12}", "ScreenLayoutOff"
+    Application.WindowState = xlMaximized
+    Worksheets("Details").ScrollArea = "a1:o48"
+    ActiveSheet.DisplayPageBreaks = False
+    Sheets("Details").Select
+    ActiveSheet.Unprotect
+    Range("A100") = Alpha
+    Range("A101") = Beta
+    Range("A102") = Delta
+    UserFormStartUp.Show
+    ActiveSheet.Protect
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    RunWhen = Now + TimeSerial(0, NUM_MINUTES, 0)
+    Application.OnTime RunWhen, "TimeOut", , True
+    If Iota = 99 Then
+        Call msg("RSR Team Members", "Your name cannot be found in the list of team members!" & vbLf & vbLf & "Please contact your administrator", 22)
+    End If
+    Application.ScreenUpdating = True
+    If Sheets("LookUp").Range("CE1") = "1" Then Call Sheet1.FindSite
+    For Each wBook In Workbooks
+        If Not wBook.Name = ThisWorkbook.Name Then
+            wBook.Close SaveChanges:=False
+        End If
+    Next wBook
+End Sub

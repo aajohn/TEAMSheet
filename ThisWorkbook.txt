@@ -1,0 +1,88 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "ThisWorkbook"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+'Private Sub workbook_open()
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    Dim Update As String, Version As String
+    Dim MyDrive As Object
+    Application.ScreenUpdating = False
+    On Error Resume Next
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    Call HistorySave
+    LogFileName = "O:\RSR TEAMSheet\Update\tsupd2.Log"
+    If Not Dir(LogFileName, vbDirectory) = vbNullString Then
+        fileNum = FreeFile
+        Open LogFileName For Input Access Read Shared As #fileNum
+        Line Input #fileNum, Update
+        Close #fileNum
+        fileNum = FreeFile
+        LogFileName = "H:\RSR TEAMSheet\tsver2.Log"
+        If Not Dir(LogFileName, vbDirectory) = vbNullString Then
+            Open LogFileName For Input Access Read Shared As #fileNum
+            Line Input #fileNum, Version
+            Close #fileNum
+        Else
+            Version = 0
+        End If
+        '***    AppActivate "Microsoft Excel"
+    Else
+        Update = 0: Version = 1
+    End If
+    If Update > Version Then
+        Application.ScreenUpdating = True
+        UserFormUpdate.Show
+    End If
+    With Application
+        .DisplayFormulaBar = True
+        .DisplayStatusBar = True
+        .AutoRecover.Enabled = True
+    End With
+    Application.OnKey "^{F12}"
+    Application.OnKey "{F1}"
+    If Drafts Then UserFormCheckDrafts.Show
+    Application.DisplayAlerts = False
+    Application.Quit
+End Sub
+Private Sub Workbook_SheetBeforeRightClick(ByVal Sh As Object, ByVal Target As Range, Cancel As Boolean)
+    Cancel = True
+End Sub
+Sub RemoveApps()
+    tdate = Format(Date, "d/m/yyyy")
+    Sheets("Datasheet").Select
+    count = 1
+    Do
+        count = count + 1
+        If Range("BT" & count) < tdate And Not IsEmpty(Range("BT" & count)) Then
+            Range("AI" & count & ":AT" & count) = ""
+            Range("BF" & count) = ""
+            Range("BT" & count) = ""
+        End If
+        If Range("BU" & count) < tdate And Not IsEmpty(Range("BU" & count)) Then
+            Range("AU" & count & ":BE" & count) = ""
+            Range("BG" & count) = ""
+            Range("BU" & count) = ""
+        End If
+    Loop Until count = Lambda
+End Sub
+Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
+    On Error Resume Next
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    RunWhen = Now + TimeSerial(0, NUM_MINUTES, 0)
+    Application.OnTime RunWhen, "TimeOut", , True
+End Sub
+Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
+    On Error Resume Next
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    RunWhen = Now + TimeSerial(0, NUM_MINUTES, 0)
+    Application.OnTime RunWhen, "TimeOut", , True
+End Sub

@@ -1,0 +1,125 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormSendForms 
+   ClientHeight    =   6825
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9105
+   OleObjectBlob   =   "UserFormSendForms.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormSendForms"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton1_Click()
+    Dim vType As String
+    Dim var As String
+    eTo = TextBox1.Value
+    If eTo = "" Then
+        Call msg("e-mail Address", "No email address to send forms to", 7)
+        Exit Sub
+    End If
+    If MultiPage1.Value = 0 Then
+        If OptionButton1 Then eAttach = "B1"
+        If OptionButton2 Then eAttach = "B2"
+        If OptionButton3 Then eAttach = "B4"
+        If OptionButton4 Then eAttach = "C2"
+        If OptionButton5 Then eAttach = "C4"
+        If OptionButton6 Then eAttach = "D2"
+        If OptionButton7 Then eAttach = "D3"
+        If OptionButton8 Then eAttach = "E2"
+        If OptionButton9 Then eAttach = "E4"
+        If OptionButton10 Then eAttach = "P2"
+        If OptionButton11 Then eAttach = "P4"
+        If Left(eAttach, 1) = "B" Then vType = "application for a new permit."
+        If Left(eAttach, 1) = "C" Then vType = "application for a variation to your existing permit."
+        If Left(eAttach, 1) = "D" Then vType = "application to transfer your existing permit."
+        If Left(eAttach, 1) = "E" Then vType = "application to surrender your existing permit."
+        If Not eAttach = "" Then
+            eAttach = "form" + eAttach
+            If CheckBox1 Then
+                eAttach = eAttach + "Y"
+                vType = vType & "  Along with guidance on how to complete each of the forms.  You will need to complete all three forms for your application."
+            Else
+                eAttach = eAttach + "N"
+            End If
+            If CheckBox2 Then
+                eAttach = eAttach + "Y"
+            Else
+                eAttach = eAttach + "N"
+            End If
+            eSubj = "Radioactive Substances Regulation: Application Forms"
+            If Mid(eAttach, 5, 1) = "P" Then
+                eMsg = "As discussed please find attached the forms for your change of premises.  Under the Environmental Permitting Regulations you will need to apply to surrender your current permit and apply for a new permit for your new premises.  We will try to determine these in parallel but please remember that these are legally separate applications with different timescales."
+            Else
+                eMsg = "As discussed please find attached the forms for your " & vType
+            End If
+            eMsg = eMsg & "<br><br>You can find further advice and guidance on our website, <a href = " & Sheets("LookUp").Range("CH5") & "><Font Color=""green"">RSR environmental permitting guidance</a><font color = ""black"">."
+            eMsg = eMsg & "<br><br>I have also included the Charging Scheme, the relevant section is " & Sheets("LookUp").Range("CH6") & ".   When completed your application should be sent to our Sheffield Office as explained at the end of Form F.<br><br>If you need any further assistance with your application please get back in touch with myself.<br>"
+            Call SendEmail(eTo, eSubj, eMsg, eAttach)
+            Unload Me
+        End If
+        Exit Sub
+    End If
+    If MultiPage1.Value = 1 Then
+        If CheckBox3 Then
+            eAttach = "1"
+            var = CheckBox3.Caption & " "
+        End If
+        If CheckBox4 Then
+            eAttach = eAttach & "2"
+            var = var & CheckBox4.Caption & " "
+        End If
+        If CheckBox5 Then
+            eAttach = eAttach & "3"
+            var = var & CheckBox5.Caption
+        End If
+        If Not eAttach = "" Then
+            eAttach = "htc" + eAttach
+            eSubj = "Radioactive Substances Regulation: How to Comply"
+            eMsg = "Please find attached the relevant How to Comply documents for your site.  These provide advice and guidance on the conditions within your permit.<br><br>Please contact myself if you wish to discuss this further."
+            Call SendEmail(eTo, eSubj, eMsg, eAttach)
+            LogFileName = Delta & "tsinv.Log"
+            fileNum = FreeFile
+            var = Range("D3") & ",How to Comply," & Format(Date, "d mmmm yyyy") & ",Standard email to " & eTo & " attachments " & var
+            Open LogFileName For Append As #fileNum
+            Print #fileNum, var
+            Close #fileNum
+            Unload Me
+        End If
+        Exit Sub
+    End If
+    If MultiPage1.Value = 2 Then
+        If CheckBox6 Then
+            eAttach = "RWA Policy Statement.pdf"
+            eSubj = "Radioactive Substances Regulation: Appointing RWAs"
+            eMsg = "As you are aware permits to accumulate and/or dispose of radioactive waste require the Operator (permit holder) to consult suitable qualified experts, now referred to as radioactive waste advisors.  These radioactive waste advisors need to be appointed in writing by the Operator, as explained in para 4.2.4 of the attached regulators guidance. <br><br>The purpose of this email is to make you aware of this and to let you know this is something we will be asking for in future inspections. <br><br>Should you require any further advice please reply to this email or contact me on the details below."
+            Call SendEmail(eTo, eSubj, eMsg, eAttach)
+            LogFileName = Delta & "tsinv.Log"
+            fileNum = FreeFile
+            var = Range("D3") & ",Apointing RWAs," & Format(Date, "d mmmm yyyy") & ",Standard email to " & eTo & " attachments "
+            Open LogFileName For Append As #fileNum
+            Print #fileNum, var
+            Close #fileNum
+            Unload Me
+        End If
+        Exit Sub
+    End If
+End Sub
+Private Sub CommandButton4_Click()
+    Call msg("Change of Premises", "Surrender and New Application" & vbLf & vbLf & "But Variation for Mobile see RSR3 pp11-12", 5)
+End Sub
+Private Sub TextBox1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal Y As Single)
+    If Button = 2 Then Call ShowPopup(Me, Me.Caption, x, Y)
+End Sub
+Private Sub UserForm_Initialize()
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image7.jpg")
+    Call RemoveCaption(Me)
+    If Not Range("D9") = "" Or Not Range("F9") = "" Then TextBox1.Value = Range("D9") & ";" & Range("F9")
+End Sub

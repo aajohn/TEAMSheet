@@ -1,0 +1,241 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppRecieved 
+   ClientHeight    =   5820
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormAppRecieved.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppRecieved"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+
+Private Sub CommandButton1_Click()
+    Dim rDate As Date, dDate As Date, wDate As Date, ccDate As Date, sMarker As Boolean, oMarker As Boolean
+    tdate = Format(Date, "d/m/yyyy")
+    If Label1.Caption = "" Then Exit Sub
+    If Not ListBox1.Value = "Change of Fact" Then
+        If TextBox2.Value = "" Then Exit Sub
+        If IsDate(TextBox2.Value) Then
+            dDate = TextBox2.Value
+        Else
+            Call msg("Duly Made Date", "This is not a valid date", 26)
+            Exit Sub
+        End If
+        If dDate > tdate Then
+            Call msg("Duly Made Date", "This date must be in the past", 26)
+            Exit Sub
+        End If
+    End If
+    If TextBox7.Value = "" Then Exit Sub
+    If IsDate(TextBox7.Value) Then
+        rDate = TextBox7.Value
+    Else
+        Call msg("Received in Area Date", "Received in Area Date is not a valid date", 26)
+        Exit Sub
+    End If
+    If rDate > tdate Then
+        Call msg("Received in Area Date", "This date must be in the past", 26)
+        Exit Sub
+    End If
+    If ListBox1.Value = "Change of Fact" Then
+        wDate = 0
+        If TextBox3.Value = "" And TextBox4.Value = "" Then
+            If Not IsEmpty(Range("F18")) Then TextBox3.Value = Range("F18")
+            If Not IsEmpty(Range("F17")) Then TextBox3.Value = Range("F17")
+            If Not IsEmpty(Range("F16")) Then TextBox3.Value = Range("F16")
+            If Not IsEmpty(Range("D18")) Then TextBox3.Value = Range("D18")
+            If Not IsEmpty(Range("D17")) Then TextBox3.Value = Range("D17")
+            If Not IsEmpty(Range("D16")) Then TextBox3.Value = Range("D16")
+            If Not IsEmpty(Range("J18")) Then TextBox3.Value = Range("J18")
+            If Not IsEmpty(Range("J17")) Then TextBox3.Value = Range("J17")
+        Else
+            TextBox3.Value = "EPR/" & TextBox3.Value: TextBox4.Value = "EPR/" & TextBox4.Value
+        End If
+        If Len(TextBox3.Value) > 4 Then sMarker = True
+        If Len(TextBox4.Value) > 4 Then oMarker = True
+        GoTo jmp
+    End If
+    If ListBox1.Value = "Variation" Or ListBox1.Value = "New Application" Then
+        If Len(TextBox5.Value) = 4 Then sMarker = True
+        If Len(TextBox6.Value) = 4 Then oMarker = True
+        If Not sMarker And Not oMarker Then
+            Call msg("Application Number", "Application Number/s do not contain enough letters or numbers", 26)
+            Exit Sub
+        End If
+        'advert
+        If IsDate(TextBox8.Value) Then aDate = TextBox8.Value
+        If Not IsEmpty(aDate) Then
+            If Not IsDate(aDate) Then
+                Call msg("Advertisment Date", "This is not a valid date", 26)
+                Exit Sub
+            End If
+            If aDate > tdate Then
+                Call msg("Advertisment Date", "This date must be in the past", 26)
+                Exit Sub
+            End If
+        End If
+        If TextBox8.Value = "" Then
+            wDate = DateAdd("m", 3, dDate)
+        Else
+            wDate = DateAdd("m", 4, dDate)
+            If Weekday(dDate) = 1 Then ccDate = DateAdd("d", 41, dDate)
+            If Weekday(dDate) = 2 Then ccDate = DateAdd("d", 40, dDate)
+            If Weekday(dDate) > 2 Then ccDate = DateAdd("d", 42, dDate)
+        End If
+        TextBox3.Value = UCase("EPR/" & TextBox3.Value & "/" & TextBox5.Value)
+        TextBox4.Value = UCase("EPR/" & TextBox4.Value & "/" & TextBox6.Value)
+        GoTo jmp
+    End If
+    If Left(ListBox1.Value, 1) = "T" Or Left(ListBox1.Value, 1) = "S" Then
+        If Len(TextBox5.Value) = 4 Then sMarker = True
+        If Len(TextBox6.Value) = 4 Then oMarker = True
+        If Not sMarker And Not oMarker Then
+            Call msg("Application Number", "Application Number/s do not contain enough letters or numbers", 26)
+            Exit Sub
+        End If
+        If Left(ListBox1.Value, 1) = "T" Then wDate = DateAdd("m", 2, dDate)
+        If Len(TextBox3.Value) = 6 Then TextBox3.Value = TextBox3.Value & "  "
+        If Len(TextBox4.Value) = 6 Then TextBox4.Value = TextBox4.Value & "  "
+        TextBox3.Value = UCase("EPR/" & TextBox3.Value & "/" & TextBox5.Value)
+        TextBox4.Value = UCase("EPR/" & TextBox4.Value & "/" & TextBox6.Value)
+    End If
+jmp:
+    count = Sheets("Details").Range("G3")
+    Call OpenData("tsds")
+    If sMarker Then
+        Range("AI" & count) = ListBox1.Value
+        Range("AJ" & count) = TextBox3.Value
+        If Not ListBox1.Value = "Change of Fact" Then Range("M" & count) = Mid(TextBox3.Value, 5, 8)
+        If Not dDate = 0 Then Range("AK" & count) = dDate
+        If Not wDate = 0 Then Range("AL" & count) = wDate
+        If Not aDate = 0 Then Range("AM" & count) = aDate
+        If Not ccDate = 0 Then Range("BF" & count) = ccDate
+        Range("AN" & count) = rDate
+        Range("AS" & count & ":AT" & count) = ""
+    End If
+    If oMarker Then
+        Range("AU" & count) = ListBox1.Value
+        Range("AV" & count) = TextBox4.Value
+        If Not ListBox1.Value = "Change of Fact" Then Range("O" & count) = Mid(TextBox4.Value, 5, 8)
+        If Not dDate = 0 Then Range("AW" & count) = dDate
+        If Not wDate = 0 Then Range("AX" & count) = wDate
+        If Not aDate = 0 Then Range("AY" & count) = aDate
+        If Not ccDate = 0 Then Range("BG" & count) = ccDate
+        Range("AZ" & count) = rDate
+        Range("BD" & count & ":BE" & count) = ""
+    End If
+    Call CopyPasteData(count, True, True)
+    eTo = Range("D35")
+    eSubj = "Application Received"
+    eMsg = "An application has been received for site code <b>" & Range("D3") & "</b>.<br><br>I will be sending as appropriate the application file or draft to you shortly."
+    Call SendEmail(eTo, eSubj, eMsg, "")
+    Unload Me
+End Sub
+
+Private Sub CommandButton2_Click()
+    DRow = 0
+    Unload Me
+End Sub
+
+Private Sub ListBox1_Click()
+    check = False: check2 = False
+    If ListBox1.Value = "Change of Fact" Then
+        Call sVis(False, False, False, False, True, False, False, False, False, False, False, True, False)
+        'Call sVis(True, True, True, True, True, True, True, True, True, True, True, True, True)
+    End If
+    If ListBox1.Value = "Variation" Then
+        check = True: TextBox5.Value = "V"
+        check2 = True: TextBox6.Value = "V"
+        Call sVis(True, True, check, check2, True, True, True, check, check2, check, check2, True, True)
+    End If
+    If Left(ListBox1.Value, 1) = "T" Then
+        check = True: TextBox5.Value = "T"
+        check2 = True: TextBox6.Value = "T"
+        Call sVis(True, True, check, check2, True, False, True, check, check2, check, check2, True, False)
+    End If
+    If Left(ListBox1.Value, 1) = "S" Then
+        check = True: TextBox5.Value = "S"
+        check2 = True: TextBox6.Value = "S"
+        Call sVis(True, True, check, check2, True, False, True, check, check2, check, check2, True, False)
+    End If
+    If Left(ListBox1.Value, 1) = "N" Then
+        If Not IsEmpty(Range("D15")) Then
+            TextBox4.Value = Range("J15")
+            check2 = True: TextBox6.Value = "A001"
+        End If
+        If Not IsEmpty(Range("J15")) Then
+            TextBox3.Value = Range("D15")
+            check1 = True: TextBox5.Value = "A001"
+        End If
+        Call sVis(True, True, check1, check2, True, True, True, check1, check2, check1, check2, True, True)
+    End If
+End Sub
+
+Sub FillVars(check)
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Call CreateForm(Sheets("Details").Range("D3"))
+    For count = 0 To 6
+        ListBox1.AddItem
+        ListBox1.List(count) = Sheets("LookUp").Range("BF" & count + 3)
+    Next count
+    Call sVis(False, False, False, False, False, False, False, False, False, False, False, False, False)
+    If check Then
+        ListBox1.ListIndex = 0
+        If Not IsEmpty(Range("D15")) Then
+            TextBox3.Value = Range("D15")
+            check1 = True: TextBox5.Value = "A001"
+        End If
+        If Not IsEmpty(Range("J15")) Then
+            TextBox4.Value = Range("J15")
+            check2 = True: TextBox6.Value = "A001"
+        End If
+        Call sVis(True, True, check1, check2, True, True, True, check1, check2, check1, check2, True, True)
+    End If
+End Sub
+
+Private Sub CreateForm(Code) 'were does code come from
+    If Code = "" Then
+        Label1.Caption = ""
+        Label1.Visible = False
+    Else
+        Label1.Caption = Range("D3") & vbLf & vbLf & Range("D5") & vbLf & Range("D6")
+        Label1.Visible = True
+    End If
+    Label7.Caption = "Sealed Sources  EPR/                              /"
+    If Not IsEmpty(Range("D15")) Then
+        TextBox3.Value = Range("D15")
+    Else
+        TextBox3.Value = ""
+    End If
+    Label8.Caption = "Open Sources    EPR/                              /"
+    If Not IsEmpty(Range("J15")) Then
+        TextBox4.Value = Range("J15")
+    Else
+        TextBox4.Value = ""
+    End If
+    TextBox7.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub sVis(L4 As Boolean, L6 As Boolean, L7 As Boolean, L8 As Boolean, L9 As Boolean, L10 As Boolean, T2 As Boolean, T3 As Boolean, T4 As Boolean, T5 As Boolean, T6 As Boolean, T7 As Boolean, T8 As Boolean)
+    Label4.Visible = L4
+    Label6.Visible = L6
+    Label7.Visible = L7
+    Label8.Visible = L8
+    Label9.Visible = L9
+    Label10.Visible = L10
+    TextBox2.Visible = T2
+    TextBox3.Visible = T3
+    TextBox4.Visible = T4
+    TextBox5.Visible = T5
+    TextBox6.Visible = T6
+    TextBox7.Visible = T7
+    TextBox8.Visible = T8
+End Sub

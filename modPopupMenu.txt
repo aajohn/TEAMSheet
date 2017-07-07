@@ -1,0 +1,97 @@
+Attribute VB_Name = "modPopupMenu"
+Option Explicit
+Private Declare Function CreatePopupMenu Lib "user32" () As Long
+Private Declare Function InsertMenuItem Lib "user32" Alias "InsertMenuItemA" (ByVal hMenu As Long, ByVal un As Long, ByVal bool As Boolean, ByRef lpcMenuItemInfo As MENUITEMINFO) As Long
+Private Declare Function TrackPopupMenu Lib "user32" (ByVal hMenu As Long, ByVal wFlags As Long, ByVal x As Long, ByVal Y As Long, ByVal nReserved As Long, ByVal hWnd As Long, lprc As RECT) As Long
+Private Declare Function DestroyMenu Lib "user32" (ByVal hMenu As Long) As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare Function GetCursorPos Lib "user32" (lpPoint As POINTAPI) As Long
+Private Type RECT
+    Left As Long
+    Top As Long
+    Right As Long
+    Bottom As Long
+End Type
+Private Type MENUITEMINFO
+    cbSize As Long
+    fMask As Long
+    fType As Long
+    fState As Long
+    wID As Long
+    hSubMenu As Long
+    hbmpChecked As Long
+    hbmpUnchecked As Long
+    dwItemData As Long
+    dwTypeData As String
+    cch As Long
+End Type
+Private Type POINTAPI
+    x As Long
+    Y As Long
+End Type
+Private Const TPM_LEFTALIGN = &H0&
+Private Const TPM_TOPALIGN = &H0
+Private Const TPM_RETURNCMD = &H100
+Private Const TPM_RIGHTBUTTON = &H2&
+Private Const MIIM_STATE = &H1
+Private Const MIIM_ID = &H2
+Private Const MIIM_TYPE = &H10
+Private Const MFT_STRING = &H0
+Private Const MFT_SEPARATOR = &H800
+Private Const MFS_DEFAULT = &H1000
+Private Const MFS_ENABLED = &H0
+Private Const MFS_GRAYED = &H1
+Private Const ID_Paste = 103
+Private FormCaption As String
+Private Paste_Enabled As Long
+Public Sub ShowPopup(oForm As UserForm, strCaption As String, x As Single, Y As Single)
+    Dim oControl As MSForms.TextBox
+    Static click_flag As Long
+    click_flag = click_flag + 1
+    If (click_flag Mod 2 <> 0) Then Exit Sub
+    Set oControl = oForm.ActiveControl
+    If x > oControl.Width Or Y > oControl.Height Or x < 0 Or Y < 0 Then Exit Sub
+    FormCaption = strCaption
+    Call EnableMenuItems(oForm)
+    oControl.Paste
+End Sub
+Private Sub EnableMenuItems(oForm As UserForm)
+    Dim oControl As MSForms.TextBox
+    Dim oData As DataObject
+    Dim testClipBoard As String
+    On Error Resume Next
+    Set oControl = oForm.ActiveControl
+    Set oData = New DataObject
+    oData.GetFromClipboard
+    testClipBoard = oData.GetText
+    If err.Number = 0 Then
+        Paste_Enabled = MFS_ENABLED
+    Else
+        Paste_Enabled = MFS_GRAYED
+    End If
+    err.Clear
+    Set oControl = Nothing
+    Set oData = Nothing
+End Sub
+Private Function GetSelection() As Long
+    Dim menu_hwnd As Long
+    Dim form_hwnd As Long
+    Dim oItem As MENUITEMINFO
+    Dim oRect As RECT
+    Dim oPointAPI As POINTAPI
+    form_hwnd = FindWindow("ThunderDFrame", FormCaption)
+    GetCursorPos oPointAPI
+    menu_hwnd = CreatePopupMenu
+    With oItem
+        .cbSize = Len(oItem)
+        .fMask = MIIM_STATE Or MIIM_ID Or MIIM_TYPE
+        .fType = MFT_STRING
+        .fState = Paste_Enabled
+        .wID = ID_Paste
+        .dwTypeData = "Paste"
+        .cch = Len(.dwTypeData)
+    End With
+    InsertMenuItem menu_hwnd, 1, True, oItem
+    GetSelection = TrackPopupMenu(menu_hwnd, TPM_LEFTALIGN Or TPM_TOPALIGN Or TPM_RETURNCMD Or TPM_RIGHTBUTTON, oPointAPI.x, oPointAPI.Y, 0, form_hwnd, oRect)
+    DestroyMenu menu_hwnd
+End Function

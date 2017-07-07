@@ -1,0 +1,39 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormCon322Report 
+   ClientHeight    =   2625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   3915
+   OleObjectBlob   =   "UserFormCon322Report.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormCon322Report"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private Sub CommandButton1_Click()
+    If Not IsDate(TextBox1.Value) Then Exit Sub
+    TextBox1.Value = Format(TextBox1.Value, "d mmmm yyyy")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AG" & DRow) = TextBox1.Value
+    Call CloseData("tsds", True)
+    Call InterventionLog("Condition 3.2.2 Report recieved on " & TextBox1.Value)
+    Sheets("Details").Select
+    ActiveSheet.Unprotect
+    Range("D46") = TextBox1.Value
+    ActiveSheet.Shapes("322report").Visible = True
+    ActiveSheet.Shapes("322report").Select
+    Selection.ShapeRange.Line.Visible = msoFalse
+    ActiveSheet.Protect
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    TextBox1.Value = Format(Date, "dd mmmm yyyy")
+End Sub

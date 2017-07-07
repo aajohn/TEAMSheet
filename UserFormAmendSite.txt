@@ -1,0 +1,165 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAmendSite 
+   ClientHeight    =   6375
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   9510
+   OleObjectBlob   =   "UserFormAmendSite.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAmendSite"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Call ExportData
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton4_Click()
+    Dim appIE As Object
+    If TextBox15.Value = "" Then Exit Sub
+    Call LaunchIE(Sheets("LookUp").Range("CH2"), 1, TextBox15.Value)
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image28.jpg")
+    count = 0: check = False
+    Do
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("A" & count + 3).Value
+        count = count + 1
+        If Sheets("LookUp").Range("A" & count + 3).Value = "" Then check = True
+    Loop Until check = True
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "H").End(xlUp).Row - 3
+        ComboBox2.AddItem
+        ComboBox2.List(count) = Sheets("LookUp").Range("H" & count + 3).Value
+    Next count
+    Label1.Caption = "Site Code:  " & Range("D3")
+    ComboBox1.text = Range("D4")
+    ComboBox2.text = Range("D10")
+    TextBox1.text = Range("D5")
+    Call ExtractPostCode(Range("D6"))
+    TextBox7.text = FVar
+    TextBox2.text = Left(Range("D6"), Len(Range("D6")) - Len(FVar) - 2)
+    Call ExtractPostCode(Range("H6"))
+    TextBox8.text = FVar
+    TextBox3.text = Left(Range("H6"), Len(Range("H6")) - Len(FVar) - 2)
+    TextBox4.text = Range("J7")
+    TextBox5.text = Range("D15")
+    TextBox6.text = Range("J15")
+    If Range("I15") = "Yes" Then CheckBox1.Value = True
+End Sub
+Private Sub ExportData()
+    Dim siteCode As String
+    siteCode = Range("D3")
+    If ComboBox1.Value = "" Then
+        ComboBox1.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        ComboBox1.BackColor = RGB(255, 255, 255)
+    End If
+    If ComboBox2.Value = "" Then
+        ComboBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        ComboBox2.BackColor = RGB(255, 255, 255)
+    End If
+    If TextBox1.Value = "" Then
+        TextBox1.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox1.BackColor = RGB(255, 255, 255)
+    End If
+    If TextBox2.Value = "" Then
+        TextBox2.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox2.BackColor = RGB(255, 255, 255)
+    End If
+    If TextBox3.Value = "" Then
+        TextBox3.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox3.BackColor = RGB(255, 255, 255)
+    End If
+    If TextBox5.Value = "" And TextBox6.Value = "" Then
+        TextBox5.BackColor = RGB(255, 204, 102)
+        TextBox6.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox5.BackColor = RGB(255, 255, 255)
+        TextBox6.BackColor = RGB(255, 255, 255)
+    End If
+    If InStr(TextBox7.Value, " ") = 0 Then
+        TextBox7.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox7.BackColor = RGB(255, 255, 255)
+    End If
+    If InStr(TextBox8.Value, " ") = 0 Then
+        TextBox8.BackColor = RGB(255, 204, 102)
+        Exit Sub
+    Else
+        TextBox8.BackColor = RGB(255, 255, 255)
+    End If
+    If Not TextBox2.Value = "" Then
+        Addr = Application.Proper(TextBox2.Value) & ", " & TextBox7.Value
+    End If
+    If Not TextBox3.Value = "" Then
+        Addr2 = Application.Proper(TextBox3.Value) & ", " & TextBox8.Value
+    End If
+    Lambda = Range("G3")
+    Call OpenData("tsds")
+    Range("B" & Lambda) = ComboBox1.Value
+    Range("C" & Lambda) = UCase(TextBox1.Value)
+    Range("D" & Lambda) = Addr
+    Range("H" & Lambda) = Addr2
+    Range("I" & Lambda) = TextBox4.Value
+    Range("J" & Lambda) = ComboBox2.Value
+    Range("M" & Lambda) = UCase(TextBox5.Value)
+    If CheckBox1 Then Range("N" & Lambda) = "Yes"
+    Range("O" & Lambda) = UCase(TextBox6.Value)
+    Range("A2:BZ" & Lambda).Select
+    Selection.Sort Key1:=Range("C2"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    Call dataRow(siteCode)
+    Call CopyPasteData(DRow, True, True)
+    Application.ScreenUpdating = True
+    Application.ScreenUpdating = False
+    Unload Me
+End Sub
+Private Sub ExtractPostCode(Addr As String)
+    Dim addrlen As Integer
+    'On Error GoTo err
+    addrlen = Len(Addr)
+    Addr2 = "": Addr3 = ""
+    'If Addr <> "" Then
+    If InStr(Addr, " ") = 0 Or addrlen = 0 Then
+        FVar = " "
+        Exit Sub
+    End If
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = " " Then check = False
+        Addr3 = Addr2 & Addr3
+        addrlen = addrlen - 1
+    Loop Until check = False
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = " " Then check = False
+        Addr3 = Addr2 & Addr3
+        addrlen = addrlen - 1
+    Loop Until check = False
+    FVar = UCase(Right(Addr3, Len(Addr3) - 1))
+    'Else
+    'err:
+    'On Error GoTo 0
+    'FVar = " "
+    'End If
+End Sub

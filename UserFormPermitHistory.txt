@@ -1,0 +1,55 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormPermitHistory 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9915
+   OleObjectBlob   =   "UserFormPermitHistory.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormPermitHistory"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Dim Operator As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    check = True: count = 1: count2 = 0
+    ListBox1.ColumnCount = 5
+    ListBox1.ColumnWidths = "2.5cm;3cm;2cm;2cm;2.5cm"
+    Operator = Range("D3")
+    Call OpenData("tsplg")
+    Do
+        count = count + 1
+        If count > Lambda Then check = False
+        If Sheets("Datasheet").Range("A" & count) = Operator Then
+            ListBox1.AddItem
+            'ListBox1.List(count2, 0) = Sheets("Datasheet").Range("B" & count)
+            ListBox1.List(count2, 0) = Sheets("Datasheet").Range("C" & count)
+            ListBox1.List(count2, 1) = Sheets("Datasheet").Range("D" & count)
+            ListBox1.List(count2, 2) = Format(Sheets("Datasheet").Range("E" & count), "d mmm yyyy")
+            ListBox1.List(count2, 3) = Format(Sheets("Datasheet").Range("F" & count), "d mmm yyyy")
+            ListBox1.List(count2, 4) = Sheets("Datasheet").Range("G" & count)
+            count2 = count2 + 1
+        End If
+    Loop Until check = False
+    Call CloseData("tsplg", False)
+    If count2 = 0 Then
+        Call msg("Permitting History", "No permitting history found for " & Range("D3") & " " & Range("D5"), 6)
+        check = False
+    Else
+        Label1.Caption = "Below is the RSR TEAMSheet permit history for " & vbLf & Range("D3") & " " & Range("D5")
+        Label2.Caption = "Number of Results " & count2
+        check = True
+    End If
+End Sub
+Sub UserForm_Activate()
+    If check = False Then Unload Me
+End Sub

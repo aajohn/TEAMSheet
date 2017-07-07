@@ -1,0 +1,168 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadInstruments 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadInstruments.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadInstruments"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim lp As Integer, calDate As Date
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    Call OpenData("tsds")
+    wBook = "tsds.xls"
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Instruments").Select
+    For lp = 4 To 18
+        Range("C" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CA" & lp - 2)
+        Range("D" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CB" & lp - 2)
+        Range("E" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CC" & lp - 2)
+        Range("F" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CD" & lp - 2)
+        Range("G" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CE" & lp - 2)
+        Range("H" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CF" & lp - 2)
+        Range("J" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CG" & lp - 2)
+        Range("H" & lp) = Format(Range("H" & lp), "d mmmm yyyy")
+        Range("C" & lp).ClearComments
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("CH" & lp - 2)) Then
+            Fname = Epsilon & "Photos\" & Workbooks(wBook).Sheets("Datasheet").Range("CH" & lp - 2)
+            If Not Dir(Fname, vbDirectory) = vbNullString Then
+                Range("C" & lp).Select
+                With Selection
+                    .AddComment
+                    .Comment.text text:=""
+                    .Comment.Shape.Fill.UserPicture Fname
+                    .Comment.Shape.LockAspectRatio = True
+                    .Comment.Shape.Height = 120#
+                End With
+            End If
+        End If
+        If Not IsEmpty(Range("C" & lp)) Then
+            Range("I" & lp) = ""
+            Range("H" & lp & ":I" & lp).Font.ColorIndex = 1
+            If Range("H" & lp) < DateAdd("ww", 8, Date) And Range("H" & lp) >= Date Then
+                Range("I" & lp) = "Due"
+                Range("L3") = 1
+                Range("H" & lp & ":I" & lp).Font.ColorIndex = 43
+            End If
+            If Range("H" & lp) < Date Then
+                If Not IsEmpty(Range("H" & lp)) Then
+                    Range("I" & lp) = "Overdue"
+                    Range("L3") = 2
+                    Range("H" & lp & ":I" & lp).Font.ColorIndex = 3
+                Else
+                    Range("I" & lp) = "Not Calibrated"
+                    Range("I" & lp).Font.ColorIndex = 3
+                End If
+            End If
+        End If
+        Label2.Width = (lp / 18) * 33
+        DoEvents
+    Next lp
+    For lp = 21 To 35
+        Range("C" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CI" & lp - 19)
+        Range("D" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CJ" & lp - 19)
+        Range("E" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CK" & lp - 19)
+        Range("F" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CL" & lp - 19)
+        Range("G" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CM" & lp - 19)
+        Range("H" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CN" & lp - 19)
+        Range("J" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CO" & lp - 19)
+        Range("H" & lp) = Format(Range("H" & lp), "d mmmm yyyy")
+        Range("C" & lp).ClearComments
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("CP" & lp - 19)) Then
+            Fname = Epsilon & "Photos\" & Workbooks(wBook).Sheets("Datasheet").Range("CP" & lp - 19)
+            If Not Dir(Fname, vbDirectory) = vbNullString Then
+                Range("C" & lp).Select
+                With Selection
+                    .AddComment
+                    .Comment.text text:=""
+                    .Comment.Shape.Fill.UserPicture Fname
+                    .Comment.Shape.LockAspectRatio = True
+                    .Comment.Shape.Height = 120#
+                End With
+            End If
+        End If
+        If Not IsEmpty(Range("C" & lp)) Then
+            Range("I" & lp) = ""
+            Range("H" & lp & ":I" & lp).Font.ColorIndex = 1
+            If Range("H" & lp) < DateAdd("ww", 8, Date) And Range("H" & lp) >= Date Then
+                Range("I" & lp) = "Due"
+                Range("L3") = 1
+                Range("H" & lp & ":I" & lp).Font.ColorIndex = 43
+            End If
+            If Range("H" & lp) < Date Then
+                If Not IsEmpty(Range("H" & lp)) Then
+                    Range("I" & lp) = "Overdue"
+                    Range("L3") = 2
+                    Range("H" & lp & ":I" & lp).Font.ColorIndex = 3
+                Else
+                    Range("I" & lp) = "Not Calibrated"
+                    Range("I" & lp).Font.ColorIndex = 3
+                End If
+            End If
+        End If
+        Label2.Width = 33 + ((lp / 35) * 33)
+        DoEvents
+    Next lp
+    For lp = 38 To 45
+        Range("C" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CQ" & lp - 36)
+        Range("D" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CR" & lp - 36)
+        Range("E" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CS" & lp - 36)
+        Range("F" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CT" & lp - 36)
+        Range("G" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CU" & lp - 36)
+        Range("H" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CV" & lp - 36)
+        Range("J" & lp) = Workbooks(wBook).Sheets("Datasheet").Range("CW" & lp - 36)
+        Range("H" & lp) = Format(Range("H" & lp), "d mmmm yyyy")
+        Range("C" & lp).ClearComments
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("CX" & lp - 36)) Then
+            Fname = Epsilon & "Photos\" & Workbooks(wBook).Sheets("Datasheet").Range("CX" & lp - 36)
+            If Not Dir(Fname, vbDirectory) = vbNullString Then
+                Range("C" & lp).Select
+                With Selection
+                    .AddComment
+                    .Comment.text text:=""
+                    .Comment.Shape.Fill.UserPicture Fname
+                    .Comment.Shape.LockAspectRatio = True
+                    .Comment.Shape.Height = 120#
+                End With
+            End If
+        End If
+        If Not IsEmpty(Range("C" & lp)) Then
+            Range("I" & lp) = ""
+            Range("H" & lp & ":I" & lp).Font.ColorIndex = 1
+            If Range("H" & lp) < DateAdd("ww", 8, Date) And Range("H" & lp) >= Date Then
+                Range("I" & lp) = "Due"
+                Range("L3") = 1
+                Range("H" & lp & ":I" & lp).Font.ColorIndex = 43
+            End If
+            If Range("H" & lp) < Date Then
+                If Not IsEmpty(Range("H" & lp)) Then
+                    Range("I" & lp) = "Overdue"
+                    Range("L3") = 2
+                    Range("H" & lp & ":I" & lp).Font.ColorIndex = 3
+                Else
+                    Range("I" & lp) = "Not Leak Tested"
+                    Range("I" & lp).Font.ColorIndex = 3
+                End If
+            End If
+        End If
+        Label2.Width = 67 + ((lp / 45) * 33)
+        DoEvents
+    Next lp
+    Call CloseData("tsds", False)
+    Range("C4").Select
+    Worksheets("Instruments").ScrollArea = "A1:M46"
+    ActiveSheet.Protect
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub

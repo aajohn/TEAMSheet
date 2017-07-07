@@ -1,0 +1,143 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormLoadTracking 
+   ClientHeight    =   1830
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4305
+   OleObjectBlob   =   "UserFormLoadTracking.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormLoadTracking"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Sub UserForm_Activate()
+    Dim PasteVal As String, PasteVal2 As String
+    Dim messageRow As Integer
+    Dim appRow As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image24.jpg")
+    Label2.Width = 0
+    DoEvents
+    tdate = Format(Date, "d/m/yyyy")
+    Call OpenData("tsds")
+    wBook = "tsds.xls"
+    Windows("RSR TEAMSheet.xlsm").Activate
+    Sheets("Tracking").Select
+    ActiveSheet.Unprotect
+    appRow = 5
+    Rows("5:97").Select
+    Selection.EntireRow.Hidden = False
+    Range("B5:K97") = ""
+    Range("B100:K200") = ""
+    Range("A100:A200") = 0
+    messageRow = 100
+    For count = 2 To Lambda
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AI" & count)) And IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AS" & count)) Then
+            Sheets("Tracking").Range("B" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("C" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            Sheets("Tracking").Range("D" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("K" & count)
+            Sheets("Tracking").Range("E" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AI" & count)
+            Sheets("Tracking").Range("F" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AJ" & count)
+            Sheets("Tracking").Range("G" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AK" & count)
+            If Workbooks(wBook).Sheets("Datasheet").Range("AL" & count) < tdate And Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AL" & count)) Then Sheets("Tracking").Range("H" & appRow) = "Overdue"
+            Sheets("Tracking").Range("K" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AN" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AN" & count): PasteVal2 = "Received in Area"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AO" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AO" & count): PasteVal2 = "Application to Inspector"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AP" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AP" & count): PasteVal2 = "Reply from CTSA"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AQ" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AQ" & count): PasteVal2 = "Draft Approved"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AR" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AR" & count): PasteVal2 = "Draft Sent to Applicant"
+            End If
+            Sheets("Tracking").Range("I" & appRow) = PasteVal2
+            Sheets("Tracking").Range("J" & appRow) = Format(PasteVal, "d mmm yyyy")
+            PasteVal = "": PasteVal2 = ""
+            appRow = appRow + 1
+        End If
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AU" & count)) And IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("BD" & count)) Then
+            Sheets("Tracking").Range("B" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("C" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            Sheets("Tracking").Range("D" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("L" & count)
+            Sheets("Tracking").Range("E" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AU" & count)
+            Sheets("Tracking").Range("F" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AV" & count)
+            Sheets("Tracking").Range("G" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("AW" & count)
+            Sheets("Tracking").Range("K" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+            If Workbooks(wBook).Sheets("Datasheet").Range("AX" & count) < tdate And Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AX" & count)) Then Sheets("Tracking").Range("H" & appRow) = "Overdue"
+            Sheets("Tracking").Range("K" & appRow) = Workbooks(wBook).Sheets("Datasheet").Range("X" & count)
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AZ" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("AZ" & count): PasteVal2 = "Received in Area"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("BA" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("BA" & count): PasteVal2 = "Application to Inspector"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("BB" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("BB" & count): PasteVal2 = "Draft Approved"
+            End If
+            If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("BC" & count)) Then
+                PasteVal = Workbooks(wBook).Sheets("Datasheet").Range("BC" & count): PasteVal2 = "Draft Sent to Applicant"
+            End If
+            Sheets("Tracking").Range("I" & appRow) = PasteVal2
+            Sheets("Tracking").Range("J" & appRow) = Format(PasteVal, "d mmm yyyy")
+            PasteVal = "": PasteVal2 = ""
+            appRow = appRow + 1
+        End If
+        If IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("X" & count)) And IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("BH" & count)) Then
+            Sheets("Tracking").Range("C" & messageRow) = "Inspector Name Missing"
+            Sheets("Tracking").Range("A" & messageRow) = 2
+            Sheets("Tracking").Range("B" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("D" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            messageRow = messageRow + 1
+        End If
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AL" & count)) And CDate(Workbooks(wBook).Sheets("Datasheet").Range("AL" & count)) < Date Then
+            Sheets("Tracking").Range("C" & messageRow) = "Application determination date was " & Workbooks(wBook).Sheets("Datasheet").Range("AL" & count)
+            Sheets("Tracking").Range("A" & messageRow) = 3
+            Sheets("Tracking").Range("B" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("D" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            messageRow = messageRow + 1
+        End If
+        If Not IsEmpty(Workbooks(wBook).Sheets("Datasheet").Range("AX" & count)) And CDate(Workbooks(wBook).Sheets("Datasheet").Range("AX" & count)) < Date Then
+            Sheets("Tracking").Range("C" & messageRow) = "Application determination date was " & Workbooks(wBook).Sheets("Datasheet").Range("AX" & count)
+            Sheets("Tracking").Range("A" & messageRow) = 3
+            Sheets("Tracking").Range("B" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("D" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            messageRow = messageRow + 1
+        End If
+        If Left(Workbooks(wBook).Sheets("Datasheet").Range("BZ" & count), 1) = "1" Then
+            Sheets("Tracking").Range("C" & messageRow) = "Information Marker"
+            Sheets("Tracking").Range("A" & messageRow) = 3
+            Sheets("Tracking").Range("B" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("A" & count)
+            Sheets("Tracking").Range("D" & messageRow) = Workbooks(wBook).Sheets("Datasheet").Range("C" & count)
+            messageRow = messageRow + 1
+        End If
+        Label2.Width = (count / Lambda)
+        DoEvents
+    Next
+    Call CloseData("tsds", False)
+    Range("A5:K" & appRow - 1).Select
+    Selection.Sort Key1:=Range("G5"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    Range("C" & appRow) = "   ** Number of Application - " & appRow - 5 & " lines **"
+    Rows(appRow + 1 & ":97").Select
+    Selection.EntireRow.Hidden = True
+    Range("A100:H" & messageRow - 1).Select
+    Selection.Sort Key1:=Range("B100"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=1, MatchCase:=False, Orientation:=xlTopToBottom, DataOption1:=xlSortNormal
+    Range("B" & messageRow & ":D" & messageRow) = ""
+    Range("C" & messageRow) = "   ** End of Messages - " & messageRow - 100 & " lines **"
+    Range("A" & messageRow) = 1
+    Worksheets("Tracking").ScrollArea = "A1:L" & messageRow + 1
+    Call SortTracking("G5")
+    Application.ScreenUpdating = True
+    Range("B4").Select
+    ActiveSheet.Protect
+    Unload Me
+End Sub

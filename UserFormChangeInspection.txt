@@ -1,0 +1,48 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormChangeInspection 
+   ClientHeight    =   3330
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   7110
+   OleObjectBlob   =   "UserFormChangeInspection.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormChangeInspection"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    If IsEmpty(Range("D9")) Then
+        CommandButton2.Visible = False
+        CommandButton4.Visible = False
+        Label2.Caption = "No email address for site contact"
+        Label4.Caption = "No email address for site contact"
+    End If
+End Sub
+Private Sub CommandButton1_Click()
+    Call RemoveApp
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    eTo = Range("D9") & ";" & Range("F9")
+    eMsg = "<b>Due to other commitments I am writing to cancel the Inspection of your site planned for" & Mid(Sheets("Details").Range("D38"), 13, Len(Sheets("Details").Range("D38")) - 12) & ".</b><br><br>I will contact you in due course to plan a further date.  Please accept my apologies for any inconvenience caused.<br><br>If there were any urgent matters you wished to have discussed please reply to this e-mail.<br><br>I would also be grateful if you could confirm receipt of this e-mail."
+    Call RemoveApp
+    Call SendEmail(eTo, "Radioactive Substances Regulation: Cancellation of Planned Inspection", eMsg, "")
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    UserFormChangeInspection2.Show
+    Unload Me
+End Sub
+Private Sub CommandButton4_Click()
+    UserFormPlanInspection.Show
+    Unload Me
+End Sub
+Private Sub CommandButton5_Click()
+    Unload Me
+End Sub

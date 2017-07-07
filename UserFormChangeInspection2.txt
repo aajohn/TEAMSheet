@@ -1,0 +1,127 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormChangeInspection2 
+   ClientHeight    =   4020
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   8310
+   OleObjectBlob   =   "UserFormChangeInspection2.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormChangeInspection2"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+'Public Calendar1 As String
+Private WithEvents Calendar1 As cCalendar
+Attribute Calendar1.VB_VarHelpID = -1
+
+
+
+Private Sub CommandButton1_Click()
+    Dim aLoc As String, aBody As String
+    Dim iTime
+    Dim iDate As String
+    Dim rMin As Integer
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    If ListBox2.ListIndex = -1 Then Exit Sub
+    Call RemoveApp
+    DRow = Range("G3")
+    iTime = TimeSerial(ListBox1.Value, ListBox2.Value, 0)
+    iTime = Format(iTime, "h:Nn")
+    iDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
+    aLoc = Sheets("Details").Range("D5")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AA" & DRow) = "Arranged for " & iDate & " at " & iTime
+    Windows("RSR TEAMSheet.xlsm").Activate
+    aBody = "Inspection Planned" & vbLf & vbLf & "To see " & Sheets("Details").Range("D7") & " " & Sheets("Details").Range("D8")
+    Call CopyPasteData(Range("G3"), True, True)
+    rMin = 1440
+    If Weekday(Calendar1.Value) = 2 Then rMin = 4320
+    Call AppointToOutlook("Inspection", aLoc, Calendar1.Value & " " + iTime, aBody, rMin)
+    Unload Me
+ End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Call OutlookShowCal
+End Sub
+Private Sub Calendar1_Click()
+    Select Case Weekday(Calendar1.Value)
+        Case vbSaturday
+            Calendar1.Value = Calendar1.Value - 1
+        Case vbSunday
+            Calendar1.Value = Calendar1.Value - 2
+    End Select
+    If Calendar1.Value < Date Then Calendar1.Value = Date
+End Sub
+
+
+'UserForm with Frame1
+
+Private Sub Calendar1_DblClick()
+ActiveCell.Value = Calendar1.Value
+Unload Me
+End Sub
+
+Private Sub Frame1_Click()
+
+End Sub
+
+Private Sub ListBox1_Click()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+Set Calendar1 = New cCalendar
+With Calendar1
+    .Add_Calendar_into_Frame Me.Frame1
+    .UseDefaultBackColors = True
+    .DayLength = 3
+    .MonthLength = mlENShort
+End With
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+Set Calendar1 = Nothing
+End Sub
+
+Private Sub SpinButton1_SpinDown()
+    Calendar1.PreviousMonth
+End Sub
+Private Sub SpinButton1_SpinUp()
+    Calendar1.NextMonth
+End Sub
+Private Sub UserForm1_Initialize()
+    Dim pDate As Date
+    Dim pInsp As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    Label1.Caption = "Previously " & Range("D38")
+    Calendar1.Value = VBA.Date
+    If Not Sheets("Details").Range("D38") = "" Then
+        On Error Resume Next
+        pInsp = Mid(Sheets("Details").Range("D38"), 14, Len(Sheets("Details").Range("D38")) - 22)
+        pDate = Right(pInsp, Len(pInsp) - InStr(pInsp, " "))
+        On Error GoTo 0
+        If IsDate(pDate) Then
+            Calendar1.Value = pDate
+        End If
+    End If
+    ListBox1.ColumnWidths = "0.8cm"
+    ListBox2.ColumnWidths = "0.8cm"
+    ListBox1.AddItem "09"
+    ListBox1.AddItem "10"
+    ListBox1.AddItem "11"
+    ListBox1.AddItem "12"
+    ListBox1.AddItem "13"
+    ListBox1.AddItem "14"
+    ListBox1.AddItem "15"
+    ListBox2.AddItem "00"
+    ListBox2.AddItem "15"
+    ListBox2.AddItem "30"
+    ListBox2.AddItem "45"
+End Sub

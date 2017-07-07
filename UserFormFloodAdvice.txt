@@ -1,0 +1,105 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormFloodAdvice 
+   ClientHeight    =   3225
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormFloodAdvice.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormFloodAdvice"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim floodCheck As String
+    DRow = Range("G3")
+    If OptionButton1.Value Then floodCheck = "Outside - checked " & Format(Date, "d mmm yyyy")
+    If OptionButton2.Value Then floodCheck = "Within - checked " & Format(Date, "d mmm yyyy")
+    ActiveSheet.Unprotect
+    Range("L10") = floodCheck
+    Range("L11") = ""
+    ActiveSheet.Protect
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    Call OpenData("tsds")
+    Sheets(wSheet).Range("AE" & DRow) = floodCheck
+    If OptionButton1.Value Then Sheets(wSheet).Range("AF" & DRow) = ""
+    Call CloseData("tsds", True)
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Dim floodCheck As String
+    Dim floodAdvice As String
+    Dim floodText As String
+    Dim addrlen As String
+    Dim pCode As String
+    DRow = Range("G3")
+    floodCheck = "Within - checked " & Format(Date, "d mmm yyyy")
+    floodAdvice = "Advice email " & Range("D7") & " " & Format(Date, "d mmm yyyy")
+    ActiveSheet.Unprotect
+    Range("L10") = floodCheck
+    Range("L11") = floodAdvice
+    ActiveSheet.Protect
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    Call OpenData("tsds")
+    Sheets(wSheet).Range("AE" & DRow) = floodCheck
+    Sheets(wSheet).Range("AF" & DRow) = floodAdvice
+    Call CloseData("tsds", True)
+    fileNum = FreeFile
+    LogFileName = Epsilon & "Documents\Flood email.txt"
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, floodText
+    Close #fileNum
+    Addr = Range("D6")
+    addrlen = Len(Addr)
+    'If InStr(addr, " ") = 0 Then Unload Me
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = Chr(32) Then
+            Addr2 = "+"
+            check = False
+        End If
+        pCode = Addr2 & pCode
+        addrlen = addrlen - 1
+    Loop Until check = False
+    check = True
+    Do
+        Addr2 = Mid(Addr, addrlen, 1)
+        If Addr2 = Chr(32) Then
+            check = False
+        End If
+        pCode = Addr2 & pCode
+        addrlen = addrlen - 1
+    Loop Until check = False
+    pCode = Right(pCode, Len(pCode) - 1)
+    eMsg = floodText & "<br><br><a href = " & Sheets("LookUp").Range("B22") & pCode & Sheets("LookUp").Range("B23") & "><Font Color=""green"">Floodplan map centered on your postcode</a><font color = ""black""><br>"
+    eTo = Range("D9") & ";" & Range("F9")
+    eSubj = "Radioactive Substances Regulation: Flood Risk Advice"
+    Call SendEmail(eTo, eSubj, eMsg, "Flood risks for small users.pdf")
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    UserFormShowMaps.Show
+End Sub
+Private Sub CommandButton4_Click()
+    Unload Me
+End Sub
+Private Sub OptionButton1_Click()
+    CommandButton2.Visible = False
+End Sub
+Private Sub OptionButton2_Click()
+    'CommandButton2.Visible = True
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image12.jpg")
+    CommandButton2.Visible = False
+    If InStr(Range("L10"), "Within") Then
+        CommandButton2.Visible = True
+        OptionButton2.Value = True
+    End If
+End Sub

@@ -1,0 +1,99 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormSwap 
+   ClientHeight    =   1785
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   5910
+   OleObjectBlob   =   "UserFormSwap.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormSwap"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Private Sub Swap_Team()
+    If Not IsNumeric(TextBox1.Value) And TextBox1.Value <> vbNullString Then
+        Call msg("PIN", "The PIN you have entered is not a number.", 8)
+        TextBox1.Value = vbNullString
+        Exit Sub
+    End If
+    LogFileName = "H:\RSR TEAMSheet\tssrt2.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, Alpha
+    Line Input #fileNum, Delta2
+    Line Input #fileNum, Delta
+    Close #fileNum
+    Alpha = Alpha & TextBox1.Value
+    Delta2 = vbNullString
+    Sheets("LookUp").Select
+    ActiveSheet.Unprotect
+    Sheets("LookUp").Range("BR2:BR22") = ""
+    LogFileName = Delta & "tslup.Log"
+    fileNum = FreeFile
+    Range("A1").Select
+    Open LogFileName For Input Access Read Shared As #fileNum
+    For col = 1 To 52
+        count = 1
+        Do
+            Line Input #fileNum, var
+            Cells(count, col) = var
+            count = count + 1
+        Loop Until Left(var, 6) = "column"
+        Cells(count - 1, col) = ""
+    Next col
+    Close #fileNum
+    For count = 1 To 7
+        If Sheets("LookUp").Range("A2") = Sheets("LookUp").Range("BI" & count) Then
+            Sheets("LookUp").Range("A1") = Sheets("LookUp").Range("BJ" & count)
+            Exit For
+        End If
+    Next
+    Range("A1").Select
+    ActiveSheet.Protect
+    Application.Cursor = xlNormal
+    Drafts = False
+    Application.Wait Now + TimeValue("00:00:01")
+    Iota = 99
+    For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+        If InStr(UCase(Environ("USERNAME")), v1) Then Iota = count
+    Next count
+    var = ""
+    Sheets("Details").Select
+    Application.ScreenUpdating = True
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+Private Sub TextBox1_Change()
+    If Len(TextBox1.Value) = 4 Then Call Swap_Team
+End Sub
+Private Sub UserForm_Initialize()
+    Dim var As String
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image29.jpg")
+    Call RemoveCaption(Me)
+    LogFileName = "H:\RSR TEAMSheet\tssrt2.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, var
+    Line Input #fileNum, var
+    Line Input #fileNum, Delta2
+    Close #fileNum
+    LogFileName = Delta2 & "tslup.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Line Input #fileNum, var
+    Line Input #fileNum, var
+    Close #fileNum
+    For count = 1 To 7
+        If var = Sheets("LookUp").Range("BI" & count) Then
+            Label1.Caption = "Swap from " & Sheets("LookUp").Range("A1") & " to " & Sheets("LookUp").Range("BJ" & count)
+            Label2.Caption = "Enter the 4 digit PIN for " & Sheets("LookUp").Range("BJ" & count) & " team"
+            Exit For
+        End If
+    Next
+End Sub

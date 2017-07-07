@@ -1,0 +1,50 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormComplianceHistory 
+   ClientHeight    =   5625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   10905
+   OleObjectBlob   =   "UserFormComplianceHistory.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormComplianceHistory"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Unload Me
+End Sub
+Private Sub UserForm_Initialize()
+    Dim Operator As String
+    Dim var As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    Operator = Range("D3")
+    LogFileName = Delta & "tsinv.Log"
+    fileNum = FreeFile
+    Open LogFileName For Input Access Read Shared As #fileNum
+    Do While Not EOF(1)
+        Line Input #fileNum, var
+        count = InStr(var, ",")
+        If Left(var, count - 1) = Operator Then
+            var = Replace(var, ",", " ")
+            var = Replace(var, ";", " and ")
+            ListBox1.AddItem Mid(var, count + 1, (Len(var) - count) + 1)
+        End If
+    Loop
+    Close #fileNum
+    If ListBox1.ListCount = 0 Then
+        Call msg("Compliance History", "No compliance history found for " & Range("D3") & " " & Range("D5"), 6)
+        check = False
+    Else
+        Label1.Caption = "Below is the RSR TEAMSheet compliance history for " & vbLf & Range("D3") & " " & Range("D5")
+        Label2.Caption = "Number of Results " & ListBox1.ListCount
+        check = True
+    End If
+End Sub
+Sub UserForm_Activate()
+    If check = False Then Unload Me
+End Sub

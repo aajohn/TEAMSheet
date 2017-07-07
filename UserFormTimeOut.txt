@@ -1,0 +1,34 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormTimeOut 
+   ClientHeight    =   2625
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   4710
+   OleObjectBlob   =   "UserFormTimeOut.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormTimeOut"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Call RSRExit
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    On Error Resume Next
+    Application.OnTime RunWhen, "TimeOut", , False
+    On Error GoTo 0
+    RunWhen = Now + TimeSerial(0, NUM_MINUTES, 0)
+    Application.OnTime RunWhen, "TimeOut", , True
+    Application.WindowState = xlMinimized
+    Unload Me
+End Sub
+Sub UserForm_Initialize()
+10        Call RemoveCaption(Me)
+20        If Epsilon = "" Then Call LoadDocs
+30        Image1.Picture = LoadPicture(Epsilon & "Documents\Image23.jpg")
+40        Label1.Caption = "You have not used RSR TEAMSheet for 15 minutes"
+End Sub

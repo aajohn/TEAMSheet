@@ -1,0 +1,325 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormAppUpdate 
+   ClientHeight    =   3825
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   9915
+   OleObjectBlob   =   "UserFormAppUpdate.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormAppUpdate"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+
+Private DateArray(10) As Date
+
+Private Sub CommandButton1_Click()
+    Dim aStr As String, aLoc As String
+    Dim appref As String, vType As String, dLocation As String
+    Dim Contact As String
+    Dim rMin As Integer
+    Call CheckData
+    If Not DateArray(0) = 1 Then
+        count = Sheets("Details").Range("G3").Value
+        Call OpenData("tsds")
+        If Not TextBox1.Value = "" Then Range("AO" & count) = DateArray(1)
+        If Not TextBox2.Value = "" Then Range("AP" & count) = DateArray(2)
+        If Not TextBox3.Value = "" Then Range("AQ" & count) = DateArray(3)
+        If Not TextBox4.Value = "" Then Range("AR" & count) = DateArray(4)
+        If Not TextBox7.Value = "" Then Range("BA" & count) = DateArray(7)
+        If Not TextBox8.Value = "" Then Range("BB" & count) = DateArray(8)
+        If Not TextBox9.Value = "" Then Range("BC" & count) = DateArray(9)
+        Call CopyPasteData(count, True, True)
+        If Not TextBox4.Value = "" Or Not TextBox9.Value = "" Then
+            If Not TextBox4.Value = "" Then appref = Range("D21")
+            If Not TextBox9.Value = "" Then appref = appref & Range("D21")
+            Addr2 = "": Addr3 = ""
+            From = Range("D10")
+            Addr = Range("D5") & "," & Range("D6")
+            Contact = Range("D7")
+            For count = 1 To Len(Addr)
+                Addr2 = Mid(Addr, count, 1)
+                If Addr2 = "," Then Addr2 = vbLf
+                Addr3 = Addr3 + Addr2
+            Next
+            Address = " " & Addr3 & vbLf & vbLf & "For the Attention of " & Contact
+            If Not TextBox9.Value = "" Then dLocation = Left(Range("D5"), 5) & " " & Range("J15") & "_" & Right(Range("J21"), 4)
+            If Not TextBox4.Value = "" Then dLocation = Left(Range("D5"), 5) & " " & Range("D15") & "_" & Right(Range("D21"), 4)
+            dLocation = "H:\RSR TEAMSheet\Temporary Drafts\" & dLocation
+            If Len(Dir(dLocation, vbDirectory)) = 0 Then
+                MkDir dLocation
+            End If
+            Fname = Epsilon & "Documents\Letters\Blank Issue Letter 8.doc"
+            fName2 = dLocation & "\Ltr " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5) & " Draft"
+            Addr3 = ""
+            Addr = Sheets("LookUp").Range("D" & Iota)
+            AgencyAddress = Sheets("LookUp").Range("B" & Iota)
+            For count = 1 To Len(Addr)  'change to use replace
+                Addr2 = Mid(Addr, count, 1)
+                If Addr2 = "," Then Addr2 = vbLf
+                Addr3 = Addr3 + Addr2
+            Next
+            Addr3 = Sheets("LookUp").Range("C" & Iota) & vbLf & Addr3
+            If Range("D20") = "New Application" Or Range("J20") = "New Application" Then vType = "permit"
+            If Range("D20") = "Variation" Or Range("J20") = "Variation" Then vType = "variation"
+            If Left(Range("D20"), 1) = "T" Or Left(Range("J20"), 1) = "T" Then vType = "transfer"
+            If Range("D20") = "Surrender - Part" Or Range("J20") = "Surrender - Part" Then vType = "partial surrender"
+            On Error Resume Next
+            Set wdApp = GetObject(, "Word.Application")
+            If err.Number <> 0 Then
+                Set wdApp = CreateObject("Word.Application")
+            End If
+            On Error GoTo 0
+            Set wdDoc = wdApp.Documents.Open(Fname)
+            wdDoc.SaveAs fName2
+            wdDoc.Bookmarks("Address").Range.text = Address
+            wdDoc.Bookmarks("OurRef").Range.text = appref
+            wdDoc.Bookmarks("LetterDate").Range.text = Format(Date, "d mmmm yyyy")
+            wdDoc.Bookmarks("From").Range.text = Addr3
+            wdDoc.Bookmarks("AgencyAddress").Range.text = AgencyAddress
+            wdDoc.Bookmarks("L1").Range.text = vType
+            wdDoc.Bookmarks("L2").Range.text = Range("D5")
+            wdDoc.Bookmarks("L3").Range.text = Range("D6")
+            wdDoc.Bookmarks("L4").Range.text = Format(DateAdd("d", 14, Date), "d mmmm yyyy")
+            wdDoc.SaveAs fName2
+            wdDoc.Close
+            wdApp.Quit
+            DoEvents
+            Application.Wait (Now + TimeValue("0:00:1"))
+            Set wdApp = Nothing
+            Set wdDoc = Nothing
+            Call msg("Letters", "Your Letter/s have been created and saved to your RSR Temporary Drafts", 6)
+            If CheckBox1 Then
+                aLoc = Range("D5") & " " & Range("D3")
+                aStr = Format(DateAdd("d", 14, Date), "d mmmm yyyy")
+                rMin = 1440
+                If Weekday(aStr) = 2 Then rMin = 4320
+                Call AppointToOutlook("Draft Permit", aLoc, aStr, "Response to Draft Permit is Due Today", rMin)
+            End If
+            Drafts = True
+        End If
+        Unload Me
+    Else
+        Exit Sub
+    End If
+End Sub
+
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+
+Private Sub CommandButton3_Click()
+    Dim surCheck As Integer
+    Dim style, response ' will go
+    Dim marker1 As Boolean, marker2 As Boolean
+    If Not TextBox5.Value = "" Then DateArray(5) = Format(TextBox5.Value, "d/m/yyyy")
+    If Not TextBox10.Value = "" Then DateArray(10) = Format(TextBox10.Value, "d/m/yyyy")
+    check = False
+    If Not TextBox5.Value = "" And DateArray(5) > tdate Then check = True
+    If Not TextBox10.Value = "" And DateArray(10) > tdate Then check = True
+    If check Then
+        Call msg("Dates", "These dates must be in the past", 26)
+        Exit Sub
+    End If
+    If Range("D31") > TextBox5.Value Or Range("J31") > TextBox10.Value Then
+        '** need to change
+        style = vbOKCancel + vbCritical + vbDefaultButton2
+        response = MsgBox("Signed and Issued Date is before Earliest Issue Date" & vbLf & vbLf & "Click OK to use date entered or cancel to change", style)
+        If response = vbCancel Then
+            Exit Sub
+        End If
+    End If
+    eMsg = "We have made the following changes to the permit/s for site code <b>" & Range("D3") & "</b><br>"
+    If Not TextBox5.Value = "" Then eMsg = eMsg & "   " & Range("D20") & " to " & Range("D21") & " issued on " & DateArray(5)
+    If Not TextBox5.Value = "" And Not TextBox10.Value = "" Then eMsg = eMsg & "<br>"
+    If Not TextBox10.Value = "" Then eMsg = eMsg & "   " & Range("J20") & " to " & Range("J21") & " issued on " & DateArray(10)
+    If Range("D20") = "Change of Fact" Or Range("J20") = "Change of Fact" Then
+        eMsg = eMsg & "<br><br>As a Change of Fact the following details may have been changed.<br>   Operator Name: " & Range("D5") & "<br>   Registered Address: " & Range("J6")
+    End If
+    If Range("D20") = "Surrender - Full" And IsEmpty(Range("J15")) And IsEmpty(Range("J17")) And IsEmpty(Range("J18")) Then surCheck = 1
+    If Range("J20") = "Surrender - Full" And IsEmpty(Range("D15")) And IsEmpty(Range("D16")) And IsEmpty(Range("D17")) And IsEmpty(Range("D18")) And IsEmpty(Range("F16")) And IsEmpty(Range("F17")) And IsEmpty(Range("F18")) Then surCheck = 1
+    If Range("D20") = "Surrender - Full" And Range("J20") = "Surrender - Full" Then
+        If Not TextBox5.Value = "" And Not TextBox10.Value = "" Then
+            surCheck = 1
+        Else
+            surCheck = 2
+        End If
+    End If
+    count = Sheets("Details").Range("G3").Value
+    Call OpenData("tsds")
+    If Not TextBox5.Value = "" Then
+        marker1 = True
+        Range("AS" & count) = DateArray(5)
+        Range("AT" & count) = tdate
+        Range("AL" & count & ":AR" & count) = ""
+        If surCheck > 1 Then Range("BT" & count) = DateAdd("m", 3, tdate)
+    End If
+    If Not TextBox10.Value = "" Then
+        marker2 = True
+        Range("BD" & count) = DateArray(10)
+        Range("BE" & count) = tdate
+        Range("AX" & count & ":BC" & count) = ""
+        If surCheck > 1 Then Range("BU" & count) = DateAdd("m", 3, tdate)
+    End If
+    If surCheck = 1 Then
+        Range("AI" & count & ",BE" & count) = ""
+        Range("Y" & count) = "Blank"
+        Range("BH" & count) = "surrended, signed on " & DateArray(5)
+    End If
+    If Range("Z" & count) = "New Operator" Then Range("AA" & count) = "Due Qtr " & Format(Date, "q yyyy")
+    Call CopyPasteData(count, True, True)
+    Sheets("Details").Select
+    eTo = "RSR.Rotherham2.NE@environment-agency.gov.uk;" & Range("D35")
+    eSubj = "Application Issued"
+    Call SendEmail(eTo, eSubj, eMsg, "")
+    Load UserFormAppIssue
+    Call UserFormAppIssue.FillVars(marker1, marker2)
+    UserFormAppIssue.Show
+    Application.ScreenUpdating = False
+    Call Log("Issued", marker1, marker2)
+    Unload Me
+End Sub
+
+Private Sub CheckData()
+    check = False
+    If Not TextBox1.Value = "" And Not IsDate(TextBox1.Value) Then check = True
+    If Not TextBox2.Value = "" And Not IsDate(TextBox2.Value) Then check = True
+    If Not TextBox3.Value = "" And Not IsDate(TextBox3.Value) Then check = True
+    If Not TextBox4.Value = "" And Not IsDate(TextBox4.Value) Then check = True
+    If Not TextBox7.Value = "" And Not IsDate(TextBox7.Value) Then check = True
+    If Not TextBox8.Value = "" And Not IsDate(TextBox8.Value) Then check = True
+    If Not TextBox9.Value = "" And Not IsDate(TextBox9.Value) Then check = True
+    If check Then
+        Call msg("Dates", "One or more entries is not a valid date", 26)
+        DateArray(0) = 1
+        Exit Sub
+    End If
+    If Not TextBox1.Value = "" Then DateArray(1) = Format(TextBox1.Value, "d/m/yyyy")
+    If Not TextBox2.Value = "" Then DateArray(2) = Format(TextBox2.Value, "d/m/yyyy")
+    If Not TextBox3.Value = "" Then DateArray(3) = Format(TextBox3.Value, "d/m/yyyy")
+    If Not TextBox4.Value = "" Then DateArray(4) = Format(TextBox4.Value, "d/m/yyyy")
+    If Not TextBox7.Value = "" Then DateArray(7) = Format(TextBox7.Value, "d/m/yyyy")
+    If Not TextBox8.Value = "" Then DateArray(8) = Format(TextBox8.Value, "d/m/yyyy")
+    If Not TextBox9.Value = "" Then DateArray(9) = Format(TextBox9.Value, "d/m/yyyy")
+    check = False
+    If Not TextBox1.Value = "" And DateArray(1) > tdate Then check = True
+    If Not TextBox2.Value = "" And DateArray(2) > tdate Then check = True
+    If Not TextBox3.Value = "" And DateArray(3) > tdate Then check = True
+    If Not TextBox4.Value = "" And DateArray(4) > tdate Then check = True
+    If Not TextBox7.Value = "" And DateArray(7) > tdate Then check = True
+    If Not TextBox8.Value = "" And DateArray(8) > tdate Then check = True
+    If Not TextBox9.Value = "" And DateArray(9) > tdate Then check = True
+    If check Then
+        Call msg("Dates", "One or more dates is in the future", 26)
+        DateArray(0) = 1
+        Exit Sub
+    End If
+End Sub
+
+Private Sub TextBox1_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox1.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox2_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox2.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox3_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox3.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox4_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox4.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox5_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox5.Value = Format(Date, "d/m/yyyy")
+    If Not TextBox5.Value = "" Then
+        CommandButton3.Visible = True
+        CommandButton1.Visible = False
+        Label2.Visible = False: TextBox1.Visible = False: TextBox7.Visible = False
+        Label3.Visible = False: TextBox2.Visible = False
+        Label4.Visible = False: TextBox3.Visible = False: TextBox8.Visible = False
+        Label5.Visible = False: TextBox4.Visible = False: TextBox9.Visible = False
+    End If
+End Sub
+
+Private Sub TextBox7_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox7.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox8_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox8.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox9_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox9.Value = Format(Date, "d/m/yyyy")
+End Sub
+
+Private Sub TextBox10_KeyUp(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyF2 Then TextBox10.Value = Format(Date, "d/m/yyyy")
+    If Not TextBox10.Value = "" Then
+        CommandButton3.Visible = True
+        CommandButton1.Visible = False
+        Label2.Visible = False: TextBox1.Visible = False: TextBox7.Visible = False
+        Label3.Visible = False: TextBox2.Visible = False
+        Label4.Visible = False: TextBox3.Visible = False: TextBox8.Visible = False
+        Label5.Visible = False: TextBox4.Visible = False: TextBox9.Visible = False
+    End If
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim AppTypeS As String, AppTypeO As String
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image6.jpg")
+    tdate = Format(Date, "d/m/yyyy")
+    Sheets("Details").Select
+    If IsEmpty(Range("D33")) Then AppTypeS = Range("D20")
+    If IsEmpty(Range("J33")) Then AppTypeO = Range("J20")
+    Label2.Visible = False: TextBox1.Visible = False: TextBox7.Visible = False
+    Label3.Visible = False: TextBox2.Visible = False
+    Label4.Visible = False: TextBox3.Visible = False: TextBox8.Visible = False
+    Label5.Visible = False: TextBox4.Visible = False: TextBox9.Visible = False
+    Label6.Visible = False: TextBox5.Visible = False: TextBox10.Visible = False
+    CommandButton3.Visible = False
+    If Not IsEmpty(AppTypeS) Then
+        If IsEmpty(Range("D27")) Then
+            Label2.Visible = True: TextBox1.Visible = True
+        End If
+        If AppTypeS = "Variation" Then
+            If IsEmpty(Range("D28")) Then
+                Label3.Visible = True: TextBox2.Visible = True
+            End If
+        End If
+        If IsEmpty(Range("D29")) Then
+            Label4.Visible = True: TextBox3.Visible = True
+        End If
+        If IsEmpty(Range("D30")) Then
+            Label5.Visible = True: TextBox4.Visible = True
+        End If
+        If IsEmpty(Range("D32")) Then
+            Label6.Visible = True: TextBox5.Visible = True
+        End If
+    End If
+    If Not IsEmpty(AppTypeO) Then
+        If IsEmpty(Range("J27")) Then
+            Label2.Visible = True: TextBox7.Visible = True
+        End If
+        If IsEmpty(Range("J29")) Then
+            Label4.Visible = True: TextBox8.Visible = True
+        End If
+        If IsEmpty(Range("J30")) Then
+            Label5.Visible = True: TextBox9.Visible = True
+        End If
+        If IsEmpty(Range("J32")) Then
+            Label6.Visible = True: TextBox10.Visible = True
+        End If
+    End If
+    If Range("D20") = "Change of Fact" Or Range("D20") = "Surrender - Full" Then TextBox4.Visible = False
+    If Range("J20") = "Change of Fact" Or Range("J20") = "Surrender - Full" Then TextBox9.Visible = False
+End Sub

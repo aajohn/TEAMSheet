@@ -1,0 +1,79 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormIntervention 
+   ClientHeight    =   6180
+   ClientLeft      =   45
+   ClientTop       =   375
+   ClientWidth     =   7710
+   OleObjectBlob   =   "UserFormIntervention.frx":0000
+End
+Attribute VB_Name = "UserFormIntervention"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    eTo = Range("D9") & ";" & Range("F9")
+    eMsg = "This is a short e-mail in releation to the permit you hold to keep and use radioactive sources or waste.<br><br>Can I check with you that the following details are still correct.<br> Contact: " & Range("D7") & " " & Range("D8") & " " & Range("D9") & "<br> Second Contact: " & Range("F7") & " " & Range("F8") & " " & Range("F9") & "<br> Company Name: " & Range("D5") & "<br> Registered Office: " & Range("J6") & "<br> Companies House Number: " & Range("J7")
+    eMsg = eMsg & "<br><br>If any of these details have changed or there are any other changes that may effect your permit please contact myself by reply to this e-mail.<br><br>If nothing has changed then please reply to this e-mail letting me know.  Thank you in advance for your assistance."
+    Call SendEmail(eTo, "Radioactive Substances Regulation", eMsg, "")
+    RecordIntervention (False)
+    Unload Me
+End Sub
+Private Sub CommandButton2_Click()
+    Dim pDate As Date, inspDate As String
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    If TextBox1.Value = "" Then Exit Sub
+    RecordIntervention (True)
+    If CheckBox1 Then
+        If Not Range("D37") = "New Operator" And Not Range("D37") = "" Then
+            If Not Range("D36") = "Reactive" Then
+                pDate = DateAdd("m", (Range("D36") * 12) - 3, Date)
+                inspDate = "Due Qtr " & Format(pDate, "q yyyy")
+            Else
+                inspDate = ""
+            End If
+        Else
+            inspDate = ""
+        End If
+    End If
+    ActiveSheet.Unprotect
+    Range("D38") = inspDate
+    ActiveSheet.Protect
+    If tempSite Then wSheet = "Temp Sites" Else wSheet = "Datasheet"
+    Call OpenData("tsds")
+    Sheets(wSheet).Range("AA" & DRow) = inspDate
+    Call CloseData("tsds", True)
+    If Not inspDate = "" Then
+        Call InterventionLog("Intervention: Inspection Moved to " & inspDate & " on " & Format(Date, "d mmm yyyy") & " by " & Sheets("LookUp").Range("C" & Iota))
+    End If
+    Unload Me
+End Sub
+Private Sub CommandButton3_Click()
+    Unload Me
+End Sub
+Private Sub TextBox2_Change()
+    Label7.Caption = "Characters Left " & 100 - Len(TextBox2.Value)
+End Sub
+Private Sub UserForm_Initialize()
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    If IsEmpty(Range("D9")) Then
+        CommandButton1.Visible = False
+        Label2.Caption = "No email address for site contact"
+    End If
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "BM").End(xlUp).Row - 2
+        ListBox1.AddItem
+        ListBox1.List(count) = Sheets("LookUp").Range("BM" & count + 2)
+    Next count
+    TextBox1.Value = Format(Date, "d mmmm yyyy")
+    Label10.Caption = "Next Inspection: " & Range("D38") & vbLf & "Visit Freq: " & Range("D36")
+End Sub
+Sub RecordIntervention(inType As Boolean)
+    If inType Then
+        Call InterventionLog("Intervention: " & ListBox1.Value & " " & TextBox1.Value & " " & TextBox2.Value)
+    Else
+        Call InterventionLog("Contact Check email sent " & Format(Date, "d mmmm yyyy") & " to " & Range("D9") & ";" & Range("F9"))
+    End If
+End Sub

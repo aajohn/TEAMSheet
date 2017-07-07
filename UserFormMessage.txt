@@ -1,0 +1,25 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormMessage 
+   ClientHeight    =   2025
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   5505
+   OleObjectBlob   =   "UserFormMessage.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormMessage"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Unload Me
+End Sub
+Sub FillVars(msg1 As String, msg2 As String, msgN As Integer)
+    Call RemoveCaption(Me)
+    Label1.Caption = msg1
+    Label2.Caption = msg2
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image" & msgN & ".jpg")
+End Sub

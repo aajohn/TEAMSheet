@@ -1,0 +1,211 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormPlanInspection 
+   ClientHeight    =   8430
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   8010
+   OleObjectBlob   =   "UserFormPlanInspection.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormPlanInspection"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Explicit
+
+Private Sub Calendar1_Click()
+    Select Case Weekday(Calendar1.Value)
+        Case vbSaturday
+            Calendar1.Value = Calendar1.Value - 1
+        Case vbSunday
+            Calendar1.Value = Calendar1.Value - 2
+    End Select
+    If Calendar1.Value < Date Then Calendar1.Value = Date
+End Sub
+
+Private Sub SpinButton1_SpinDown()
+    Calendar1.PreviousMonth
+End Sub
+
+Private Sub SpinButton1_SpinUp()
+    Calendar1.NextMonth
+End Sub
+
+Private Sub CommandButton1_Click()
+    Dim aLoc As String, aStr As String, aBody As String
+    Dim eTime
+    Dim PForce As String, iDate As String
+    Dim rMin As Integer
+    iDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
+    If ListBox1.ListIndex = -1 Then Exit Sub
+    If ListBox2.ListIndex = -1 Then Exit Sub
+    PForce = Sheets("Details").Range("D11")
+    DRow = Range("G3")
+    If OptionButton1 Then eMsg = "I am "
+    If OptionButton3 Then eMsg = Label2.Caption
+    If OptionButton2 Then
+        If Not TextBox1.Value = "" Then
+            eMsg = "Myself and " & Application.Proper(TextBox1.Value) & " from " & PForce & " Police are "
+        Else
+            GoTo jmp
+        End If
+    End If
+    eTime = TimeSerial(ListBox1.Value, ListBox2.Value, 0)
+    eTime = Format(eTime, "h:Nn")
+    If CheckBox1 Then
+        eMsg = "Further to our earlier phone conversation.  " & eMsg & "visiting yourselves on <b>" & iDate & " at " & eTime & "</b> as a routine Inspection of your permit.  Attached is a short document on preparing for an Inspection which I would ask you to read."
+    Else
+        If Left(Range("D38"), 8) = "Arranged" Then
+            eMsg = "I am writing to change the date and time of the Inspection " & Range("D38") & ".  " & eMsg & "now planning to visit yourselves on <b>" & iDate & " at " & eTime & "</b> as a routine Inspection of your permit.  Attached is a short document on preparing for an Inspection which I would ask you to read."
+        Else
+            eMsg = eMsg & "planning to visit yourselves on <b>" & iDate & " at " & eTime & "</b> as a routine Inspection of your permit.  Attached is a short document on preparing for an Inspection which I would ask you to read."
+        End If
+    End If
+    If CheckBox2 Then eMsg = eMsg & "<br><br>I will also be accompanied by an Inspector from the HSE, who will contact you separately."
+    If Not ListBox3.ListIndex = -1 Then eMsg = eMsg & "  I will also be accompanied by my colleague " & ListBox3.Value & "."
+    If Range("N39") = "" Then
+        eMsg = eMsg & "<br><br>Our records do not show what PPE is required for your site.  Please could you let me know what is required."
+    Else
+        If Mid(Range("N39"), 1, 1) = "1" Then
+            eMsg = eMsg & "<br><br>Our records show that PPE is not required for your site.  If this is incorrect please could you let me know what is required."
+        Else
+            eMsg = eMsg & "<br><br>Our records show the following PPE is required for your site; "
+            If Mid(Range("N39"), 2, 1) = "1" Then eMsg = eMsg & Range("K40") & ", "
+            If Mid(Range("N39"), 3, 1) = "1" Then eMsg = eMsg & Range("K41") & ", "
+            If Mid(Range("N39"), 4, 1) = "1" Then eMsg = eMsg & Range("K42") & ", "
+            If Mid(Range("N39"), 5, 1) = "1" Then eMsg = eMsg & Range("K43") & ", "
+            If Mid(Range("N39"), 6, 1) = "1" Then eMsg = eMsg & Range("K44") & ", "
+            If Mid(Range("N39"), 7, 1) = "1" Then eMsg = eMsg & Range("K45") & ", "
+            If Mid(Range("N39"), 8, 1) = "1" Then eMsg = eMsg & Range("M39") & ", "
+            If Mid(Range("N39"), 9, 1) = "1" Then eMsg = eMsg & Range("M40") & ", "
+            If Mid(Range("N39"), 10, 1) = "1" Then eMsg = eMsg & Range("M41") & ", "
+            If Mid(Range("N39"), 11, 1) = "1" Then eMsg = eMsg & Range("M42") & ", "
+            If Mid(Range("N39"), 12, 1) = "1" Then eMsg = eMsg & Range("M43") & ", "
+            If Mid(Range("N39"), 13, 1) = "1" Then eMsg = eMsg & Range("M44") & "**"
+            eMsg = Left(eMsg, Len(eMsg) - 2)
+            eMsg = eMsg & ".  If this is incorrect please could you let me know what is required."
+        End If
+    End If
+    If Range("N37") = "1" Then
+        If Range("N38") = "1" Then
+            eMsg = eMsg & "<br><br>Our records also show your site has Intrinsically Safe (ATEX) zones and a High Hygiene Site (No Makeup, Jewellery etc)."
+        Else
+            eMsg = eMsg & "<br><br>Our records also show your site has Intrinsically Safe (ATEX) zones."
+        End If
+    Else
+        If Range("N38") = "1" Then eMsg = eMsg & "<br><br>Our records also show your site is a High Hygiene Site (No Makeup, Jewellery etc)."
+    End If
+    eMsg = eMsg & "<br><br>Please can you confirm by reply to this e-mail that the appropriate persons will be available."
+    Sheets("Details").Select
+    eTo = Range("D9") & ";" & Range("F9")
+    If OptionButton3 Or OptionButton2 Then
+        lastrow = Sheets("LookUp").Cells(Rows.count, "P").End(xlUp).Row - 3
+        For count = 0 To lastrow
+            If Sheets("LookUp").Range("P" & count + 3) = PForce Then eTo = eTo & ";" & Sheets("LookUp").Range("R" & count + 3)
+        Next count
+    End If
+    eSubj = "Radioactive Substances Regulation: Site Inspection"
+    eAttach = "Preparing for an Inspection.pdf"
+    If Not IsEmpty(Range("D9")) Then Call SendEmail(eTo, eSubj, eMsg, eAttach)
+    aLoc = Sheets("Details").Range("D5")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AA" & DRow) = "Arranged for " & iDate & " at " & eTime
+    Call CloseData("tsds", True)
+    ActiveSheet.Unprotect
+    Range("D38") = "Arranged for " & iDate & " at " & eTime
+    ActiveSheet.Protect
+    aBody = "Inspection Planned for " & Sheets("Details").Range("D5") & " " & Sheets("Details").Range("D6")
+    If Not ListBox3.ListIndex = -1 Then aBody = aBody & " with " & ListBox3.Value
+    aBody = aBody & vbLf & vbLf & "To see " & Sheets("Details").Range("D7") & " " & Sheets("Details").Range("D8")
+    rMin = 1440
+    If Weekday(Calendar1.Value) = 2 Then rMin = 4320
+    Call AppointToOutlook("Inspection", aLoc, Calendar1.Value & " " + eTime, aBody, rMin)
+    If Not ListBox3.ListIndex = -1 Then
+        Call OutlookMtgRequest(ListBox3.Value, "Inspection", aLoc, Calendar1.Value & " " + eTime, aBody, rMin)
+    End If
+    Call CopyPasteData(Range("G3"), True, True)
+    Unload Me
+    '** Call RemoveApp
+jmp:
+End Sub
+
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
+
+Private Sub CommandButton3_Click()
+    Call OutlookShowCal
+End Sub
+
+Private Sub CommandButton4_Click()
+    Unload Me
+End Sub
+
+Private Sub CommandButton5_Click()
+    '** need to sort this bit
+    If ComboBox2.ListIndex = -1 Then Exit Sub
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("AA" & DRow) = "Planned for " & ComboBox2.Value
+    Call CopyPasteData(DRow, True, True)
+    Unload Me
+End Sub
+
+Private Sub TextBox1_Change()
+    OptionButton2.Value = True
+End Sub
+
+Private Sub UserForm_Initialize()
+    Dim PForce As String
+    Dim lp As Integer
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    PForce = Sheets("Details").Range("D11")
+    Label2.Caption = "Myself and a CTSA from " & PForce & " Police are "
+    Label3.Caption = "Myself and                                    from " & PForce & " Police are "
+    Calendar1.Value = Date
+    ListBox1.ColumnWidths = "0.8cm"
+    ListBox2.ColumnWidths = "0.8cm"
+    ListBox1.AddItem "09"
+    ListBox1.AddItem "10"
+    ListBox1.AddItem "11"
+    ListBox1.AddItem "12"
+    ListBox1.AddItem "13"
+    ListBox1.AddItem "14"
+    ListBox1.AddItem "15"
+    ListBox2.AddItem "00"
+    ListBox2.AddItem "15"
+    ListBox2.AddItem "30"
+    ListBox2.AddItem "45"
+    lastrow = Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row - 3
+    For lp = 0 To lastrow
+        ListBox3.AddItem Sheets("LookUp").Range("C" & lp + 3)
+    Next lp
+    If IsEmpty(Range("D9")) Then
+        CheckBox1.Visible = False
+        Label1.Visible = False
+        Label3.Visible = False
+        Label6.Visible = False
+        OptionButton1.Visible = False
+        OptionButton2.Visible = False
+        OptionButton3.Visible = False
+        TextBox1.Visible = False
+        ListBox3.Visible = False
+        Label2.Caption = "No email address for site contact"
+        CommandButton1.Caption = "Update"
+    End If
+    If Left(Sheets("Details").Range("D38"), 8) = "Arranged" Then
+        Frame2.Visible = False
+        CheckBox1.Visible = False
+        Label7.Caption = "Change Inspection"
+        Label8.Caption = "Previously " & Range("D38")
+        Label8.Visible = True
+    End If
+    Label9.Caption = Range("D38")
+    For lp = 1 To 12
+        ComboBox2.AddItem Format(DateAdd("m", lp, Date), "mmmm yyyy")
+    Next lp
+End Sub

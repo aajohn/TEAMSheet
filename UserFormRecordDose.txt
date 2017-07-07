@@ -1,0 +1,240 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserFormRecordDose 
+   ClientHeight    =   8025
+   ClientLeft      =   45
+   ClientTop       =   330
+   ClientWidth     =   10305
+   OleObjectBlob   =   "UserFormRecordDose.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserFormRecordDose"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Sub CommandButton1_Click()
+    Dim HDose As String
+    If TextBox13.Value = "" Then Exit Sub
+    If Label13.Caption = "Record dose for date" Then TextBox13.Value = Format(TextBox13.Value, "dddd") & " " & Format(TextBox13.Value, "d mmmm yyyy")
+    If Not TextBox1.Value = "" And ComboBox1.ListIndex = -1 Then Exit Sub
+    If Not TextBox2.Value = "" And ComboBox2.ListIndex = -1 Then Exit Sub
+    If Not TextBox3.Value = "" And ComboBox3.ListIndex = -1 Then Exit Sub
+    If Not TextBox4.Value = "" And ComboBox4.ListIndex = -1 Then Exit Sub
+    If Not TextBox5.Value = "" And ComboBox5.ListIndex = -1 Then Exit Sub
+    If Not TextBox6.Value = "" And ComboBox6.ListIndex = -1 Then Exit Sub
+    If Not TextBox7.Value = "" And ComboBox7.ListIndex = -1 Then Exit Sub
+    If ComboBox14.ListIndex = -1 Then Exit Sub
+    DRow = Range("G3")
+    check = False
+    Call OpenData("tsds")
+    '****************Sheets("Dose Current").Range("A1")  check if need to move Jan only
+    If Not TextBox1.Value = "" Then Call Record(Label1.Caption, ComboBox1.List(ComboBox1.ListIndex, 0), TextBox1.Value)
+    If Not ComboBox8.Value = "" Then Call Record(ComboBox8.Value, ComboBox2.List(ComboBox2.ListIndex, 0), TextBox2.Value)
+    If Not ComboBox9.Value = "" Then Call Record(ComboBox9.Value, ComboBox3.List(ComboBox3.ListIndex, 0), TextBox3.Value)
+    If Not ComboBox10.Value = "" Then Call Record(ComboBox10.Value, ComboBox4.List(ComboBox4.ListIndex, 0), TextBox4.Value)
+    'If Not TextBox8.Value = "" Then Call Record(Label5.Caption, ComboBox5.List(ComboBox5.ListIndex, 0), TextBox5.Value)
+    'If Not TextBox9.Value = "" Then Call Record(Label6.Caption, ComboBox6.List(ComboBox6.ListIndex, 0), TextBox6.Value)
+    'If Not TextBox10.Value = "" Then Call Record(Label7.Caption, ComboBox7.List(ComboBox7.ListIndex, 0), TextBox7.Value)
+    If check = False Then
+        Call CloseData("tsds", True)
+        Exit Sub
+    End If
+    HDose = TextBox1.Value
+    If TextBox2.Value > HDose Then HDose = TextBox2.Value
+    If TextBox3.Value > HDose Then HDose = TextBox3.Value
+    If TextBox4.Value > HDose Then HDose = TextBox4.Value
+    If TextBox5.Value > HDose Then HDose = TextBox5.Value
+    If TextBox6.Value > HDose Then HDose = TextBox6.Value
+    If TextBox7.Value > HDose Then HDose = TextBox7.Value
+    If DRow > 0 Then Sheets("Datasheet").Range("AC" & DRow) = HDose & " µSv"
+    Call CloseData("tsds", True)
+    If HDose >= 10 Then Call msg("Dose Recorded", "The dose you have recorded is above the action level of 10 µSv, you must discuss this with your Team Leader and RPA.", 26)
+    If HDose < 10 And HDose > 0 Then Call msg("Dose Recorded", "The recorded dose is below the 10 µSv action level." & vbLf & "However discuss with your Team Leader if there was a near miss, a learning point, or the dose is not real/in error?", 8)
+    Unload Me
+End Sub
+Sub Record(insp As String, v1, v2)
+    check = True
+    For count = 1 To Sheets("Dose Current").Cells(Rows.count, "B").End(xlUp).Row
+        If Sheets("Dose Current").Cells(count, 2) = insp Then Exit For
+    Next count
+    If count > Sheets("Dose Current").Cells(Rows.count, "B").End(xlUp).Row Then Sheets("Dose Current").Cells(count, 2) = insp
+    count = (count * 9) - 4
+    lastrow = Sheets("Dose Current").Cells(Rows.count, count).End(xlUp).Row + 1
+    Sheets("Dose Current").Cells(lastrow, count) = TextBox13.Value
+    Sheets("Dose Current").Cells(lastrow, count + 1) = Workbooks("RSR TEAMSheet.xlsm").Sheets("Details").Range("D5")
+    Sheets("Dose Current").Cells(lastrow, count + 2) = Workbooks("RSR TEAMSheet.xlsm").Sheets("Details").Range("D3")
+    Sheets("Dose Current").Cells(lastrow, count + 3) = v1
+    Sheets("Dose Current").Cells(lastrow, count + 4) = v2
+    If Not ComboBox13.ListIndex = -1 Then Sheets("Dose Current").Cells(lastrow, count + 5) = ComboBox13.List(ComboBox13.ListIndex, 0) & " S/N" & ComboBox13.List(ComboBox13.ListIndex, 1)
+    Sheets("Dose Current").Cells(lastrow, count + 6) = ComboBox14.Value
+    Sheets("Dose Current").Cells(lastrow, count + 7) = TextBox14.Value
+    If CheckBox1 Then
+        lastrow = Sheets("Dose Current").Cells(Rows.count, count).End(xlUp).Row + 1
+        Sheets("Dose Current").Cells(lastrow, count) = TextBox13.Value
+        Sheets("Dose Current").Cells(lastrow, count + 1) = Workbooks("RSR TEAMSheet.xlsm").Sheets("Details").Range("D5")
+        Sheets("Dose Current").Cells(lastrow, count + 2) = Workbooks("RSR TEAMSheet.xlsm").Sheets("Details").Range("D3")
+        Sheets("Dose Current").Cells(lastrow, count + 3) = v1
+        Sheets("Dose Current").Cells(lastrow, count + 4) = v2 * 2
+        If Not ComboBox13.ListIndex = -1 Then Sheets("Dose Current").Cells(lastrow, count + 5) = ComboBox13.List(ComboBox13.ListIndex, 0) & " S/N" & ComboBox13.List(ComboBox13.ListIndex, 1)
+        Sheets("Dose Current").Cells(lastrow, count + 6) = ComboBox14.Value
+        Sheets("Dose Current").Cells(lastrow, count + 7) = "Additional Neutron Dose"
+    End If
+End Sub
+Private Sub CommandButton2_Click()
+    DRow = 0
+    Unload Me
+End Sub
+Sub FillVars(var As String)
+    Dim instMarker As Boolean
+    Call RemoveCaption(Me)
+    If Epsilon = "" Then Call LoadDocs
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image19.jpg")
+    If Iota = 0 Then
+        For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+            v1 = Mid(UCase(Sheets("LookUp").Range("C" & count)), InStr(UCase(Sheets("LookUp").Range("C" & count)), " ") + 1)
+            If InStr(UCase(Environ("USERNAME")), v1) Then
+                Iota = count
+                Exit For
+            End If
+            If InStr(UCase(Environ("USERNAME")), "FITZSIMONS") > 0 And InStr(v1, "FITZSIMONS") > 0 Then
+                Iota = count
+                Exit For
+            End If
+        Next count
+    End If
+    Label1.Caption = Sheets("LookUp").Range("C" & Iota)
+    count2 = 0
+    For count = 3 To Sheets("LookUp").Cells(Rows.count, "C").End(xlUp).Row
+        If Not count = Iota Then
+            ComboBox8.AddItem
+            ComboBox8.List(count2) = Sheets("LookUp").Range("C" & count)
+            ComboBox9.AddItem
+            ComboBox9.List(count2) = Sheets("LookUp").Range("C" & count)
+            ComboBox10.AddItem
+            ComboBox10.List(count2) = Sheets("LookUp").Range("C" & count)
+            count2 = count2 + 1
+        End If
+    Next count
+    ComboBox2.ColumnCount = 1
+    ComboBox2.ColumnWidths = "5cm;2cm"
+    ComboBox3.ColumnCount = 1
+    ComboBox3.ColumnWidths = "5cm;2cm"
+    ComboBox4.ColumnCount = 1
+    ComboBox4.ColumnWidths = "5cm;2cm"
+    ComboBox5.ColumnCount = 1
+    ComboBox5.ColumnWidths = "5cm;2cm"
+    ComboBox6.ColumnCount = 1
+    ComboBox6.ColumnWidths = "5cm;2cm"
+    ComboBox7.ColumnCount = 1
+    ComboBox7.ColumnWidths = "5cm;2cm"
+    ComboBox1.AddItem
+    ComboBox1.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox1.AddItem
+    ComboBox1.List(1, 0) = "Not Used - See Comments"
+    ComboBox2.AddItem
+    ComboBox2.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox2.AddItem
+    ComboBox2.List(1, 0) = "Not Used - See Comments"
+    ComboBox3.AddItem
+    ComboBox3.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox3.AddItem
+    ComboBox3.List(1, 0) = "Not Used - See Comments"
+    ComboBox4.AddItem
+    ComboBox4.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox4.AddItem
+    ComboBox4.List(1, 0) = "Not Used - See Comments"
+    ComboBox5.AddItem
+    ComboBox5.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox5.AddItem
+    ComboBox5.List(1, 0) = "Not Used - See Comments"
+    ComboBox6.AddItem
+    ComboBox6.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox6.AddItem
+    ComboBox6.List(1, 0) = "Not Used - See Comments"
+    ComboBox7.AddItem
+    ComboBox7.List(0, 0) = "Not Used - Intrinsically Safe"
+    ComboBox7.AddItem
+    ComboBox7.List(1, 0) = "Not Used - See Comments"
+    instMarker = False
+    Call OpenData("tsds")
+    For count = 2 To 16
+        If Sheets("Datasheet").Range("CA" & count) = "" Then Exit For
+        ComboBox1.AddItem
+        ComboBox1.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox1.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox2.AddItem
+        ComboBox2.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox2.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox3.AddItem
+        ComboBox3.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox3.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox4.AddItem
+        ComboBox4.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox4.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox5.AddItem
+        ComboBox5.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox5.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox6.AddItem
+        ComboBox6.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox6.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        ComboBox7.AddItem
+        ComboBox7.List(count, 0) = Sheets("Datasheet").Range("CA" & count) & " S/N" & Sheets("Datasheet").Range("CB" & count)
+        ComboBox7.List(count, 1) = Sheets("Datasheet").Range("CD" & count)
+        If ComboBox1.List(count, 1) = Label1.Caption And Not instMarker Then
+            instMarker = True
+            ComboBox1.ListIndex = count
+        End If
+    Next
+    ComboBox13.ColumnCount = 3
+    ComboBox13.ColumnWidths = "3.6cm;1.6cm;2cm"
+    For count = 0 To 14
+        If Sheets("Datasheet").Range("CI" & count + 2) = "" Then Exit For
+        ComboBox13.AddItem
+        ComboBox13.List(count, 0) = Sheets("Datasheet").Range("CI" & count + 2)
+        ComboBox13.List(count, 1) = Sheets("Datasheet").Range("CJ" & count + 2)
+        ComboBox13.List(count, 2) = Sheets("Datasheet").Range("CL" & count + 2)
+    Next
+    Call CloseData("tsds", False)
+    ComboBox14.ColumnCount = 1
+    lastrow = Sheets("LookUp").Cells(Rows.count, "BH").End(xlUp).Row - 2
+    For count = 0 To lastrow
+        ComboBox14.AddItem
+        ComboBox14.List(count) = Sheets("LookUp").Range("BH" & count + 2)
+    Next
+    ComboBox14.ListIndex = 0
+    If var = "" Then
+        Label13.Caption = "Record dose for date"
+        TextBox13.Visible = True
+    Else
+        If Sheets("Details").Range("N37") = 1 Then
+            ComboBox1.ListIndex = 0
+            ComboBox1.ForeColor = RGB(255, 0, 0)
+        End If
+        Label13.Caption = "Record dose for Inspection on " & var
+        TextBox13.Visible = False
+        TextBox13.Value = var
+    End If
+End Sub
+Private Sub TextBox1_Change()
+    Call checkNum
+End Sub
+Private Sub TextBox2_Change()
+    Call checkNum
+End Sub
+Private Sub TextBox3_Change()
+    Call checkNum
+End Sub
+Private Sub TextBox4_Change()
+    Call checkNum
+End Sub
+Private Sub checkNum()
+    If TypeName(Me.ActiveControl) = "TextBox" Then
+        With Me.ActiveControl
+            If Not IsNumeric(.Value) And .Value <> vbNullString Then
+                Call msg("Dose Recorded Not a Number", "The dose you have recorded is not a number.", 8)
+                .Value = vbNullString
+            End If
+        End With
+    End If
+End Sub
