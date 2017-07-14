@@ -12,23 +12,31 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
+
 Public labSelect As Boolean
+
 Private Sub ComboBox1_Change()
     Call showLabel(1, ComboBox1.ListIndex)
 End Sub
+
 Private Sub ComboBox2_Change()
     Call showLabel(2, ComboBox2.ListIndex)
 End Sub
+
 Private Sub ComboBox3_Change()
     Call showLabel(3, ComboBox3.ListIndex)
 End Sub
+
 Private Sub ComboBox4_Change()
     Call showLabel(4, ComboBox4.ListIndex)
 End Sub
+
 Private Sub ComboBox5_Change()
     Call showLabel(5, ComboBox5.ListIndex)
 End Sub
+
 Sub showLabel(count, count1)
     If count = 1 Then
         Addr = "OFFICIAL - SENSITIVE" & vbLf & vbLf & "Return Address" & vbLf & Sheets("LookUp").Range("AZ" & count1 + 3)
@@ -58,6 +66,7 @@ Sub showLabel(count, count1)
     If count = 1 Then labSelect = True Else labSelect = False
     Label5.Caption = Addr
 End Sub
+
 Private Sub CommandButton1_Click()
     Application.ScreenUpdating = False
     If labSelect Then
@@ -99,9 +108,11 @@ Private Sub CommandButton1_Click()
     Application.ScreenUpdating = False
     Unload Me
 End Sub
+
 Private Sub CommandButton2_Click()
     Unload Me
 End Sub
+
 Private Sub UserForm_Initialize()
     Call RemoveCaption(Me)
     If Epsilon = "" Then Call LoadDocs
