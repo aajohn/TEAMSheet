@@ -14,17 +14,21 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 Option Explicit
+
 'Public Calendar1 As String
 Private WithEvents Calendar1 As cCalendar
+
 Attribute Calendar1.VB_VarHelpID = -1
 
+'UPDATE button
 Private Sub CommandButton1_Click()
     Dim aLoc As String, aBody As String
     Dim iTime
     Dim iDate As String
     Dim rMin As Integer
-    If ListBox1.ListIndex = -1 Then Exit Sub
-    If ListBox2.ListIndex = -1 Then Exit Sub
+    
+    If ListBox1.ListIndex = -1 Then Exit Sub       'hours
+    If ListBox2.ListIndex = -1 Then Exit Sub       'minutes
     Call RemoveApp
     DRow = Range("G3")
     iTime = TimeSerial(ListBox1.Value, ListBox2.Value, 0)
@@ -32,7 +36,10 @@ Private Sub CommandButton1_Click()
     iDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
     aLoc = Sheets("Details").Range("D5")
     Call OpenData("tsds")
+    
+    ' next inspection due
     Sheets("Datasheet").Range("AA" & DRow) = "Arranged for " & iDate & " at " & iTime
+    
     Windows("RSR TEAMSheet.xlsm").Activate
     aBody = "Inspection Planned" & vbLf & vbLf & "To see " & Sheets("Details").Range("D7") & " " & Sheets("Details").Range("D8")
     Call CopyPasteData(Range("G3"), True, True)
@@ -42,10 +49,12 @@ Private Sub CommandButton1_Click()
     Unload Me
  End Sub
 
+'CANCEL button
 Private Sub CommandButton2_Click()
     Unload Me
 End Sub
 
+' "View Outlook Calendar
 Private Sub CommandButton3_Click()
     Call OutlookShowCal
 End Sub
@@ -60,7 +69,6 @@ Private Sub Calendar1_Click()
     If Calendar1.Value < Date Then Calendar1.Value = Date
 End Sub
 
-
 'UserForm with Frame1
 
 Private Sub Calendar1_DblClick()
@@ -69,11 +77,11 @@ Unload Me
 End Sub
 
 Private Sub Frame1_Click()
-
+' date picker
 End Sub
 
 Private Sub ListBox1_Click()
-
+'listbox1 holds the hours (time)
 End Sub
 
 Private Sub UserForm_Initialize()
@@ -90,10 +98,12 @@ Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
 Set Calendar1 = Nothing
 End Sub
 
+' "Change month down"
 Private Sub SpinButton1_SpinDown()
     Calendar1.PreviousMonth
 End Sub
 
+' "change month up"
 Private Sub SpinButton1_SpinUp()
     Calendar1.NextMonth
 End Sub
@@ -115,8 +125,11 @@ Private Sub UserForm1_Initialize()
             Calendar1.Value = pDate
         End If
     End If
+    
     ListBox1.ColumnWidths = "0.8cm"
     ListBox2.ColumnWidths = "0.8cm"
+    
+    '9 o'clock, 10 o'clock etc
     ListBox1.AddItem "09"
     ListBox1.AddItem "10"
     ListBox1.AddItem "11"
@@ -124,6 +137,8 @@ Private Sub UserForm1_Initialize()
     ListBox1.AddItem "13"
     ListBox1.AddItem "14"
     ListBox1.AddItem "15"
+    
+    '15 past, 30 past
     ListBox2.AddItem "00"
     ListBox2.AddItem "15"
     ListBox2.AddItem "30"
