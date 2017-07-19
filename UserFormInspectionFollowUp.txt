@@ -166,7 +166,10 @@ Private Sub CommandButton11_Click()
     If Not IsDate(TextBox1.Value) Then Exit Sub
     DRow = Range("G3")
     Call OpenData("tsds")
+    
+    ‘ inspection CAR completed
     Sheets("Datasheet").Range("AB" & DRow) = Format(TextBox1.Value, "d mmm yyyy")
+    
     Call CloseData("tsds", True)
     Call CopyPasteData(Range("G3"), True, False)
     Unload Me

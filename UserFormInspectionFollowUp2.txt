@@ -172,7 +172,10 @@ Private Sub CommandButton1_Click()
     Drafts = True
     DRow = Range("G3")
     Call OpenData("tsds")
+    
+    ‘ inspection CAR completed
     Sheets("Datasheet").Range("AB" & DRow) = Format(Date, "d mmm yyyy")
+    
     Call CloseData("tsds", True)
     If check = True Then
         If OptionButton2.Value Then
