@@ -12,12 +12,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 'Public Calendar1 As String
 Private WithEvents Calendar1 As cCalendar
 Attribute Calendar1.VB_VarHelpID = -1
-
-
 
 Private Sub CommandButton1_Click()
     Dim aLoc As String, aBody As String
@@ -42,12 +41,15 @@ Private Sub CommandButton1_Click()
     Call AppointToOutlook("Inspection", aLoc, Calendar1.Value & " " + iTime, aBody, rMin)
     Unload Me
  End Sub
+
 Private Sub CommandButton2_Click()
     Unload Me
 End Sub
+
 Private Sub CommandButton3_Click()
     Call OutlookShowCal
 End Sub
+
 Private Sub Calendar1_Click()
     Select Case Weekday(Calendar1.Value)
         Case vbSaturday
@@ -91,9 +93,11 @@ End Sub
 Private Sub SpinButton1_SpinDown()
     Calendar1.PreviousMonth
 End Sub
+
 Private Sub SpinButton1_SpinUp()
     Calendar1.NextMonth
 End Sub
+
 Private Sub UserForm1_Initialize()
     Dim pDate As Date
     Dim pInsp As String
