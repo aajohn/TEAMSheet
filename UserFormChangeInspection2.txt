@@ -26,8 +26,9 @@ Private Sub CommandButton1_Click()
     Dim iTime
     Dim iDate As String
     Dim rMin As Integer
-    If ListBox1.ListIndex = -1 Then Exit Sub
-    If ListBox2.ListIndex = -1 Then Exit Sub
+    
+    If ListBox1.ListIndex = -1 Then Exit Sub       'hours
+    If ListBox2.ListIndex = -1 Then Exit Sub       'minutes
     Call RemoveApp
     DRow = Range("G3")
     iTime = TimeSerial(ListBox1.Value, ListBox2.Value, 0)
@@ -35,7 +36,10 @@ Private Sub CommandButton1_Click()
     iDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
     aLoc = Sheets("Details").Range("D5")
     Call OpenData("tsds")
+    
+    ' next inspection due
     Sheets("Datasheet").Range("AA" & DRow) = "Arranged for " & iDate & " at " & iTime
+    
     Windows("RSR TEAMSheet.xlsm").Activate
     aBody = "Inspection Planned" & vbLf & vbLf & "To see " & Sheets("Details").Range("D7") & " " & Sheets("Details").Range("D8")
     Call CopyPasteData(Range("G3"), True, True)
