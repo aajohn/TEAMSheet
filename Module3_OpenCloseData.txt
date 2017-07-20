@@ -45,9 +45,9 @@ start:
             End If
         Else
             Workbooks.Open fileName:=Delta & fileName & ".xls", Password:=Alpha
-            Open LogFileName For Append As #fileNum
-            Print #fileNum, VBA.UCase(VBA.Environ("USERNAME")) & "  (" & VBA.Format(VBA.Date, "d mmm yyyy") & " " & VBA.Format(VBA.Time, "hh:mm:ss") & ")"
-            Close #fileNum
+            Open LogFileName For Append As #fileNum     'creates the file if it doesn't exist
+            Print #fileNum, VBA.UCase(VBA.Environ("USERNAME")) & "  (" & VBA.Format(VBA.Date, "d mmm yyyy") & " " & VBA.Format(VBA.Time, "hh:mm:ss") & ")"                                      ' write information at the end of the text file                      
+            Close #fileNum                             ' close the file
             On Error GoTo 0
         End If
         

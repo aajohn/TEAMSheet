@@ -15,179 +15,203 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-'Private Sub Calendar1_Click()
-'    Select Case Weekday(Calendar1.Value)
-'        Case vbSaturday
-'            Calendar1.Value = Calendar1.Value - 1
-'        Case vbSunday
-'            Calendar1.Value = Calendar1.Value - 2
-'    End Select
-'    If Calendar1.Value > Date Then Calendar1.Value = Date
-'    Call InFreq
-'End Sub
+Private Sub Calendar1_Click()
+    Select Case Weekday(Calendar1.Value)
+        Case vbSaturday
+            Calendar1.Value = Calendar1.Value - 1
+        Case vbSunday
+            Calendar1.Value = Calendar1.Value - 2
+    End Select
+    If Calendar1.Value > Date Then Calendar1.Value = Date
+    Call InFreq
+End Sub
 
-'Private Sub SpinButton1_SpinDown()
-'    Calendar1.PreviousMonth
-'End Sub
+' "...change month to previous"
+Private Sub SpinButton1_SpinDown()
+    Calendar1.PreviousMonth
+End Sub
 
-'Private Sub SpinButton1_SpinUp()
-'    Calendar1.NextMonth
-'End Sub
+' ...change month to next
+Private Sub SpinButton1_SpinUp()
+    Calendar1.NextMonth
+End Sub
 
-'Private Sub ComboBox1_Change()
-'    Call InFreq
-'End Sub
+Private Sub ComboBox1_Change()
+    Call InFreq
+End Sub
 
-'Private Sub ComboBox2_Change()
-'    Call InFreq
-'End Sub
+Private Sub ComboBox2_Change()
+    Call InFreq
+End Sub
 
-'Private Sub InFreq()
-'    Dim pDate As Date
-'    If Not ComboBox1.ListIndex = -1 Then CommandButton1.Visible = True
-'    If ComboBox1.Value = "Reactive" Then
-'        Label9.Caption = "Reactive"
-'        Exit Sub
-'    End If
-'    If Not ComboBox1.ListIndex = -1 Then
-'        pDate = DateAdd("m", (ComboBox1.Value * 12) - 3, Calendar1.Value)
-'        Label9.Caption = "Due Qtr " & Format(pDate, "q yyyy")
-'    End If
-'End Sub
+Private Sub InFreq()
+    
+    Dim pDate As Date
+    
+    If Not ComboBox1.ListIndex = -1 Then CommandButton1.Visible = True
+    
+    If ComboBox1.Value = "Reactive" Then
+        Label9.Caption = "Reactive"
+        Exit Sub
+    End If
 
-'Private Sub CommandButton1_Click()
-'    Dim inspDate As String
-'    inspDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
-'    DRow = Range("G3")
-'    Call OpenData("tsds")
-'    Sheets("Datasheet").Range("Z" & DRow) = inspDate
-'    Sheets("Datasheet").Range("Y" & DRow) = ComboBox1.Value
-'    Sheets("Datasheet").Range("AA" & DRow) = Label9.Caption
-'    Call CloseData("tsds", True)
-'    Call InterventionLog("Inspection on " & inspDate & " by " & Sheets("LookUp").Range("C" & Iota))
-'    check = True: count = 0
-'    Do
-'        count = count + 1
-'        If Sheets("LookUp").Range("C" & count + 2) = Sheets("Details").Range("D35") Then check = False
-'        If count = 13 Then check = False
-'    Loop Until check = False
-'    Load UserFormRecordDose
-'    Call UserFormRecordDose.FillVars(inspDate)
-'    UserFormRecordDose.Show
-'    If DRow = 0 Then Exit Sub
-'    CommandButton1.Visible = False
-'    Calendar1.Visible = False
-'    Label1.Visible = False
-'    Label2.Visible = False
-'    Label8.Visible = False
-'    Label9.Visible = False
-'    Label10.Caption = "Inspection Details and Dose Record for " & inspDate & " have been recorded"
-'    ComboBox1.Visible = False
-'    SpinButton1.Visible = False
-'    Frame2.Visible = True
-'    Frame3.Visible = True
-'    TextBox1.Value = Format(Date, "d mmm yyyy")
-'    If Not IsEmpty(Range("D15")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("D16")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("D17")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("D18")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("F16")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("F17")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("F18")) Then CommandButton7.Visible = True
-'    If Not IsEmpty(Range("J15")) Then CommandButton10.Visible = True
-'    If Not IsEmpty(Range("J17")) Then CommandButton10.Visible = True
-'    If Not IsEmpty(Range("J18")) Then CommandButton10.Visible = True
-'    rDate = Calendar1.Value
-'End Sub
+   If Not ComboBox1.ListIndex = -1 Then
+        pDate = DateAdd("m", (ComboBox1.Value * 12) - 3, Calendar1.Value)
+        Label9.Caption = "Due Qtr " & Format(pDate, "q yyyy")
+    End If
+End Sub
 
-'Private Sub CommandButton2_Click()
-'    Unload Me
-'End Sub
+' "Enter Dose Record"
+Private Sub CommandButton1_Click()
+    Dim inspDate As String
+    inspDate = Format(Calendar1.Value, "dddd") & " " & Format(Calendar1.Value, "d mmmm yyyy")
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    Sheets("Datasheet").Range("Z" & DRow) = inspDate
+    Sheets("Datasheet").Range("Y" & DRow) = ComboBox1.Value
+    Sheets("Datasheet").Range("AA" & DRow) = Label9.Caption
+    Call CloseData("tsds", True)
+    Call InterventionLog("Inspection on " & inspDate & " by " & Sheets("LookUp").Range("C" & Iota))
+    check = True: count = 0
+    Do
+        count = count + 1
+        If Sheets("LookUp").Range("C" & count + 2) = Sheets("Details").Range("D35") Then check = False
+        If count = 13 Then check = False
+    Loop Until check = False
+    Load UserFormRecordDose
+    Call UserFormRecordDose.FillVars(inspDate)
+    UserFormRecordDose.Show
+    If DRow = 0 Then Exit Sub
+    CommandButton1.Visible = False
+    Calendar1.Visible = False
+    Label1.Visible = False
+    Label2.Visible = False
+    Label8.Visible = False
+    Label9.Visible = False
+    Label10.Caption = "Inspection Details and Dose Record for " & inspDate & " have been recorded"
+    ComboBox1.Visible = False
+    SpinButton1.Visible = False
+    Frame2.Visible = True
+    Frame3.Visible = True
+    TextBox1.Value = Format(Date, "d mmm yyyy")
+    If Not IsEmpty(Range("D15")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("D16")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("D17")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("D18")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("F16")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("F17")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("F18")) Then CommandButton7.Visible = True
+    If Not IsEmpty(Range("J15")) Then CommandButton10.Visible = True
+    If Not IsEmpty(Range("J17")) Then CommandButton10.Visible = True
+    If Not IsEmpty(Range("J18")) Then CommandButton10.Visible = True
+    rDate = Calendar1.Value
+End Sub
 
-'Private Sub CommandButton3_Click()
-'    UserFormUpdateContact.Show
-'End Sub
+' CANCEL button
+Private Sub CommandButton2_Click()
+    Unload Me
+End Sub
 
-'Private Sub CommandButton4_Click()
-'    Load UserFormNote
-'    Call UserFormNote.FillVars(True)
-'    UserFormNote.Show
-'End Sub
+' "Update Contact"
+Private Sub CommandButton3_Click()
+    UserFormUpdateContact.Show
+End Sub
 
-'Private Sub CommandButton6_Click()
-'    UserFormUpdatePPE.Show
-'End Sub
+' "Update Info Note"
+Private Sub CommandButton4_Click()
+    Load UserFormNote
+    Call UserFormNote.FillVars(True)
+    UserFormNote.Show
+End Sub
 
-'Private Sub CommandButton7_Click()
-'    CommandButton7.Visible = False
-'    Load UserFormInspectionFollowUp2
-'    Call UserFormInspectionFollowUp2.FillVars(False)
-'    UserFormInspectionFollowUp2.Show
-'    Application.ScreenUpdating = True
-'    DoEvents
-'    Application.ScreenUpdating = False
-'    If Not CommandButton10 Then
-'        Call CopyPasteData(Range("G3"), True, False)
-'        Unload Me
-'    End If
-'    CommandButton8.Visible = True
-'End Sub
+' "Update Safety Note / PPE"
+Private Sub CommandButton6_Click()
+    UserFormUpdatePPE.Show
+End Sub
 
-'Private Sub CommandButton10_Click()
-'    CommandButton10.Visible = False
-'    Load UserFormInspectionFollowUp2
-'    Call UserFormInspectionFollowUp2.FillVars(True)
-'    UserFormInspectionFollowUp2.Show
-'    Application.ScreenUpdating = True
-'    DoEvents
-'    Application.ScreenUpdating = False
-'    If Not CommandButton7 Then
-'        Call CopyPasteData(Range("G3"), True, False)
-'        Unload Me
-'    End If
-'    CommandButton8.Visible = True
-'End Sub
+' "RASCAR1 Sealed Sources"
+Private Sub CommandButton7_Click()
+    CommandButton7.Visible = False
+    Load UserFormInspectionFollowUp2
+    Call UserFormInspectionFollowUp2.FillVars(False)
+    UserFormInspectionFollowUp2.Show
+    Application.ScreenUpdating = True
+    DoEvents
+    Application.ScreenUpdating = False
+    If Not CommandButton10 Then
+        Call CopyPasteData(Range("G3"), True, False)
+        Unload Me
+    End If
+    CommandButton8.Visible = True
+End Sub
 
-'Private Sub CommandButton11_Click()
-'    If Not IsDate(TextBox1.Value) Then Exit Sub
-'    DRow = Range("G3")
-'    Call OpenData("tsds")
-'    Sheets("Datasheet").Range("AB" & DRow) = Format(TextBox1.Value, "d mmm yyyy")
-'    Call CloseData("tsds", True)
-'    Call CopyPasteData(Range("G3"), True, False)
-'    Unload Me
-'End Sub
+' "RASCAR1 Open Sources"
+Private Sub CommandButton10_Click()
+    CommandButton10.Visible = False
+    Load UserFormInspectionFollowUp2
+    Call UserFormInspectionFollowUp2.FillVars(True)
+    UserFormInspectionFollowUp2.Show
+    Application.ScreenUpdating = True
+    DoEvents
+    Application.ScreenUpdating = False
+    If Not CommandButton7 Then
+        Call CopyPasteData(Range("G3"), True, False)
+        Unload Me
+    End If
+    CommandButton8.Visible = True
+End Sub
 
-'Private Sub CommandButton8_Click()
-'    Call CopyPasteData(Range("G3"), True, False)
-'    Unload Me
-'End Sub
+' "Record & Close"
+Private Sub CommandButton11_Click()
+    If Not IsDate(TextBox1.Value) Then Exit Sub
+    DRow = Range("G3")
+    Call OpenData("tsds")
+    
+    ‘ inspection CAR completed
+    Sheets("Datasheet").Range("AB" & DRow) = Format(TextBox1.Value, "d mmm yyyy")
+    
+    Call CloseData("tsds", True)
+    Call CopyPasteData(Range("G3"), True, False)
+    Unload Me
+End Sub
 
-'Sub start()
-'    Dim pDate As Date
-'    Dim pInsp As String
-'    Call RemoveCaption(Me)
-'    If Epsilon = "" Then Call LoadDocs
-'    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
-'    CommandButton1.Visible = False
-'    CommandButton8.Visible = False
-'    Frame2.Visible = False
-'    Frame3.Visible = False
-'    Calendar1.Value = Date
-'    If Not Sheets("Details").Range("D38") = "" Then
-'        On Error Resume Next
-'        pInsp = Mid(Sheets("Details").Range("D38"), 14, Len(Sheets("Details").Range("D38")) - 22)
-'        pDate = Right(pInsp, Len(pInsp) - InStr(pInsp, " "))
-'        On Error GoTo 0
-'        If IsDate(pDate) Then
-'            Calendar1.Value = pDate
-'        End If
-'    End If
-'    For count = 0 To Sheets("LookUp").Cells(Rows.count, "BE").End(xlUp).Row - 3
-'        ComboBox1.AddItem
-'        ComboBox1.List(count) = Sheets("LookUp").Range("BE" & count + 3)
-'    Next count
-'    ComboBox1.Value = 1
-'    If Not Range("D36") = "" Then ComboBox1.Value = Range("D36")
-'End Sub
-'
+' "Close"
+Private Sub CommandButton8_Click()
+    Call CopyPasteData(Range("G3"), True, False)
+    Unload Me
+End Sub
+
+Sub start()
+    Dim pDate As Date
+    Dim pInsp As String
+    
+    Call RemoveCaption(Me)
+    
+    If Epsilon = "" Then Call LoadDocs
+    
+    Image1.Picture = LoadPicture(Epsilon & "Documents\Image21.jpg")
+    
+    CommandButton1.Visible = False
+    CommandButton8.Visible = False
+    Frame2.Visible = False
+    Frame3.Visible = False
+    Calendar1.Value = Date
+    
+    If Not Sheets("Details").Range("D38") = "" Then
+        On Error Resume Next
+        pInsp = Mid(Sheets("Details").Range("D38"), 14, Len(Sheets("Details").Range("D38")) - 22)
+        pDate = Right(pInsp, Len(pInsp) - InStr(pInsp, " "))
+        On Error GoTo 0
+        If IsDate(pDate) Then
+            Calendar1.Value = pDate
+        End If
+    End If
+    
+    For count = 0 To Sheets("LookUp").Cells(Rows.count, "BE").End(xlUp).Row - 3
+        ComboBox1.AddItem
+        ComboBox1.List(count) = Sheets("LookUp").Range("BE" & count + 3)
+    Next count
+    ComboBox1.Value = 1
+    If Not Range("D36") = "" Then ComboBox1.Value = Range("D36")
+End Sub
+
