@@ -12,6 +12,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
 'need to sort along with letters routine
 Private Sub CommandButton1_Click()
@@ -26,22 +27,41 @@ Private Sub CommandButton1_Click()
     If Len(Dir(dLocation, vbDirectory)) = 0 Then
         MkDir dLocation
     End If
+    
     If CheckBox1.Value Then vCount = vCount + 1
+    ‘EA Public register ticked?
+    
     If CheckBox2.Value Then vCount = vCount + 1
+    ‘LA public register ticked?
+    
     If CheckBox3.Value Then vCount = vCount + 1
+    ‘Sewerage undertaker 
+    
     If CheckBox4.Value Then vCount = vCount + 1
+    ‘HSE
+    
     If CheckBox5.Value Then vCount = vCount + 1
+    ‘CTSA
+    
     If CheckBox6.Value Then vCount = vCount + 1
+    ‘FSA
+    
     If CheckBox7.Value Then vCount = vCount + 1
+    ‘Welsh Government 
+    
     If CheckBox8.Value Then vCount = vCount + 1
+    ‘Fire Service
+    
     If CheckBox1.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         On Error Resume Next
         Set wdApp = GetObject(, "Word.Application")
+        
         If err.Number <> 0 Then
             Set wdApp = CreateObject("Word.Application")
         End If
+        
         On Error GoTo 0
         Fname = Epsilon & "Documents\Letters\PR Sheet.doc"
         fName2 = dLocation & "\PR Sheet " & Format(Date, "dmmmyy") & " " & Left(Range("D5"), 5)
@@ -57,41 +77,49 @@ Private Sub CommandButton1_Click()
         Set wdApp = Nothing
         Set wdDoc = Nothing
     End If
+    
     If CheckBox2.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("H", "H", "O", "M", "LA", "26", dLocation)
     End If
+    
     If CheckBox3.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("L", "AB", "AE", "AC", "Sewer", "22-25", dLocation)
     End If
+    
     If CheckBox4.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("", "", "AI5", "AG5", "HSE", "22-25", dLocation)
     End If
+    
     If CheckBox5.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("I", "P", "S", "Q", "Police", "22-25", dLocation)
     End If
+    
     If CheckBox6.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("", "", "AI3", "AG3", "FSA", "22-25", dLocation)
     End If
+    
     If CheckBox7.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("", "", "AI4", "AI4", "WAG", "22-25", dLocation)
     End If
+    
     If CheckBox8.Value Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
         Call MakeLetter("J", "T", "W", "U", "Fire", "22-25", dLocation)
     End If
+    
     If Range("D20") = "New Application" Or Range("J20") = "New Application" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -100,6 +128,7 @@ Private Sub CommandButton1_Click()
         Call cLabel(vCount, vCount2)
         Call MakeLetter("C", False, "", "", "CoSec", "10", dLocation)
     End If
+    
     If Range("D20") = "Variation" Or Range("J20") = "Variation" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -110,6 +139,7 @@ Private Sub CommandButton1_Click()
         Call MakeLetter("C", False, "", "", "CoSec", "11", dLocation)
         Call MakeLetter("C", False, "", "", "CoSec2", "12", dLocation)
     End If
+    
     If Range("D20") = "Transfer - Full" Or Range("J20") = "Transfer - Full" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -120,6 +150,7 @@ Private Sub CommandButton1_Click()
         Call MakeLetter("C", False, "", "", "CoSec", "13", dLocation)
         Call MakeLetter("C", False, "", "", "CoSec2", "14", dLocation)
     End If
+    
     If Range("D20") = "Transfer - Part" Or Range("J20") = "Transfer - Part" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -130,6 +161,7 @@ Private Sub CommandButton1_Click()
         Call MakeLetter("C", False, "", "", "CoSec", "15", dLocation)
         Call MakeLetter("C", False, "", "", "CoSec2", "16", dLocation)
     End If
+    
     If Range("D20") = "Surrender - Full" Or Range("J20") = "Surrender - Full" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -138,6 +170,7 @@ Private Sub CommandButton1_Click()
         Call cLabel(vCount, vCount2)
         Call MakeLetter("C", False, "", "", "CoSec2", "18", dLocation)
     End If
+    
     If Range("D20") = "Surrender - Part" Or Range("J20") = "Surrender - Part" Then
         vCount2 = vCount2 + 1
         Call cLabel(vCount, vCount2)
@@ -146,17 +179,21 @@ Private Sub CommandButton1_Click()
         Call cLabel(vCount, vCount2)
         Call MakeLetter("C", False, "", "", "CoSec", "17", dLocation)
     End If
+    
     Label10.Caption = ""
     Call msg("Letters", "Your Letter/s have been created and saved to your RSR Temporary Drafts", 6)
     Drafts = True
     Unload Me
 End Sub
+
 Private Sub cLabel(vCount As Integer, vCount2 As Integer)
     Label10.Caption = "Please wait." & vbLf & vbLf & "Generating your Letters.  Number " & vCount2 & " of " & vCount
 End Sub
+
 Private Sub CommandButton2_Click()
     Unload Me
 End Sub
+
 Private Sub MakeLetter(vTo As String, vTo2, vTo3 As String, vTo4 As String, ltrText As String, ltrNum As String, dLocation As String)
     'vTo2 as boolean and integer
     Dim Text1 As String, Text2 As String, ltrType As String
@@ -228,26 +265,34 @@ jmp:
     If CheckBox10.Value And Not ltrText = "Sewer" Then
         Text2 = Text2 & "It comes into operation on <date> and permits the disposal of radioactive waste."
     End If
+    
     If CheckBox11.Value And ltrText = "Sewer" Then
         Text2 = Text2 & "It comes into operation on <date> and permits the disposal of radioactive waste by discharge to sewer."
     End If
+    
     If CheckBox9.Value Then
         Text1 = "It contains confidential information and should be disseminated no wider than is necessary within your organisation.  Its contents should not be divulged to anybody outside your organisation."
     Else
+        
         If Not Range("D21") = "" Then
             Text1 = "It contains sensitive information and should be disseminated no wider than is necessary within your organisation.  Its contents should not be divulged to anybody outside your organisation."
         Else
             Text1 = ""
         End If
+    
     End If
+    
     If ltrText = "Fire" And Not Text1 = "" Then
         Text1 = Left(Text1, Len(Text1) - 1) & ", except:" & vbLf & "  - local authorities or other public bodies who need the information to fulfill their emergency planning duties;" & vbLf & "  - other emergency services who need the information for their own operational health and safety purposes."
     End If
+    
     On Error Resume Next
     Set wdApp = GetObject(, "Word.Application")
+    
     If err.Number <> 0 Then
         Set wdApp = CreateObject("Word.Application")
     End If
+    
     On Error GoTo 0
     On Error GoTo ErrHandler:
     Set wdDoc = wdApp.Documents.Open(Fname)
@@ -276,6 +321,7 @@ jmp:
         wdDoc.Bookmarks("L7").Range.text = Text1
         wdDoc.Bookmarks("L8").Range.text = Text2
     End If
+    
     wdDoc.Save
     wdDoc.Close
     wdApp.Quit
@@ -284,6 +330,7 @@ jmp:
     Set wdApp = Nothing
     Set wdDoc = Nothing
     Exit Sub
+
 ErrHandler:
     LogFileName = "H:\RSR TEAMSheet\tsERROR.Log"
     fileNum = FreeFile
@@ -301,6 +348,7 @@ ErrHandler:
     On Error GoTo 0
     Call msg("Error Generating Letter", "Please email M Ainsworth.", 26)
 End Sub
+
 Sub FillVars(v1, v2)
     Call RemoveCaption(Me)
     If Epsilon = "" Then Call LoadDocs
