@@ -507,8 +507,10 @@ ErrHandler:
     appIE.Quit
     Call msg("Error - Internet Explorer", varN & "  errnumber" & err.Number & vbLf & err.Description, 26)
 End Sub
+
 Sub Log(vEnd, v1, v2)
     Call OpenData("tsplg")
+    ‘Ah where is tsplg? Perhaps this should be tsds 
     wBook = "tsplg.xls"
     lastrow = Workbooks(wBook).Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row + 1
     Windows("RSR TEAMSheet.xlsm").Activate
@@ -533,6 +535,7 @@ Sub Log(vEnd, v1, v2)
     End If
     Call CloseData("tsplg", True)
 End Sub
+
 Sub SortTracking(col)
     ActiveSheet.Unprotect
     Range("B5:K24").Select
@@ -544,10 +547,12 @@ Sub SortTracking(col)
     Range("B4").Select
     ActiveSheet.Protect
 End Sub
+
 Sub Contacts()
     Application.ScreenUpdating = False
     UserFormContacts.Show
 End Sub
+
 Sub OutcomeLog(logCol As Integer)
     Dim odate As String
     odate = Format(Date, "mm yyyy")
@@ -560,6 +565,7 @@ Sub OutcomeLog(logCol As Integer)
     Sheets("Datasheet").Cells(count, logCol + 2) = Sheets("Datasheet").Cells(count, logCol + 2) + 1
     Call CloseData("tsolg", True)
 End Sub
+
 Sub InterventionLog(logTxt As String)
     LogFileName = Delta & "tsinv.Log"
     fileNum = FreeFile
@@ -568,6 +574,7 @@ Sub InterventionLog(logTxt As String)
     Print #fileNum, logTxt
     Close #fileNum
 End Sub
+
 Sub History()
     check = True
     Application.ScreenUpdating = False
@@ -596,6 +603,7 @@ Sub History()
     Sheets("Details").Select
     Application.ScreenUpdating = True
 End Sub
+
 Sub HistorySave()
     Application.ScreenUpdating = False
     LogFileName = "H:\RSR TEAMSheet\tshst.Log"
@@ -624,6 +632,7 @@ Sub HistorySave()
     End If
     Sheets("Details").Select
 End Sub
+
 Sub GetPostCode(Addr As String, var As String)
     Dim addrlen As Integer
     On Error GoTo err
@@ -659,6 +668,7 @@ err:
         FVar = " "
     End If
 End Sub
+
 Sub ReportInstruments()
     'need to get round read/write access to O drive
     LogFileName = "O:\RSR TEAMSheet\Reports\Data tsinst\tsinst" & Workbooks("RSR TEAMSheet.xlsm").Sheets("LookUp").Range("A2") & ".Log"
@@ -696,6 +706,7 @@ Sub ReportInstruments()
     Next count
     Close #fileNum
 End Sub
+
 Sub wbLoad(Alpha As String, Beta As String, Delta As String)
     Dim wBook As Workbook
     Application.OnKey "^{F12}", "ScreenLayoutOff"
