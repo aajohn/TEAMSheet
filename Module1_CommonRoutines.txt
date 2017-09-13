@@ -512,18 +512,23 @@ Sub Log(vEnd, v1, v2)
     Call OpenData("tsplg")
     ‘Ah where is tsplg? Perhaps this should be tsds 
     wBook = "tsplg.xls"
+    
+    ‘Go to the last row plus 1
     lastrow = Workbooks(wBook).Sheets("Datasheet").Cells(Rows.count, "A").End(xlUp).Row + 1
     Windows("RSR TEAMSheet.xlsm").Activate
+    
     If v1 Then
-        Workbooks(wBook).Sheets("Datasheet").Range("A" & lastrow) = Range("D3")
-        Workbooks(wBook).Sheets("Datasheet").Range("B" & lastrow) = Range("D5")
-        Workbooks(wBook).Sheets("Datasheet").Range("C" & lastrow) = Range("D20")
-        Workbooks(wBook).Sheets("Datasheet").Range("D" & lastrow) = Range("D21")
-        Workbooks(wBook).Sheets("Datasheet").Range("E" & lastrow) = Range("D22")
-        Workbooks(wBook).Sheets("Datasheet").Range("F" & lastrow) = Range("D32")
-        Workbooks(wBook).Sheets("Datasheet").Range("G" & lastrow) = vEnd
+‘Site code       Workbooks(wBook).Sheets("Datasheet").Range("A" & lastrow) = Range("D3")
+‘Name        Workbooks(wBook).Sheets("Datasheet").Range("B" & lastrow) = Range("D5")
+‘Current Application
+Workbooks(wBook).Sheets("Datasheet").Range("C" & lastrow) = Range("D20")
+‘Application number       Workbooks(wBook).Sheets("Datasheet").Range("D" & lastrow) = Range("D21")
+‘Duly made date        Worksbooks(wBook).Sheets("Datasheet").Range("E" & lastrow) = Range("D22")
+‘Signed and issued        Workbook(wBook).Sheets("Datasheet").Range("F" & lastrow) = Range("D32")
+‘Issued        Workbooks(wBook).Sheets("Datasheet").Range("G" & lastrow) = vEnd
         lastrow = lastrow + 1
     End If
+    
     If v2 Then
         Workbooks(wBook).Sheets("Datasheet").Range("A" & lastrow) = Range("D3")
         Workbooks(wBook).Sheets("Datasheet").Range("B" & lastrow) = Range("D5")
@@ -533,6 +538,7 @@ Sub Log(vEnd, v1, v2)
         Workbooks(wBook).Sheets("Datasheet").Range("F" & lastrow) = Range("J32")
         Workbooks(wBook).Sheets("Datasheet").Range("G" & lastrow) = vEnd
     End If
+    
     Call CloseData("tsplg", True)
 End Sub
 
