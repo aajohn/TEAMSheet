@@ -16,36 +16,59 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private Sub CommandButton1_Click()
+‘If select is pressed    
+    
     Dim rDate As Date, dDate As Date, wDate As Date, ccDate As Date, sMarker As Boolean, oMarker As Boolean
+    
     tdate = Format(Date, "d/m/yyyy")
+    
     If Label1.Caption = "" Then Exit Sub
-    If Not ListBox1.Value = "Change of Fact" Then
-        If TextBox2.Value = "" Then Exit Sub
+    
+    ‘Listbox1 contains the Application types 
+    If Not ListBox1.Value = "Change of Fact" Then ‘if a cof isn’t selected then
+        
+        ‘Textbox2 is duly made date
+        If TextBox2.Value = "" Then Exit Sub ‘If there’s no duly made then do nothing
+        
+        ‘capture the duly made date if in correct format otherwise through up a message 
         If IsDate(TextBox2.Value) Then
             dDate = TextBox2.Value
         Else
             Call msg("Duly Made Date", "This is not a valid date", 26)
             Exit Sub
         End If
+        
+        ‘Duly made date can’t be in the future 
         If dDate > tdate Then
             Call msg("Duly Made Date", "This date must be in the past", 26)
             Exit Sub
         End If
+    
     End If
+    
+    ‘Textbox7 is received in area date
     If TextBox7.Value = "" Then Exit Sub
+    
+    ‘Check received date is valid
     If IsDate(TextBox7.Value) Then
         rDate = TextBox7.Value
     Else
         Call msg("Received in Area Date", "Received in Area Date is not a valid date", 26)
         Exit Sub
     End If
+    
+    ‘Check received date is not in the future
     If rDate > tdate Then
         Call msg("Received in Area Date", "This date must be in the past", 26)
         Exit Sub
     End If
+    
     If ListBox1.Value = "Change of Fact" Then
         wDate = 0
+        
+        ‘Textbox3 and textbox4 capture permit numbers. If they are both empty then...
         If TextBox3.Value = "" And TextBox4.Value = "" Then
+            ‘...capture permit numbers from the Details worksheet if they are present with preference to EPR numbers
             If Not IsEmpty(Range("F18")) Then TextBox3.Value = Range("F18")
             If Not IsEmpty(Range("F17")) Then TextBox3.Value = Range("F17")
             If Not IsEmpty(Range("F16")) Then TextBox3.Value = Range("F16")
@@ -61,13 +84,17 @@ Private Sub CommandButton1_Click()
         If Len(TextBox4.Value) > 4 Then oMarker = True
         GoTo jmp
     End If
+    
     If ListBox1.Value = "Variation" Or ListBox1.Value = "New Application" Then
+        
+        ‘Textbox5,6 are Application suffix
         If Len(TextBox5.Value) = 4 Then sMarker = True
         If Len(TextBox6.Value) = 4 Then oMarker = True
         If Not sMarker And Not oMarker Then
             Call msg("Application Number", "Application Number/s do not contain enough letters or numbers", 26)
             Exit Sub
         End If
+        
         'advert
         If IsDate(TextBox8.Value) Then aDate = TextBox8.Value
         If Not IsEmpty(aDate) Then
@@ -92,6 +119,7 @@ Private Sub CommandButton1_Click()
         TextBox4.Value = UCase("EPR/" & TextBox4.Value & "/" & TextBox6.Value)
         GoTo jmp
     End If
+    
     If Left(ListBox1.Value, 1) = "T" Or Left(ListBox1.Value, 1) = "S" Then
         If Len(TextBox5.Value) = 4 Then sMarker = True
         If Len(TextBox6.Value) = 4 Then oMarker = True
@@ -99,7 +127,8 @@ Private Sub CommandButton1_Click()
             Call msg("Application Number", "Application Number/s do not contain enough letters or numbers", 26)
             Exit Sub
         End If
-        If Left(ListBox1.Value, 1) = "T" Then wDate = DateAdd("m", 2, dDate)
+        
+        If Left(ListBox1.Value, 1) = "T" Then wDate = DateAdd("m", 2, dDate) ‘has a transfer been selected
         If Len(TextBox3.Value) = 6 Then TextBox3.Value = TextBox3.Value & "  "
         If Len(TextBox4.Value) = 6 Then TextBox4.Value = TextBox4.Value & "  "
         TextBox3.Value = UCase("EPR/" & TextBox3.Value & "/" & TextBox5.Value)
@@ -111,7 +140,9 @@ jmp:
     If sMarker Then
         Range("AI" & count) = ListBox1.Value
         Range("AJ" & count) = TextBox3.Value
+        
         If Not ListBox1.Value = "Change of Fact" Then Range("M" & count) = Mid(TextBox3.Value, 5, 8)
+       
         If Not dDate = 0 Then Range("AK" & count) = dDate
         If Not wDate = 0 Then Range("AL" & count) = wDate
         If Not aDate = 0 Then Range("AM" & count) = aDate
