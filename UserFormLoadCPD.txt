@@ -12,7 +12,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
+
 Sub UserForm_Activate()
     Dim RefVar As Integer, ppeVar As String
     Dim PasteRange As String
@@ -20,8 +22,11 @@ Sub UserForm_Activate()
     Dim iDate As Date
     Dim tfrCheck As Boolean
     Dim pCent As Integer
+    
     Call RemoveCaption(Me)
+    
     If Epsilon = "" Then Call LoadDocs
+    
     Image1.Picture = LoadPicture(Epsilon & "Documents\Image5.jpg")
     Label2.Width = 0
     DoEvents
