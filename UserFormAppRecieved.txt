@@ -66,7 +66,7 @@ Private Sub CommandButton1_Click()
     If ListBox1.Value = "Change of Fact" Then
         wDate = 0
         
-        ‘Textbox3 and textbox4 capture permit numbers. If they are both empty then...
+        ‘Textbox3 Sealed and textbox4 open capture permit numbers. If they are both empty then...
         If TextBox3.Value = "" And TextBox4.Value = "" Then
             ‘...capture permit numbers from the Details worksheet if they are present with preference to EPR numbers
             If Not IsEmpty(Range("F18")) Then TextBox3.Value = Range("F18")
@@ -78,6 +78,7 @@ Private Sub CommandButton1_Click()
             If Not IsEmpty(Range("J18")) Then TextBox3.Value = Range("J18")
             If Not IsEmpty(Range("J17")) Then TextBox3.Value = Range("J17")
         Else
+‘If no permits exist capture users input and prefix with EPR           
             TextBox3.Value = "EPR/" & TextBox3.Value: TextBox4.Value = "EPR/" & TextBox4.Value
         End If
         If Len(TextBox3.Value) > 4 Then sMarker = True
@@ -85,9 +86,10 @@ Private Sub CommandButton1_Click()
         GoTo jmp
     End If
     
+  ‘If we’re handling variations or new apps then...
     If ListBox1.Value = "Variation" Or ListBox1.Value = "New Application" Then
         
-        ‘Textbox5,6 are Application suffix
+   ‘Check the user input. Textbox5 sealed,6 open are Application suffices, viz V001
         If Len(TextBox5.Value) = 4 Then sMarker = True
         If Len(TextBox6.Value) = 4 Then oMarker = True
         If Not sMarker And Not oMarker Then
@@ -95,7 +97,7 @@ Private Sub CommandButton1_Click()
             Exit Sub
         End If
         
-        'advert
+ ‘has user put in the advert date correctly
         If IsDate(TextBox8.Value) Then aDate = TextBox8.Value
         If Not IsEmpty(aDate) Then
             If Not IsDate(aDate) Then
@@ -107,14 +109,18 @@ Private Sub CommandButton1_Click()
                 Exit Sub
             End If
         End If
+        
+        
         If TextBox8.Value = "" Then
             wDate = DateAdd("m", 3, dDate)
         Else
             wDate = DateAdd("m", 4, dDate)
+            
             If Weekday(dDate) = 1 Then ccDate = DateAdd("d", 41, dDate)
             If Weekday(dDate) = 2 Then ccDate = DateAdd("d", 40, dDate)
             If Weekday(dDate) > 2 Then ccDate = DateAdd("d", 42, dDate)
         End If
+        
         TextBox3.Value = UCase("EPR/" & TextBox3.Value & "/" & TextBox5.Value)
         TextBox4.Value = UCase("EPR/" & TextBox4.Value & "/" & TextBox6.Value)
         GoTo jmp
