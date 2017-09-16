@@ -16,10 +16,11 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private Sub CommandButton1_Click()
-‘If select is pressed    
+‘If select button is pressed    
     
     Dim rDate As Date, dDate As Date, wDate As Date, ccDate As Date, sMarker As Boolean, oMarker As Boolean
     
+    ‘Set format and value of tdate to today
     tdate = Format(Date, "d/m/yyyy")
     
     If Label1.Caption = "" Then Exit Sub
@@ -49,7 +50,7 @@ Private Sub CommandButton1_Click()
     ‘Textbox7 is received in area date
     If TextBox7.Value = "" Then Exit Sub
     
-    ‘Check received date is valid
+    ‘Check that ‘received..date’ is valid
     If IsDate(TextBox7.Value) Then
         rDate = TextBox7.Value
     Else
@@ -66,15 +67,20 @@ Private Sub CommandButton1_Click()
     If ListBox1.Value = "Change of Fact" Then
         wDate = 0
         
-        ‘Textbox3 Sealed and textbox4 open capture permit numbers. If they are both empty then...
+        ‘Textbox3 (sealed) and textbox4 (open) capture permit numbers. If they are both empty then...
         If TextBox3.Value = "" And TextBox4.Value = "" Then
             ‘...capture permit numbers from the Details worksheet if they are present with preference to EPR numbers
+            ‘F18,f17,f16 are mobiles
             If Not IsEmpty(Range("F18")) Then TextBox3.Value = Range("F18")
             If Not IsEmpty(Range("F17")) Then TextBox3.Value = Range("F17")
             If Not IsEmpty(Range("F16")) Then TextBox3.Value = Range("F16")
+            
+            ‘D18,d17,d16 are sealed 
             If Not IsEmpty(Range("D18")) Then TextBox3.Value = Range("D18")
             If Not IsEmpty(Range("D17")) Then TextBox3.Value = Range("D17")
             If Not IsEmpty(Range("D16")) Then TextBox3.Value = Range("D16")
+            
+            ‘J18,J17 are open/waste
             If Not IsEmpty(Range("J18")) Then TextBox3.Value = Range("J18")
             If Not IsEmpty(Range("J17")) Then TextBox3.Value = Range("J17")
         Else
@@ -110,7 +116,7 @@ Private Sub CommandButton1_Click()
             End If
         End If
         
-        
+        ‘If advert date is blank then...
         If TextBox8.Value = "" Then
             wDate = DateAdd("m", 3, dDate)
         Else
@@ -126,7 +132,9 @@ Private Sub CommandButton1_Click()
         GoTo jmp
     End If
     
+    ‘Transfers or surrenders then...
     If Left(ListBox1.Value, 1) = "T" Or Left(ListBox1.Value, 1) = "S" Then
+        ‘Check suffices are present
         If Len(TextBox5.Value) = 4 Then sMarker = True
         If Len(TextBox6.Value) = 4 Then oMarker = True
         If Not sMarker And Not oMarker Then
@@ -140,13 +148,20 @@ Private Sub CommandButton1_Click()
         TextBox3.Value = UCase("EPR/" & TextBox3.Value & "/" & TextBox5.Value)
         TextBox4.Value = UCase("EPR/" & TextBox4.Value & "/" & TextBox6.Value)
     End If
+    
 jmp:
     count = Sheets("Details").Range("G3")
+    
+    ‘Open tsds
     Call OpenData("tsds")
+    
+    ‘SEALED applications
     If sMarker Then
+    ‘Update tsds at correct site with app type and app number
         Range("AI" & count) = ListBox1.Value
         Range("AJ" & count) = TextBox3.Value
-        
+      
+      ‘If app type is not a CoF  
         If Not ListBox1.Value = "Change of Fact" Then Range("M" & count) = Mid(TextBox3.Value, 5, 8)
        
         If Not dDate = 0 Then Range("AK" & count) = dDate
@@ -156,9 +171,12 @@ jmp:
         Range("AN" & count) = rDate
         Range("AS" & count & ":AT" & count) = ""
     End If
+    
+    ‘OPEN & WASTE applications
     If oMarker Then
         Range("AU" & count) = ListBox1.Value
         Range("AV" & count) = TextBox4.Value
+        
         If Not ListBox1.Value = "Change of Fact" Then Range("O" & count) = Mid(TextBox4.Value, 5, 8)
         If Not dDate = 0 Then Range("AW" & count) = dDate
         If Not wDate = 0 Then Range("AX" & count) = wDate
@@ -167,11 +185,16 @@ jmp:
         Range("AZ" & count) = rDate
         Range("BD" & count & ":BE" & count) = ""
     End If
+    
     Call CopyPasteData(count, True, True)
+    
+    ‘Get stuff for an email
     eTo = Range("D35")
     eSubj = "Application Received"
     eMsg = "An application has been received for site code <b>" & Range("D3") & "</b>.<br><br>I will be sending as appropriate the application file or draft to you shortly."
+    
     Call SendEmail(eTo, eSubj, eMsg, "")
+    
     Unload Me
 End Sub
 
