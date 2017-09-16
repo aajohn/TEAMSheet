@@ -125,14 +125,19 @@ Private Sub CommandButton3_Click()
         Call msg("Dates", "These dates must be in the past", 26)
         Exit Sub
     End If
+    
+‘If earliest issue date > signed and issued date   
     If Range("D31") > TextBox5.Value Or Range("J31") > TextBox10.Value Then
         '** need to change
         style = vbOKCancel + vbCritical + vbDefaultButton2
         response = MsgBox("Signed and Issued Date is before Earliest Issue Date" & vbLf & vbLf & "Click OK to use date entered or cancel to change", style)
+        
         If response = vbCancel Then
             Exit Sub
         End If
+    
     End If
+    
     eMsg = "We have made the following changes to the permit/s for site code <b>" & Range("D3") & "</b><br>"
     If Not TextBox5.Value = "" Then eMsg = eMsg & "   " & Range("D20") & " to " & Range("D21") & " issued on " & DateArray(5)
     If Not TextBox5.Value = "" And Not TextBox10.Value = "" Then eMsg = eMsg & "<br>"

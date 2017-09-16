@@ -12,11 +12,14 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Option Explicit
+
 Private Sub CommandButton1_Click()
     Call RSRExit
     Unload Me
 End Sub
+
 Private Sub CommandButton2_Click()
     On Error Resume Next
     Application.OnTime RunWhen, "TimeOut", , False
@@ -26,6 +29,7 @@ Private Sub CommandButton2_Click()
     Application.WindowState = xlMinimized
     Unload Me
 End Sub
+
 Sub UserForm_Initialize()
 10        Call RemoveCaption(Me)
 20        If Epsilon = "" Then Call LoadDocs
